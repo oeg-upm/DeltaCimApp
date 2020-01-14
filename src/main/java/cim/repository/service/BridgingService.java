@@ -24,9 +24,9 @@ public class BridgingService {
 
 	public Boolean remove(String routeId) {
 		Boolean removed = false;
-		Optional<Route> route = routeRepository.findById(routeId);
-		if(route.isPresent()) {
-			routeRepository.delete(route.get());
+		Route route = routeRepository.findByRegexPath(routeId);
+		if(route!=null) {
+			routeRepository.delete(route);
 			removed = true;
 		}
 		return removed;

@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>ELTA CIM</title>
+  <title>DELTA CIM</title>
 
   <!-- Custom fonts for this template
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">-->
@@ -148,14 +148,14 @@
                   <div class="input-group mb-2">
                     <div class="input-group-prepend">
                       <div class="input-group-text">http://delta.eu/delta</div>
-                      <input type="text" class="form-control" id="regexPath" placeholder="Interface regex" th:field="*{regexPath}">
+                      <input type="text" class="form-control" id="regexPath" placeholder="Interface regex" th:field="*{regexPath}" required>
                     </div>
                   </div>
                 </div>
 
                 <div class="col-auto">
                   <label class="" for="endpoint">Local service</label>
-                  <input type="text" class="form-control mb-2" id="endpoint" placeholder="Local endpoint" th:field="*{endpoint}">
+                  <input type="text" class="form-control mb-2" id="endpoint" placeholder="Local endpoint" th:field="*{endpoint}" required>
                 </div>
                 
                 <div class="col-auto" style="top:13px">
@@ -170,9 +170,6 @@
                   <button type="submit" class="btn btn-primary mb-2">Add</button>
                 </div>
               </div>
-              <h5>Here is: [[${errorEmptyRegex}]]</h5>
-              <h5 th:if="${errorEmptyRegex==true}">Provided regex can not be empty</h5>
-              <h5>Provided local service address can not be empty</h5>
             </form>
          
         <hr>
@@ -252,13 +249,14 @@
   <script type="text/javascript" th:src="@{js/sb-admin.min.js}"></script>
   <script>
     function deleteRoute(routeId){
-      var url = "/api/route/"+routeId;
+      var url = "/api/route";
+      console.log(">"+url);
       var xhr = new XMLHttpRequest();
       xhr.open("DELETE", url, true);
       xhr.onload = function () {
         location.reload();
       }
-      xhr.send(null);
+      xhr.send(routeId);
     }
 
   </script>
