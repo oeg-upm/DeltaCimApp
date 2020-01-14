@@ -13,6 +13,7 @@ public class Route {
 	
 	public Route() {
 		// empty
+		appendPath=false;
 	}
 
 	public String getRegexPath() {

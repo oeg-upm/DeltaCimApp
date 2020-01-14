@@ -11,4 +11,8 @@ public abstract class AbstractController {
 	}	
 	
 	
+	protected boolean isLogged() {
+		return true;
+	}
+	
 }

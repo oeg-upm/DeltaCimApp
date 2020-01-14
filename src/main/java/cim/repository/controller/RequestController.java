@@ -64,7 +64,7 @@ public class RequestController extends AbstractController{
 		  */
 		@PostConstruct
 	    public void conect() {
-			p2pService.connect(DeltaCimApplication.getUsername(), DeltaCimApplication.getPassword(), DeltaCimApplication.getXmppDomain(), DeltaCimApplication.getHost(), DeltaCimApplication.getPort());
+			//p2pService.connect(DeltaCimApplication.getUsername(), DeltaCimApplication.getPassword(), DeltaCimApplication.getXmppDomain(), DeltaCimApplication.getHost(), DeltaCimApplication.getPort());
 	    }
 
 		
