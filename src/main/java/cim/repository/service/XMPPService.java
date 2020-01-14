@@ -83,7 +83,7 @@ public class XMPPService {
 	public void connect(String username, String password, String xmppDomain, String host, int port) {
 		try {
 			// 0. Reading the certificates
-			String certificates = ConfigTokens.P2P_CONFIG_CERTIFICATES_FOLDER;
+			String certificates = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
 
 			// 1. Configuring the XMPPT connection
 			XMPPTCPConnectionConfiguration.Builder build =  XMPPTCPConnectionConfiguration.builder()
@@ -135,7 +135,7 @@ public class XMPPService {
 
         KeyStore keyStore = KeyStore.getInstance("JKS");
         //Change "\\cacerts" in order to be dynamic
-        InputStream is = new FileInputStream(ConfigTokens.P2P_CONFIG_CERTIFICATES_FOLDER + "\\cacerts");
+        InputStream is = new FileInputStream(ConfigTokens.P2P_CONFIG_CACERT_FOLDER);
         keyStore.load(is, JKS_PASSWORD);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keyStore, KEY_PASSWORD);
