@@ -11,14 +11,18 @@
 
   <title>ELTA CIM</title>
 
-  <!-- Custom fonts for this template-->
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <!-- Custom fonts for this template
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">-->
+  <link rel="stylesheet" type="text/css" th:href="@{vendor/fontawesome-free/css/all.min.css}"/>
 
-  <!-- Page level plugin CSS-->
-  <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+  <!-- Page level plugin CSS
+  <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">-->
+  <link rel="stylesheet" type="text/css" th:href="@{vendor/datatables/dataTables.bootstrap4.css}"/>
+  <!-- Custom styles for this template
+  <link href="css/sb-admin.css" rel="stylesheet">-->
+  <link rel="stylesheet" type="text/css" th:href="@{css/sb-admin.css}"/>
 
-  <!-- Custom styles for this template-->
-  <link href="css/sb-admin.css" rel="stylesheet">
+
 
 </head>
 
@@ -135,41 +139,68 @@
         <!-- Page Content -->
         <h1>Bridging Service</h1>
         <hr>
-        <form action="#" th:action="@{/api/route}" method="post">
-          <div class="form-row align-items-center">
-            <div class="col-auto">
-              <label class="" for="regexPath">P2P regex Interface</label>
-              <div class="input-group mb-2">
-                <div class="input-group-prepend">
-                  <div class="input-group-text">http://delta.eu/delta</div>
+       
+          <form action="#" th:action="@{/api/route}" th:object="${route}" method="POST">
+              <h3>Add new rules:</h3>
+              <div class="form-row align-items-center">
+                <div class="col-auto">
+                  <label class="" for="regexPath">P2P regex interface</label>
+                  <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <div class="input-group-text">http://delta.eu/delta</div>
+                      <input type="text" class="form-control" id="regexPath" placeholder="Interface regex" th:field="*{regexPath}">
+                    </div>
+                  </div>
                 </div>
-                <input type="text" class="form-control" id="regexPath" placeholder="regexPath" th:field="*{regexPath}">
-              </div>
-            </div>
-            <div class="col-auto">
-              <label class="" for="endpoint">Local service</label>
-              <input type="text" class="form-control mb-2" id="endpoint" placeholder="Local endpoint" th:field="*{endpoint}">
-            </div>
-            
-            <div class="col-auto" style="top:13px;width:160px">
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="appendPath">
-                <label class="form-check-label" for="appendPath">
-                  Append route 
-                </label>
+
+                <div class="col-auto">
+                  <label class="" for="endpoint">Local service</label>
+                  <input type="text" class="form-control mb-2" id="endpoint" placeholder="Local endpoint" th:field="*{endpoint}">
+                </div>
                 
+                <div class="col-auto" style="top:13px">
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="appendPath" th:field="*{appendPath}">
+                    <label class="form-check-label" for="appendPath">
+                      Append route 
+                    </label>
+                  </div>
+                </div>
+                <div class="col-auto" style="top:13px">
+                  <button type="submit" class="btn btn-primary mb-2">Add</button>
+                </div>
               </div>
-            </div>
-            <div class="col-auto" style="top:13px">
-              <button type="submit" class="btn btn-primary mb-2">Add</button>
-            </div>
+              <h5>Here is: [[${errorEmptyRegex}]]</h5>
+              <h5 th:if="${errorEmptyRegex==true}">Provided regex can not be empty</h5>
+              <h5>Provided local service address can not be empty</h5>
+            </form>
+         
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <h3>Current bridging rules:</h3>
           </div>
-        </form>
-
-
-
-
-      	</div>
+          <div class="col-12">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>P2P regex interface</th>
+                  <th>Local service</th>
+                  <th>Append route </th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="route: ${routes}">
+                    <td th:text="${route.regexPath}" />
+                    <td th:text="${route.endpoint}" />
+                    <td th:text="${route.appendPath}" />
+                    <td><button type="button" class="btn btn-danger" th:attr="id=${route.regexPath}" onclick="deleteRoute(this.id)">Remove</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
       <!-- Sticky Footer -->
       <footer class="sticky-footer">
@@ -212,15 +243,25 @@
   </div>
 
   <!-- Bootstrap core JavaScript-->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script type="text/javascript" th:src="@{vendor/jquery/jquery.min.js}"></script>
+  <script type="text/javascript" th:src="@{vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
   <!-- Core plugin JavaScript-->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
+  <script type="text/javascript" th:src="@{vendor/jquery-easing/jquery.easing.min.js}"></script>
   <!-- Custom scripts for all pages-->
-  <script src="js/sb-admin.min.js"></script>
+  <script type="text/javascript" th:src="@{js/sb-admin.min.js}"></script>
+  <script>
+    function deleteRoute(routeId){
+      var url = "/api/route/"+routeId;
+      var xhr = new XMLHttpRequest();
+      xhr.open("DELETE", url, true);
+      xhr.onload = function () {
+        location.reload();
+      }
+      xhr.send(null);
+    }
 
+  </script>
 </body>
 
 </html>

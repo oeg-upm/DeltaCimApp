@@ -1,6 +1,8 @@
 package cim.repository.service;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cim.repository.model.Route;
@@ -20,8 +22,14 @@ public class BridgingService {
 		routeRepository.save(route);
 	}
 
-	public void remove(Route route) {
-		routeRepository.delete(route);
+	public Boolean remove(String routeId) {
+		Boolean removed = false;
+		Optional<Route> route = routeRepository.findById(routeId);
+		if(route.isPresent()) {
+			routeRepository.delete(route.get());
+			removed = true;
+		}
+		return removed;
 	}
 
 }
