@@ -99,6 +99,25 @@
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency> 
+		<!--  ############ HELIO ####### -->
+		<!-- Helio Frameowrk -->
+		<dependency>
+			<groupId>oeg.helio.framework</groupId>
+			<artifactId>helio-framework</artifactId>
+			<version>0.2.3</version>
+		</dependency>
+		<!-- Helio Writting -->
+		<dependency>
+			 <groupId>oeg.helio</groupId>
+			  <artifactId>helio-writer</artifactId>
+			  <version>0.1.6</version>
+		</dependency>
+		<!-- Helio Core -->
+		<dependency>
+			<groupId>oeg.helio.core</groupId>
+			<artifactId>helio-core</artifactId>
+			<version>1.2.5</version>
+		</dependency>
   </dependencies>
   
   	<build>

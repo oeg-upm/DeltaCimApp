@@ -51,6 +51,38 @@ public class Route {
 	public String toString() {
 		return "Route [regexPath=" + regexPath + ", endpoint=" + endpoint + ", appendPath=" + appendPath + "]";
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((regexPath == null) ? 0 : regexPath.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Route other = (Route) obj;
+		if (regexPath == null) {
+			if (other.regexPath != null)
+				return false;
+		} else if (!regexPath.equals(other.regexPath))
+			return false;
+		return true;
+	}
+	
 	
 	
 	

@@ -22,7 +22,6 @@ import cim.repository.service.BridgingService;
 public class BridgingController extends AbstractController{
 	
 	@Autowired
-	@Singleton
 	public BridgingService bridgingService;
 	
 	// Provide GUI
@@ -58,7 +57,7 @@ public class BridgingController extends AbstractController{
 		if(isLogged()) {
 			if(!bindingResult.hasErrors()) {	
 				response.setStatus(HttpServletResponse.SC_ACCEPTED);
-				bridgingService.routeRepository.save(route);
+				bridgingService.update(route);
 			}
 		}else {
 			// Instead of the error code redirects to the login
