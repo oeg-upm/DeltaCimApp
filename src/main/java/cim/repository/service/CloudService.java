@@ -3,7 +3,10 @@ package cim.repository.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
@@ -14,6 +17,7 @@ import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cim.repository.ConfigTokens;
 import cim.repository.model.Route;
 import helio.framework.objects.RDF;
 import helio.framework.objects.SparqlResultsFormat;
@@ -32,7 +36,7 @@ public class CloudService {
 	}
 	
 	public String federateQuery(String queryString, SparqlResultsFormat format) {
-		String queryFederated = "";//rewriteQuery(queryString, aclService.getAllRoutes());
+		String queryFederated = rewriteQuery(queryString, aclService.getAllUsernames());
 		String answer = null;
 		QueryExecution qexec = null;
 		try {
@@ -50,24 +54,29 @@ public class CloudService {
 		return answer;
 	}
 	
-	private String rewriteQuery(String queryString, List<Route> allRoutes) {
-		
-		String endpointsQueryFragment = discoverySuitableEndpoints(queryString, allRoutes);
+	private String rewriteQuery(String queryString, List<String> users) {
+		Set<String> endpoints = users.stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
+		// TODO: perform discovery over the endpoints
+		String endpointsQueryFragment =  buildQueryServiceToken(endpoints); 
 		queryString = queryString.replaceFirst("\\{", "{\n\tSERVICE ?service {");
-		System.out.println(queryString);
-		System.out.println("--------");
 		int lastIndex = queryString.lastIndexOf("}");
-		String rewrittenQuery = queryString.substring(0, lastIndex)+"\n\t} VALUES ?service { <https://io.datascience-paris-saclay.fr/sparql> <https://dbpedia.org/sparql> }\n"+queryString.substring(lastIndex, queryString.length());
+		String rewrittenQuery = queryString.substring(0, lastIndex)+endpointsQueryFragment+queryString.substring(lastIndex, queryString.length());
 		System.out.println(rewrittenQuery);
 		return rewrittenQuery;
 	}
 	
+	private String transformToDELTAURLs(String user) {
+		StringBuilder formatedEndpoint= new StringBuilder();
+		formatedEndpoint.append("<http://").append(ConfigTokens.P2P_CONFIG_XMPP_DOMAIN).append("/").append(user).append("/sparql").append(">");
+		return formatedEndpoint.toString();
+	}
 	
-	
-
-	private String discoverySuitableEndpoints(String queryString, List<Route> allRoutes) {
-		// TODO Auto-generated method stub
-		return "";
+	private String buildQueryServiceToken(Set<String> endpoints) {
+		StringBuilder fragment = new StringBuilder();
+		fragment.append("\n\t} VALUES ?service { ");
+		endpoints.forEach(endpoint -> fragment.append(endpoint).append(" "));
+		fragment.append("}\n");
+		return fragment.toString();
 	}
 
 	/**

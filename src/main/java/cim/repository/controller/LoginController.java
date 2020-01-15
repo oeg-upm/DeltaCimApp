@@ -30,6 +30,15 @@ public class LoginController extends AbstractController{
 	
 	// Provide GUI
 	
+	@RequestMapping(value="/", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
+	public String initialGUI(Model model) {
+		if(!isLogged()) {
+			return "redirect:/login";
+			
+		}
+		return "redirect:/index.html";
+	}
+	
 	@RequestMapping(value="/login", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
 	public String getLoginService(Model model) {
 		if(isLogged()) {
@@ -39,7 +48,7 @@ public class LoginController extends AbstractController{
 		user.setUsername("");
 		user.setPassword("");
 		model.addAttribute("user", user);
-		return "login.html";
+		return "login";
 	}
 	
 	

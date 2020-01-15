@@ -2,7 +2,6 @@ package cim.repository.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,9 @@ public class BridgingController extends AbstractController{
 	
 	@RequestMapping(value="/bridging", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
 	public String getBridgingService(Model model) {
+		if(!isLogged()) {
+			return "redirect:/login";
+		}
 		model.addAttribute("routes", bridgingService.getAllRoutes());
 		Route route = new Route();
 		route.setRegexPath("");
@@ -42,6 +44,7 @@ public class BridgingController extends AbstractController{
 	@ResponseBody
 	public List<Route> getAllRoutes(HttpServletResponse response) {
 		prepareResponse(response);
+		
 		List<Route> routes =  new ArrayList<>();
 		if(isLogged()) {
 			routes = bridgingService.getAllRoutes();

@@ -21,6 +21,10 @@ public class ACLService {
 	public List<Acl> getAllACL(){
 		return aclRepository.findAll();
 	}
+	
+	public List<String> getAllUsernames(){
+		return aclRepository.getAllUsernames();
+	}
 
 	public void update(Acl acl){
 		aclRepository.save(acl);

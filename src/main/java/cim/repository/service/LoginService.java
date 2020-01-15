@@ -16,12 +16,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
-import org.jivesoftware.smackx.search.ReportedData;
-import org.jivesoftware.smackx.search.UserSearchManager;
-import org.jivesoftware.smackx.xdata.Form;
 import org.springframework.stereotype.Service;
 
 import cim.repository.ConfigTokens;
@@ -36,8 +32,7 @@ import cim.repository.ConfigTokens;
 public class LoginService {
 	
 	private AbstractXMPPConnection connection;
-	
-	private XMPPConnection xmppConn;
+
 	
 	private int port = 5222;
 	private String host = "jcano.ddns.net";
@@ -98,7 +93,7 @@ public class LoginService {
 	
 	public boolean isLogged() {
 		try {
-		if(connection == null || connection.isConnected())
+		if(connection != null && connection.isConnected())
 			return true;
 		else
 			return false;

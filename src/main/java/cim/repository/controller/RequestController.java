@@ -58,15 +58,6 @@ public class RequestController extends AbstractController{
 	 
 	 
 		
-		// -- P2P initialization methods
-		 /**
-		  * This method initializes the p2p service required to connect with other peers
-		  */
-		@PostConstruct
-	    public void conect() {
-			//p2pService.connect(DeltaCimApplication.getUsername(), DeltaCimApplication.getPassword(), DeltaCimApplication.getXmppDomain(), DeltaCimApplication.getHost(), DeltaCimApplication.getPort());
-	    }
-
 		
 		// -- Logout when shutting up
 		
