@@ -16,27 +16,43 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.search.ReportedData;
+import org.jivesoftware.smackx.search.UserSearchManager;
+import org.jivesoftware.smackx.xdata.Form;
 import org.springframework.stereotype.Service;
 
 import cim.repository.ConfigTokens;
 
+/**
+ * 
+ * @author jcano
+ *
+ */
 
 @Service
 public class LoginService {
 	
 	private AbstractXMPPConnection connection;
 	
-	private final int port = 5222;
-	private final String host = "jcano.ddns.net";
+	private XMPPConnection xmppConn;
 	
-	public void connect(String username, String passwd) {
+	private int port = 5222;
+	private String host = "jcano.ddns.net";
+	private String xmppdomain = "jcano.ddns.net";
+	
+	public LoginService() {
+		
+	}
+
+	public void connect(String username, String password) {
 		
 		try {
 			XMPPTCPConnectionConfiguration.Builder buildConnection = XMPPTCPConnectionConfiguration.builder()
-					.setUsernameAndPassword(username, passwd)
+					.setUsernameAndPassword(username, password)
+					.setXmppDomain(xmppdomain)
 					.setHost(host)
 					.setPort(port)
 					.setResource(username)
@@ -47,24 +63,49 @@ public class LoginService {
 			connection = new XMPPTCPConnection(buildConnection.build());
 			connection.connect();
 			connection.login();
+			System.out.println(connection.isConnected());
+			System.out.println("All ok");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 	}
-
+	
+//	public void checkUsername(String username) {
+//		
+//		UserSearchManager search = new UserSearchManager(mXMPPConnection);
+//		Form searchForm = search.getSearchForm("search." + mXMPPConnection.getServiceName());
+//
+//		Form answerForm = searchForm.createAnswerForm();
+//		answerForm.setAnswer("Username", true);
+//		answerForm.setAnswer("search", username);
+//		ReportedData data = search.getSearchResults(answerForm, "search." + mXMPPConnection.getServiceName());
+//
+//		if (data.getRows() != null) {
+//		    for (ReportedData.Row row: data.getRows()) {
+//		        for (String value: row.getValues("jid")) {
+//		            Log.i("Iteartor values......", " " + value);
+//		        }
+//		    }
+//		    Toast.makeText(_service, "Username Exists", Toast.LENGTH_SHORT).show();
+//		}		
+//	}
 	
 	public void disconnect() {
 		connection.disconnect();
 	}
 	
 	
-	public boolean isConnected() {
-		if(this.connection.isConnected())
+	public boolean isLogged() {
+		try {
+		if(connection == null || connection.isConnected())
 			return true;
 		else
 			return false;
+		}catch (Exception e) {
+			e.getStackTrace();
+			return false;
+		}
 	}
 	
 	/**
