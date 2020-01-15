@@ -37,6 +37,10 @@
 		</dependency>
 		
 		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-devtools</artifactId>
+		</dependency>
+		<dependency>
         <groupId>org.igniterealtime.smack</groupId>
         <artifactId>smack-java7</artifactId>
         <version>4.3.0</version>
@@ -91,7 +95,10 @@
 		    <artifactId>unirest-java</artifactId>
 		    <version>1.4.9</version>
 		</dependency>
-
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency> 
   </dependencies>
   
   	<build>

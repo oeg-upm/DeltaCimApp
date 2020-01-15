@@ -1,6 +1,5 @@
 package cim.repository.service;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +7,6 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Map;
@@ -21,14 +19,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.sasl.SASLMechanism;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jxmpp.jid.EntityBareJid;
@@ -87,7 +83,7 @@ public class XMPPService {
 	public void connect(String username, String password, String xmppDomain, String host, int port) {
 		try {
 			// 0. Reading the certificates
-			String certificates = ConfigTokens.P2P_CONFIG_CERTIFICATES_FOLDER;
+			String certificates = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
 
 			// 1. Configuring the XMPPT connection
 			XMPPTCPConnectionConfiguration.Builder build =  XMPPTCPConnectionConfiguration.builder()
@@ -139,7 +135,7 @@ public class XMPPService {
 
         KeyStore keyStore = KeyStore.getInstance("JKS");
         //Change "\\cacerts" in order to be dynamic
-        InputStream is = new FileInputStream(ConfigTokens.P2P_CONFIG_CERTIFICATES_FOLDER + "\\cacerts");
+        InputStream is = new FileInputStream(ConfigTokens.P2P_CONFIG_CACERT_FOLDER);
         keyStore.load(is, JKS_PASSWORD);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keyStore, KEY_PASSWORD);

@@ -15,7 +15,7 @@ public class ConfigTokens {
 	public static final String P2P_CONFIG_ROUTE_REGEX = "regex";
 	public static final String P2P_CONFIG_ROUTE_ENDPOINT = "endpoint";
 	public static final String P2P_CONFIG_ROUTE_APPEND = "append";
-	public static final String P2P_CONFIG_CERTIFICATES_FOLDER = "./Certificates";
+	public static final String P2P_CONFIG_CACERT_FOLDER = "./Certificates/cacerts";
 	
 	// URL token identifier
 	public static final  String URL_TOKEN = "/delta"; 

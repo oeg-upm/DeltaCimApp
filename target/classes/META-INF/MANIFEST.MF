@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Built-By: Juan
-Build-Jdk: 12.0.1
+Built-By: jcano
+Build-Jdk: 13.0.1
 Implementation-Title: xmpp
 Implementation-Version: 0.0.1-SNAPSHOT
 Implementation-Vendor-Id: oeg.delta
