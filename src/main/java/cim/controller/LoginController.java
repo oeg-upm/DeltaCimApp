@@ -24,55 +24,44 @@ import cim.service.LoginService;
 
 @Controller
 public class LoginController extends AbstractController{
-	
+
 	@Autowired
 	public LoginService conn;
-	
+
 	// Provide GUI
-	
-	@RequestMapping(value="/", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
+
+	@RequestMapping(value= {"/","/api/login"}, method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
 	public String initialGUI(Model model) {
-		if(!isLogged()) {
-			return "redirect:/login";
-			
-		}
-		return "redirect:/index.html";
+		return "redirect:/login";
 	}
-	
+
 	@RequestMapping(value="/login", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
 	public String getLoginService(Model model) {
-		if(isLogged()) {
-			return "redirect:/index.html";
-		}
 		User user = new User();
 		user.setUsername("");
 		user.setPassword("");
 		model.addAttribute("user", user);
 		return "login";
 	}
-	
-	
-	
+
+
 	@RequestMapping(value="/api/login", method = RequestMethod.POST)
 	public String connect(@Valid @ModelAttribute(value="user") User user, BindingResult bindingResult, HttpServletResponse response, Model model) {
 		prepareResponse(response);
 		if(!bindingResult.hasErrors()) {	
+			
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);
-//			System.out.println(user.getUsername());
-//			System.out.println(user.getPassword());
+						System.out.println(user.getUsername());
+			//			System.out.println(user.getPassword());
 			try {
-				conn.connect(user.getUsername(), user.getPassword());
+				//conn.connect(user.getUsername(), user.getPassword());
 			}catch (Exception e){
 				e.printStackTrace();
 				return "redirect:/login";
 			}
 		}
-		if(conn.isLogged()) {
-			return "redirect:/bridging";
-		}else {
-			return "redirect:/login";
-		}
+		return "redirect:/bridging";
 	}
-	
+
 
 }

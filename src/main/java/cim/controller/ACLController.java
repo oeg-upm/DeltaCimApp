@@ -31,9 +31,6 @@ public class ACLController extends AbstractController{
 
 	@RequestMapping(value="/acl", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
 	public String getAclService(Model model) {
-		if(!isLogged()) {
-			return "redirect:/login";
-		}
 		model.addAttribute("users", aclService.getAllACL());
 		Acl acl = new Acl();
 		acl.setUsername("");
@@ -49,10 +46,9 @@ public class ACLController extends AbstractController{
 	public List<Acl> getAllAcl(HttpServletResponse response) {
 		prepareResponse(response);
 		List<Acl> acls =  new ArrayList<>();
-		if(isLogged()) {
 			acls = aclService.getAllACL();
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
-		} // By default returns the error code
+		// By default returns the error code
 		return acls;
 	}
 
@@ -60,15 +56,10 @@ public class ACLController extends AbstractController{
 	@RequestMapping(value="/api/acl", method = RequestMethod.POST)
 	public String saveAcl(@Valid @ModelAttribute(value="user") Acl acl, BindingResult bindingResult, HttpServletResponse response, Model model) {
 		prepareResponse(response);
-		if(isLogged()) {
 			if(!bindingResult.hasErrors()) {	
 				response.setStatus(HttpServletResponse.SC_ACCEPTED);
 				aclService.aclRepository.save(acl);
 			}
-		}else {
-			// Instead of the error code redirects to the login
-			return "redirect:/login";
-		}
 		return "redirect:/acl";
 	}
 
@@ -76,7 +67,7 @@ public class ACLController extends AbstractController{
 	@ResponseBody
 	public void deleteAcl(@RequestBody(required=true) String aclId, HttpServletResponse response, Model model) {
 		prepareResponse(response);		
-		if(isLogged() && !aclId.isEmpty()) {
+		if(!aclId.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
 			aclService.remove(aclId);
 		}
