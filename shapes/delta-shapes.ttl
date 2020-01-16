@@ -1,0 +1,20 @@
+@prefix :      <http://delta.linkeddata.es/def/core#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xml:   <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+<https://astrea.linkeddata.es/shapes#eaba42ad0f3b181ff1bfc423dd1f98e6>
+        a               sh:NodeShape ;
+        rdfs:label      "FEID" ;
+        sh:description  "Set of devices" ;
+        sh:name         "FEID" ;
+        sh:nodeKind     sh:IRI ;
+        sh:property     <https://astrea.linkeddata.es/shapes#80809c89f7c0a5f3bfcde42cc9205322>;
+        sh:targetClass  :FEID .
+<https://astrea.linkeddata.es/shapes#80809c89f7c0a5f3bfcde42cc9205322>
+        a            sh:PropertyShape ;
+        sh:nodeKind  sh:IRIOrLiteral ;
+        sh:path      <https://w3id.org/saref#consistsOf> ;
+        sh:minCount 1 .

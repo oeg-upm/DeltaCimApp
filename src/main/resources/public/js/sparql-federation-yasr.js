@@ -1,13 +1,13 @@
-var yasqe = YASQE(document.getElementById("yasqe-div"), {
+var yasqe_feration = YASQE(document.getElementById("yasqe_feration-div"), {
 	sparql: {
 		showQueryButton: true,
 		endpoint: '/api/cloud/sparql',
 		requestMethod: "GET"
 	}
 });
-var yasr = YASR(document.getElementById("yasr-div"), {
+var yasr_federation = YASR(document.getElementById("yasr_federation-div"), {
 	// This prettifies the URLs in the response
-	getUsedPrefixes: yasqe.getPrefixesFromQuery
+	getUsedPrefixes: yasqe_feration.getPrefixesFromQuery
 });
-// Link yasqe and wasr
-yasqe.options.sparql.callbacks.complete = yasr.setResponse;
+// Link yasqe_feration and wasr
+yasqe_feration.options.sparql.callbacks.complete = yasr_federation.setResponse;

@@ -12,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import cim.repository.ConfigTokens;
-import cim.repository.DeltaCimApplication;
-import cim.repository.model.P2PMessage;
-import cim.repository.repository.P2PMessageRepository;
+import cim.ConfigTokens;
+import cim.DeltaCimApplication;
+import cim.model.P2PMessage;
+import cim.repository.P2PMessageRepository;
 
 
 public class P2PMessageFactory {

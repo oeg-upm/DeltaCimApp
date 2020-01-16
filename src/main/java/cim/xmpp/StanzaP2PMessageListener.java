@@ -11,10 +11,10 @@ import org.jivesoftware.smack.packet.Stanza;
 import org.jxmpp.jid.Jid;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import cim.repository.ConfigTokens;
-import cim.repository.DeltaCimApplication;
-import cim.repository.model.P2PMessage;
-import cim.repository.objects.DataFetcher;
+import cim.ConfigTokens;
+import cim.DeltaCimApplication;
+import cim.model.P2PMessage;
+import cim.objects.DataFetcher;
 import cim.xmpp.factory.P2PMessageFactory;
 
 public class StanzaP2PMessageListener implements StanzaListener{

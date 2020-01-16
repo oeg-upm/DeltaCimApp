@@ -6,10 +6,11 @@ import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
-import cim.repository.ConfigTokens;
-import cim.repository.DeltaCimApplication;
-import cim.repository.model.P2PMessage;
-import cim.repository.objects.DataFetcher;
+
+import cim.ConfigTokens;
+import cim.DeltaCimApplication;
+import cim.model.P2PMessage;
+import cim.objects.DataFetcher;
 import cim.xmpp.factory.P2PMessageFactory;
 
 public class P2PMessageListener implements IncomingChatMessageListener {
