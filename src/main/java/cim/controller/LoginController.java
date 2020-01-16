@@ -1,5 +1,6 @@
 package cim.controller;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import cim.model.User;
 import cim.service.LoginService;
+import cim.service.UserService;
 
 /**
  * 
@@ -28,6 +30,14 @@ public class LoginController extends AbstractController{
 	@Autowired
 	public LoginService conn;
 
+	@Autowired
+	public UserService userService;
+	
+	@PostConstruct
+	public void initUsers() {
+		userService.createDefaultUser();
+	}
+	
 	// Provide GUI
 
 	@RequestMapping(value= {"/","/api/login"}, method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
@@ -43,6 +53,8 @@ public class LoginController extends AbstractController{
 		model.addAttribute("user", user);
 		return "login";
 	}
+	
+
 
 
 	@RequestMapping(value="/api/login", method = RequestMethod.POST)
@@ -51,7 +63,6 @@ public class LoginController extends AbstractController{
 		if(!bindingResult.hasErrors()) {	
 			
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);
-						System.out.println(user.getUsername());
 			//			System.out.println(user.getPassword());
 			try {
 				//conn.connect(user.getUsername(), user.getPassword());

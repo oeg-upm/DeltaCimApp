@@ -9,21 +9,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import cim.service.UserDetailsServiceCIM;
+
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
-
-    // [...] 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth)  throws Exception {
-        auth
-          .inMemoryAuthentication()
-          .withUser("user").password(passwordEncoder().encode("password")).roles("USER")
-          .and()
-          .withUser("admin").password(passwordEncoder().encode("admin")).roles("ADMIN");
-    }
-     
+	@Autowired
+	public UserDetailsServiceCIM userDetailsService;
+	 
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());     
+	}
+   
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
