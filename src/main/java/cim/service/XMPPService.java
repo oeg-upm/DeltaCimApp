@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -81,7 +80,7 @@ public class XMPPService {
 		List<XmppUser> xmppUsers = xmppRepository.findAll();
 		if(xmppUsers.size() == 1) {
 			result = xmppUsers.get(0);
-			result.setPassword("");
+			//result.setPassword("");
 		}
 		return result;
 

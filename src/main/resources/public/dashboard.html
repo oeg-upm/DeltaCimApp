@@ -86,27 +86,27 @@
 								placeholder="Username" th:field="*{username}" required>
 						</div>
 						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
-							<label class="" for="password">Local service:</label> <input
-								type="password" class="form-control mb-2" id="password"
+							<label class="" for="password">Password:</label> <input
+								type="text" class="form-control mb-2" id="password"
 								th:field="*{password}" required>
 						</div>
 
 						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
-							<label class="" for="xmppDomain">Local service:</label> <input
+							<label class="" for="xmppDomain">Xmpp Domain:</label> <input
 								type="text" class="form-control mb-2" id="xmppDomain"
 								th:field="*{xmppDomain}" required>
 						</div>
 
 						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
-							<label class="" for="host">Local service:</label> <input
-								type="text" class="form-control mb-2" id="host"
-								placeholder="Host" th:field="*{host}" required>
+							<label class="" for="host">Host:</label> <input type="text"
+								class="form-control mb-2" id="host" placeholder="Host"
+								th:field="*{host}" required>
 						</div>
 
 						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
-							<label class="" for="port">Local service:</label> <input
-								type="number" class="form-control mb-2" id="port"
-								placeholder="Port" th:field="*{port}" required>
+							<label class="" for="port">Port:</label> <input type="number"
+								class="form-control mb-2" id="port" placeholder="Port"
+								th:field="*{port}" required>
 						</div>
 
 						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
@@ -115,71 +115,70 @@
 								id="exampleFormControlFile1">
 						</div>
 
-						<div class="col-auto" style="top: 13px"
-							sec:authorize="hasRole('ROLE_ADMIN')">
+						<div class="col-auto" style="top: 13px">
 							<button type="submit" class="btn btn-primary btn-block">Connect</button>
 						</div>
 
-						<div class="col-auto" style="top: 13px"
-							sec:authorize="hasRole('ROLE_ADMIN')">
+						<div class="col-auto" style="top: 13px">
 							<button type="button" class="btn btn-danger"
-								onclick="xmppDisconnect()">Logout</button>
+								onclick="xmppDisconnect()">Disconnect</button>
 						</div>
 
-						<div class="col-auto" style="top: 13px"
-							sec:authorize="hasRole('ROLE_USER')">
-							STATUS: <a th:if="${isConnected}"> <span class="fa fa-check-circle text-success"> CONNECTED </a> <a
-								th:unless="${isConnected}"> <span class="fa fa-times text-danger"> NOT CONNECTED </a>
+						<div class="col-auto" style="top: 13px">
+							STATUS: <a th:if="${isConnected}"> <span
+								class="fa fa-check-circle text-success"> CONNECTED </a> <a
+								th:unless="${isConnected}"> <span
+								class="fa fa-times text-danger"> NOT CONNECTED </a>
 						</div>
 					</div>
 				</form>
+
 				<hr>
 
 				<!-- USER Registration Content -->
-				<div sec:authorize="hasRole('ROLE_ADMIN')">
-					<h1>Users Registering Service</h1>
-					<hr>
+				<h1>Users Registering Service</h1>
+				<hr>
 
-					<form action="#" th:action="@{/api/cimuser}" th:object="${user}"
-						method="POST">
-						<div class="form-row align-items-center">
-							<div class="col-auto">
-								<label class="" for="regexPath">Add new CIM user:</label>
-								<div class="input-group mb-2">
-									<div class="input-group-prepend">
-										<input type="text" class="form-control" id="user"
-											placeholder="Username" th:field="*{username}" required>
-									</div>
+				<form action="#" th:action="@{/api/cimuser}" th:object="${user}"
+					method="POST">
+					<div class="form-row align-items-center">
+						<div class="col-auto">
+							<label class="" for="regexPath">Add new CIM user:</label>
+							<div class="input-group mb-2">
+								<div class="input-group-prepend">
+									<input type="text" class="form-control" id="user"
+										placeholder="Username" th:field="*{username}" required>
 								</div>
-							</div>
-							<div class="col-auto" style="top: 15px">
-
-								<div class="input-group mb-2">
-									<div class="input-group-prepend">
-										<input type="password" class="form-control" id="password"
-											placeholder="Password" th:field="*{password}" required>
-									</div>
-								</div>
-							</div>
-							<div class="col-auto" style="top: 15px">
-
-								<div class="dropdown">
-									<select class="form-control mb-2" th:field="*{authorityTemp}">
-										<option th:value="ROLE_USER" th:text="USER"></option>
-										<option th:value="'ROLE_ADMIN'" th:text="ADMIN"></option>
-									</select>
-								</div>
-
-							</div>
-
-							<div class="col-auto" style="top: 13px">
-								<button type="submit" class="btn btn-success mb-2">
-									<i class="fas fa-fw fa-plus-circle"></i>
-								</button>
 							</div>
 						</div>
-					</form>
-				</div>
+						<div class="col-auto" style="top: 15px">
+
+							<div class="input-group mb-2">
+								<div class="input-group-prepend">
+									<input type="password" class="form-control" id="password"
+										placeholder="Password" th:field="*{password}" required>
+								</div>
+							</div>
+						</div>
+						<div class="col-auto" style="top: 15px">
+
+							<div class="dropdown">
+								<select class="form-control mb-2" th:field="*{authorityTemp}">
+									<option th:value="'ROLE_ADMIN'"
+										sec:authorize="hasRole('ROLE_ADMIN')" th:text="ADMIN"></option>
+									<option th:value="ROLE_USER" th:text="USER"></option>
+								</select>
+							</div>
+
+						</div>
+
+						<div class="col-auto" style="top: 13px">
+							<button type="submit" class="btn btn-success mb-2">
+								<i class="fas fa-fw fa-plus-circle"></i>
+							</button>
+						</div>
+					</div>
+				</form>
 				<hr>
 
 				<div class="row">
@@ -196,6 +195,7 @@
 								</tr>
 							</thead>
 							<tbody>
+
 								<tr th:each="user: ${users}">
 									<td th:text="${user.username}" />
 									<td th:text="${user.authority}" />
@@ -288,6 +288,26 @@
 						</div>
 					</div>
 				</div>
+
+
+
+				<!-- Report Modal -->
+				<div class="modal fade" id="disconnectModal" role="dialog">
+					<div class="modal-dialog">
+
+						<!-- Modal content-->
+						<div class="modal-content">
+							<div class="modal-body" id="disconnectResult">
+								<!-- Inject here report content -->
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-primary pull-left"
+									data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
 
 
 				<!-- Bootstrap core JavaScript-->

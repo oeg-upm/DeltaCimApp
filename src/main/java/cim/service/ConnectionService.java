@@ -67,26 +67,6 @@ public class ConnectionService {
 		
 	}
 	
-//	public void checkUsername(String username) {
-//		
-//		UserSearchManager search = new UserSearchManager(mXMPPConnection);
-//		Form searchForm = search.getSearchForm("search." + mXMPPConnection.getServiceName());
-//
-//		Form answerForm = searchForm.createAnswerForm();
-//		answerForm.setAnswer("Username", true);
-//		answerForm.setAnswer("search", username);
-//		ReportedData data = search.getSearchResults(answerForm, "search." + mXMPPConnection.getServiceName());
-//
-//		if (data.getRows() != null) {
-//		    for (ReportedData.Row row: data.getRows()) {
-//		        for (String value: row.getValues("jid")) {
-//		            Log.i("Iteartor values......", " " + value);
-//		        }
-//		    }
-//		    Toast.makeText(_service, "Username Exists", Toast.LENGTH_SHORT).show();
-//		}		
-//	}
-	
 	public boolean disconnect() {
 		connection.disconnect();
 		return connection.isConnected();

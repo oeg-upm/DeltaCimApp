@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import cim.model.Acl;
 import cim.model.Authority;
 import cim.model.User;
 import cim.repository.AuthorityRepository;
@@ -32,6 +31,16 @@ public class UserService {
 	}
 
 	public void createDefaultUser() {
+		if(userRepository.findAll().isEmpty()) {
+			User admin = UserFactory.createDefaultUser();
+			Set<Authority> authorities = AuthorityFactory.createDefaultAuthority();
+			authorities.forEach(authority -> authorityRepository.save(authority));
+			admin.setAuthority(authorities);
+			userRepository.save(admin);
+		}
+	}
+	
+	public void createAdmin() {
 		if(userRepository.findAll().isEmpty()) {
 			User admin = UserFactory.createDefaultUser();
 			Set<Authority> authorities = AuthorityFactory.createAdminAuthority();

@@ -1,10 +1,7 @@
 package cim.controller;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletResponse;
@@ -20,15 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import cim.model.Acl;
-import cim.model.Authority;
 import cim.model.User;
 import cim.model.XmppUser;
 import cim.repository.XmppRepository;
 import cim.service.ConnectionService;
 import cim.service.UserService;
 import cim.service.XMPPService;
-import cim.xmpp.factory.AuthorityFactory;
+import cim.xmpp.factory.XmppFactory;
 
 @Controller
 public class DashboardController extends AbstractController{

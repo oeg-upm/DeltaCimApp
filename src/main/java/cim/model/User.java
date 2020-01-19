@@ -1,5 +1,6 @@
 package cim.model;
 
+import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.JoinColumn;
 import javax.persistence.Entity;

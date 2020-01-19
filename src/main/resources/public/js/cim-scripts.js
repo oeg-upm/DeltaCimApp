@@ -62,15 +62,21 @@ function xmppDisconnect(){
 	var url = "/api/disconnect";
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", url, true);
-	xhr.onload = function () {
+	xhr.onload = function (aEvt) {
 		if (xhr.readyState == 4) {
-			if(xhr.status == 409){
+			if(xhr.status == 400){
+				var responseData = JSON.parse(xhr.responseText);
+				$("#disconnectResult").empty();
+				$("#disconnectResult").append("<p>"+responseData.report+"</p>");
+				$("#disconnectModal").modal();
 				console.log("No desconectado\n");
 			}else if(xhr.status == 200){
 				console.log("Desconectado\n");
 			}
-		}		
-	}
+		}	
+		location.reload();
+	};				
+	console.log("No desconectado\n");
 	xhr.send(null);
 }
 
