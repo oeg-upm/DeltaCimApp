@@ -1,17 +1,13 @@
 package cim.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.JoinColumn;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 
 @Entity
@@ -28,6 +24,18 @@ public class User {
 	joinColumns=@JoinColumn(name="usuario_id"),
 	inverseJoinColumns=@JoinColumn(name="authority_id"))
 	private Set<Authority> authority;
+	
+	//No persistent variable. It will not be save in the database, just for provide information to Set<Authority>.
+	@Transient
+	private String authorityTemp;
+	
+	public String getAuthorityTemp() {
+		return authorityTemp;
+	}
+
+	public void setAuthorityTemp(String authorityTemp) {
+		this.authorityTemp = authorityTemp;
+	}
 
 	public User() {
 		
@@ -49,9 +57,6 @@ public class User {
 		this.password = password;
 	}
 
-
-	
-
 	public Set<Authority> getAuthority() {
 		return authority;
 	}
@@ -59,7 +64,7 @@ public class User {
 	public void setAuthority(Set<Authority> authority) {
 		this.authority = authority;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "User [username=" + username + ", password=" + password + ", authority=" + authority + "]";

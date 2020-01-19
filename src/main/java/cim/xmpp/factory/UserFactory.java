@@ -18,7 +18,6 @@ public class UserFactory {
 		return user;
 	}
 	
-	
 	public static String encode(String password){
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(4);
 		return bCryptPasswordEncoder.encode(password);

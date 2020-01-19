@@ -9,9 +9,11 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -30,15 +32,19 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import cim.ConfigTokens;
 import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
+import cim.model.XmppUser;
+import cim.repository.XmppRepository;
 import cim.xmpp.CimParsingExceptionCallback;
 import cim.xmpp.P2PMessageListener;
 import cim.xmpp.factory.P2PMessageFactory;
+import cim.xmpp.factory.XmppFactory;
 
 @Service
 public class XMPPService {
@@ -49,6 +55,37 @@ public class XMPPService {
 	private AbstractXMPPConnection connection;
 	private ChatManager chatManagerReceiver;
 	private Logger log = Logger.getLogger(XMPPService.class.getName());
+
+	@Autowired
+	public XmppRepository xmppRepository;
+	
+
+	public void createDefaultXmppUser() {
+		if(xmppRepository.findAll().isEmpty()) {
+			XmppUser firstConnection = XmppFactory.createDefaultXmpp();
+			xmppRepository.save(firstConnection);
+		}
+	}
+
+
+	public void updateXmppUser(XmppUser xmppUser) {
+		List<XmppUser> xmppUsers = xmppRepository.findAll();
+		if(xmppUsers.size() >= 1) {
+			xmppRepository.deleteAll();
+		}
+		xmppRepository.save(xmppUser);
+	}
+
+	public XmppUser getXmppUser() {
+		XmppUser result = null;
+		List<XmppUser> xmppUsers = xmppRepository.findAll();
+		if(xmppUsers.size() == 1) {
+			result = xmppUsers.get(0);
+			result.setPassword("");
+		}
+		return result;
+
+	}
 
 	// -- Constructor
 
@@ -100,7 +137,7 @@ public class XMPPService {
 
 			//1.2 Add the certificates to the configuration
 
-			
+
 			XMPPTCPConnectionConfiguration config = build.build();
 
 			log.info("Peer configured");
@@ -125,26 +162,26 @@ public class XMPPService {
 			System.exit(-1);
 		}
 	}
-	
+
 	/**
 	 * setKeyStorePath dont work, so we must implement this method in order to handle the certificates
 	 */
-    private SSLContext getSSLContext() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-        char[] JKS_PASSWORD = "changeit".toCharArray();
-        char[] KEY_PASSWORD = "changeit".toCharArray();
+	private SSLContext getSSLContext() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
+		char[] JKS_PASSWORD = "changeit".toCharArray();
+		char[] KEY_PASSWORD = "changeit".toCharArray();
 
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        //Change "\\cacerts" in order to be dynamic
-        InputStream is = new FileInputStream(ConfigTokens.P2P_CONFIG_CACERT_FOLDER);
-        keyStore.load(is, JKS_PASSWORD);
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(keyStore, KEY_PASSWORD);
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(keyStore);
-        SSLContext sc = SSLContext.getInstance("TLS");
-        sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
-        return sc;
-    }
+		KeyStore keyStore = KeyStore.getInstance("JKS");
+		//Change "\\cacerts" in order to be dynamic
+		InputStream is = new FileInputStream(ConfigTokens.P2P_CONFIG_CACERT_FOLDER);
+		keyStore.load(is, JKS_PASSWORD);
+		KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		kmf.init(keyStore, KEY_PASSWORD);
+		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+		tmf.init(keyStore);
+		SSLContext sc = SSLContext.getInstance("TLS");
+		sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
+		return sc;
+	}
 
 
 	/**

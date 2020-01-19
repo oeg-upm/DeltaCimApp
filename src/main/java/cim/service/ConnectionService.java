@@ -29,36 +29,37 @@ import cim.ConfigTokens;
  */
 
 @Service
-public class LoginService {
+public class ConnectionService {
 	
 	private AbstractXMPPConnection connection;
 
 	
-	private int port = 5222;
-	private String host = "jcano.ddns.net";
-	private String xmppdomain = "jcano.ddns.net";
+//	private int port = 5222;
+//	private String host = "jcano.ddns.net";
+//	private String xmppdomain = "jcano.ddns.net";
 	
-	public LoginService() {
+	public ConnectionService() {
 		
 	}
 
-	public void connect(String username, String password) {
+	public void connect(String username, String password, String xmppDomain, String host, int port, String caFile) {
 		
 		try {
+			System.out.println("Trying connection");
+
 			XMPPTCPConnectionConfiguration.Builder buildConnection = XMPPTCPConnectionConfiguration.builder()
 					.setUsernameAndPassword(username, password)
-					.setXmppDomain(xmppdomain)
+					.setXmppDomain(xmppDomain)
 					.setHost(host)
 					.setPort(port)
 					.setResource(username)
 					.setSendPresence(true)
-					.setCustomSSLContext(getSSLContext())
+					.setCustomSSLContext(getSSLContext(caFile))
 					.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
 			
 			connection = new XMPPTCPConnection(buildConnection.build());
 			connection.connect();
 			connection.login();
-			System.out.println(connection.isConnected());
 			System.out.println("All ok");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -86,12 +87,13 @@ public class LoginService {
 //		}		
 //	}
 	
-	public void disconnect() {
+	public boolean disconnect() {
 		connection.disconnect();
+		return connection.isConnected();
 	}
 	
 	
-	public boolean isLogged() {
+	public boolean isConnected() {
 		try {
 		if(connection != null && connection.isConnected())
 			return true;
@@ -110,12 +112,13 @@ public class LoginService {
 	/**
 	 * setKeyStorePath dont work, so we must implement this method in order to handle the certificates
 	 */
-    private SSLContext getSSLContext() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
+    private SSLContext getSSLContext(String caFile) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
         char[] JKS_PASSWORD = "changeit".toCharArray();
         char[] KEY_PASSWORD = "changeit".toCharArray();
-
+        caFile = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
+        
         KeyStore keyStore = KeyStore.getInstance("JKS");
-        InputStream is = new FileInputStream(ConfigTokens.P2P_CONFIG_CACERT_FOLDER);
+        InputStream is = new FileInputStream(caFile);
         keyStore.load(is, JKS_PASSWORD);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keyStore, KEY_PASSWORD);

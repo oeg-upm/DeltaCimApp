@@ -20,7 +20,6 @@ public class Authority {
 	public Authority() {	
 	}
 	
-	
 	public Long getId() {
 		return id;
 	}

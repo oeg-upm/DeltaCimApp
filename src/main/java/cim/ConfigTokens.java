@@ -6,8 +6,8 @@ public class ConfigTokens {
 	public static final String P2P_FILE_ARGUMENT = "--server.p2p=";
 	
 	// Config file tokens
-	public static final String P2P_CONFIG_USERNAME = "jcano";
-	public static final String P2P_CONFIG_PASS = "Lotus123";
+	public static final String P2P_CONFIG_USERNAME = "test1";
+	public static final String P2P_CONFIG_PASS = "test1";
 	public static final String P2P_CONFIG_HOST = "jcano.ddns.net";
 	public static final String P2P_CONFIG_XMPP_DOMAIN = "jcano.ddns.net";
 	public static final String P2P_CONFIG_PORT = "5222";

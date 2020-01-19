@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<title>DELTA CIM</title>
+
+<!-- Custom fonts for this template
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">-->
+<link rel="stylesheet" type="text/css"
+	th:href="@{vendor/fontawesome-free/css/all.min.css}" />
+
+<!-- Page level plugin CSS
+  <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">-->
+<link rel="stylesheet" type="text/css"
+	th:href="@{vendor/datatables/dataTables.bootstrap4.css}" />
+<!-- Custom styles for this template
+  <link href="css/sb-admin.css" rel="stylesheet">-->
+<link rel="stylesheet" type="text/css" th:href="@{css/sb-admin.css}" />
+
+</head>
+
+<body id="page-top" sec:authorize="isAuthenticated()">
+
+	<nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+		<a class="navbar-brand mr-1" href="/index">DELTA CIM</a>
+		<button class="btn btn-link btn-sm text-white order-1 order-sm-0"
+			id="sidebarToggle" href="#">
+			<i class="fas fa-bars"></i>
+		</button>
+	</nav>
+	<!-- PAGE CONTENT -->
+	<div id="wrapper">
+		<!-- Sidebar -->
+		<ul class="sidebar navbar-nav">
+			<li class="nav-item active"><a class="nav-link"
+				href="/dashboard"> <i class="fas fa-fw fa-tachometer-alt"></i> <span>Dashboard</span>
+			</a></li>
+			<li class="nav-item"><a class="nav-link" href="/bridging"> <i
+					class="fas fa-fw fa-random"></i> <span>Bridging</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="/acl"> <i
+					class="fas fa-fw fa-eye"></i> <span>Access List</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="/kg"> <i
+					class="fas fa-fw fa-star"></i> <span>Knowledge Graph</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="/cloud"> <i
+					class="fas fa-fw fa-cloud"></i> <span>Cloud Access</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="/validation">
+					<i class="fas fa-fw fa-thumbs-up"></i> <span>Validation</span>
+			</a></li>
+			<li class="nav-item"><a class="nav-link" href="#"
+				data-toggle="modal" data-target="#logoutModal"> <i
+					class="fas fa-fw fa-power-off"></i> <span>Logout</span></a></li>
+		</ul>
+
+		<!-- Central menu -->
+		<div id="content-wrapper">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="/index">Dashboard</a></li>
+					<li class="breadcrumb-item active">Dashboard</li>
+				</ol>
+
+				<!-- Page Content -->
+
+				<!-- ADMIN ONLY -->
+
+
+				<form action="#" th:action="@{/api/dashboard}"
+					th:object="${xmppUser}" method="POST">
+					<h3>Connection:</h3>
+
+					<div class="form-row align-items-center">
+
+						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
+							<label class="" for="username">Username:</label> <input
+								type="text" class="form-control" id="username"
+								placeholder="Username" th:field="*{username}" required>
+						</div>
+						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
+							<label class="" for="password">Local service:</label> <input
+								type="password" class="form-control mb-2" id="password"
+								th:field="*{password}" required>
+						</div>
+
+						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
+							<label class="" for="xmppDomain">Local service:</label> <input
+								type="text" class="form-control mb-2" id="xmppDomain"
+								th:field="*{xmppDomain}" required>
+						</div>
+
+						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
+							<label class="" for="host">Local service:</label> <input
+								type="text" class="form-control mb-2" id="host"
+								placeholder="Host" th:field="*{host}" required>
+						</div>
+
+						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
+							<label class="" for="port">Local service:</label> <input
+								type="number" class="form-control mb-2" id="port"
+								placeholder="Port" th:field="*{port}" required>
+						</div>
+
+						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
+							<label for="exampleFormControlFile1">CA Certificate</label> <input
+								type="file" th:field="*{fileCA}" class="form-control-file"
+								id="exampleFormControlFile1">
+						</div>
+
+						<div class="col-auto" style="top: 13px"
+							sec:authorize="hasRole('ROLE_ADMIN')">
+							<button type="submit" class="btn btn-primary btn-block">Connect</button>
+						</div>
+
+						<div class="col-auto" style="top: 13px"
+							sec:authorize="hasRole('ROLE_ADMIN')">
+							<button type="button" class="btn btn-danger"
+								onclick="xmppDisconnect()">Logout</button>
+						</div>
+
+						<div class="col-auto" style="top: 13px"
+							sec:authorize="hasRole('ROLE_USER')">
+							STATUS: <a th:if="${isConnected}"> <span class="fa fa-check-circle text-success"> CONNECTED </a> <a
+								th:unless="${isConnected}"> <span class="fa fa-times text-danger"> NOT CONNECTED </a>
+						</div>
+					</div>
+				</form>
+				<hr>
+
+				<!-- USER Registration Content -->
+				<div sec:authorize="hasRole('ROLE_ADMIN')">
+					<h1>Users Registering Service</h1>
+					<hr>
+
+					<form action="#" th:action="@{/api/cimuser}" th:object="${user}"
+						method="POST">
+						<div class="form-row align-items-center">
+							<div class="col-auto">
+								<label class="" for="regexPath">Add new CIM user:</label>
+								<div class="input-group mb-2">
+									<div class="input-group-prepend">
+										<input type="text" class="form-control" id="user"
+											placeholder="Username" th:field="*{username}" required>
+									</div>
+								</div>
+							</div>
+							<div class="col-auto" style="top: 15px">
+
+								<div class="input-group mb-2">
+									<div class="input-group-prepend">
+										<input type="password" class="form-control" id="password"
+											placeholder="Password" th:field="*{password}" required>
+									</div>
+								</div>
+							</div>
+							<div class="col-auto" style="top: 15px">
+
+								<div class="dropdown">
+									<select class="form-control mb-2" th:field="*{authorityTemp}">
+										<option th:value="ROLE_USER" th:text="USER"></option>
+										<option th:value="'ROLE_ADMIN'" th:text="ADMIN"></option>
+									</select>
+								</div>
+
+							</div>
+
+							<div class="col-auto" style="top: 13px">
+								<button type="submit" class="btn btn-success mb-2">
+									<i class="fas fa-fw fa-plus-circle"></i>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+				<hr>
+
+				<div class="row">
+					<div class="col-12">
+						<h3>Current register users:</h3>
+					</div>
+					<div class="col-12">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>User</th>
+									<th>Authority</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="user: ${users}">
+									<td th:text="${user.username}" />
+									<td th:text="${user.authority}" />
+									<td>
+										<div sec:authorize="hasRole('ROLE_ADMIN')">
+
+											<button type="button" class="btn btn-danger"
+												th:attr="id=${user.username}"
+												onclick="deleteCimUser(this.id)">
+												<i class="fas fa-fw fa-trash-alt"></i>
+											</button>
+									</td>
+									</div>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+
+
+
+
+
+				<!-- Sticky Footer -->
+				<footer class="sticky-footer">
+					<div class="container my-auto">
+
+						<div class="copyright text-center my-auto">
+							<span>Copyright © <a href="http://www.oeg-upm.net/">
+									Ontology Engeneering Group (OEG)</a> 2019
+							</span>
+						</div>
+					</div>
+				</footer>
+
+
+				<!-- /#wrapper -->
+
+				<!-- Scroll to Top Button-->
+				<a class="scroll-to-top rounded" href="#page-top"> <i
+					class="fas fa-angle-up"></i>
+				</a>
+
+				<!-- Logout Modal-->
+				<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog"
+					aria-labelledby="logoutModelLabel" aria-hidden="true">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="logoutModelLabel">Ready to
+									Leave?</h5>
+								<button class="close" type="button" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">×</span>
+								</button>
+							</div>
+							<div class="modal-body">Select "Logout" below if you are
+								ready to end your current session.</div>
+							<div class="modal-footer">
+								<button class="btn btn-secondary" type="button"
+									data-dismiss="modal">Cancel</button>
+								<form th:action="@{/logout}" method="post">
+									<button type="submit" class="btn btn-danger">Logout</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				<!-- Report Modal -->
+				<div class="modal fade" id="reportModal" role="dialog">
+					<div class="modal-dialog">
+
+						<!-- Modal content-->
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5>Validation report:</h5>
+							</div>
+							<div class="modal-body" id="reportResult">
+								<!-- Inject here report content -->
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-primary pull-left"
+									data-dismiss="modal">
+									</span> Close
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				<!-- Bootstrap core JavaScript-->
+				<script type="text/javascript"
+					th:src="@{vendor/jquery/jquery.min.js}"></script>
+				<script type="text/javascript"
+					th:src="@{vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+				<!-- Core plugin JavaScript-->
+				<script type="text/javascript"
+					th:src="@{vendor/jquery-easing/jquery.easing.min.js}"></script>
+				<!-- Custom scripts for all pages-->
+				<script type="text/javascript" th:src="@{js/sb-admin.min.js}"></script>
+				<script type="text/javascript" th:src="@{js/cim-scripts.js}"></script>
+</body>
+
+</html>

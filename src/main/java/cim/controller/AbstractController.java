@@ -4,13 +4,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import cim.service.LoginService;
+import cim.service.ConnectionService;
 
 
 public abstract class AbstractController {
 	
 	@Autowired
-	public LoginService loginService;
+	public ConnectionService loginService;
 	
 	protected void prepareResponse(HttpServletResponse response) {
 		response.setHeader("Server", "Delta Gateway"); // Server type is hidden

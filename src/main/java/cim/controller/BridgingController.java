@@ -73,6 +73,7 @@ public class BridgingController extends AbstractController{
 	@RequestMapping(value="/api/route", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteRoute(@RequestBody(required=true) String routeId, HttpServletResponse response, Model model) {
+		System.out.println("Enter");
 		prepareResponse(response);		
 		if(isLogged() && !routeId.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	

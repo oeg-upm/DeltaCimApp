@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import cim.service.UserDetailsServiceCIM;
 
@@ -31,21 +32,24 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        http.csrf().disable()
             .authorizeRequests()
-                .antMatchers("/", "/login", "/api/login", "/css/**", "/images/**", "/js/**", "/vendor/**", "/scss/**").permitAll() 
+                .antMatchers("/", "/login", "/api/login", "/css/**", "/images/**", "/vendor/**", "/scss/**").permitAll() 
+                //.antMatchers("/acl*").access("hasRole('ADMIN')")
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
                 .loginPage("/api/login")
-                .defaultSuccessUrl("/acl")
+                .defaultSuccessUrl("/dashboard")
                 .failureUrl("/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .permitAll()
                 .and()
             .logout()                                    
-                .permitAll();
+            	.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+            	.logoutSuccessUrl("/")
+            	.permitAll();;
     }
     
      

@@ -1,0 +1,46 @@
+/* FontAwesome for working BootSnippet :> */
+@import url('//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
+
+.container{
+    padding-top: 50px;
+}
+
+#messagebox{
+    border: solid 1px #cecece;
+    min-height: 100px;
+    color: #4B515D;
+}
+
+#messagebox.success{
+    border: solid 1px #00C851;
+    border-left: solid 4px #00C851;
+}
+
+#messagebox.fail{
+    border: solid 1px #ff4444;
+    border-left: solid 4px #ff4444;
+}
+
+#messagebox.warning {
+    border: solid 1px #ffbb33;
+    border-left: solid 4px #ffbb33;
+}
+
+#messagebox-icon{
+    padding: 1em;
+}
+
+#messagebox-detail-link{
+    margin-left: 1em;
+    margin-right: 1em;
+    position: relative;
+    right: 0;
+}
+
+#messagebox-header{
+    padding-left: 0.6em;
+}
+
+#expanded-status{
+    border: solid 1px black;
+}
