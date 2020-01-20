@@ -6,4 +6,5 @@ import cim.model.XmppUser;
 
 public interface XmppRepository extends JpaRepository<XmppUser, String>{
 
+
 }

@@ -1,6 +1,6 @@
 package cim.model;
 
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.JoinColumn;
 import javax.persistence.Entity;
@@ -64,6 +64,19 @@ public class User {
 
 	public void setAuthority(Set<Authority> authority) {
 		this.authority = authority;
+	}
+	
+	//Get the authority of an user and replace with the correspondent authority
+	public String getAuthorities(User user) {
+		Set<Authority> set = user.getAuthority();
+		String authorities = "";
+		for (Authority s : set) {
+			authorities += s.getAuthority();
+		}
+		authorities = authorities.replaceAll("ROLE_USER", "USER");
+		authorities = authorities.replaceAll("ROLE_ADMINUSER", "ADMIN");
+		authorities = authorities.replaceAll("USERROLE_ADMIN", "ADMIN");
+		return authorities;
 	}
 	
 	@Override

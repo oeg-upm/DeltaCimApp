@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -23,7 +24,6 @@ import cim.repository.XmppRepository;
 import cim.service.ConnectionService;
 import cim.service.UserService;
 import cim.service.XMPPService;
-import cim.xmpp.factory.XmppFactory;
 
 @Controller
 public class DashboardController extends AbstractController{
@@ -50,7 +50,6 @@ public class DashboardController extends AbstractController{
 		loginService.disconnect();
 	}
 
-
 	@RequestMapping(value="/dashboard", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
 	public String getDashboard(Model model, HttpServletResponse response) {
 		prepareResponse(response);
@@ -60,28 +59,29 @@ public class DashboardController extends AbstractController{
 			model.addAttribute("xmppUser", xmppUser);
 			model.addAttribute("isConnected", loginService.isConnected());
 		}
-		model.addAttribute("users", userService.getAllUsers());
-		User user = new User();
-		user.setUsername("");
-		user.setPassword("");
-		user.setAuthority(null);
-		model.addAttribute("user", user);
 		return "dashboard.html";
 	}
 
 
 	@RequestMapping(value="/api/dashboard", method = RequestMethod.POST)
-	public String connect(@Valid @ModelAttribute(value="xmppUser") XmppUser xmppUser, BindingResult bindingResult, HttpServletResponse response, Model model) {
+	public String connect(@Valid @ModelAttribute(value="xmppUser") XmppUser xmppUser, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response, Model model) {
 		prepareResponse(response);
-		if(!bindingResult.hasErrors()) {	
+		//Connect only if user has authority, admin always have role user
+		if(isUser(request)) {
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);
+			//if xmppUser is valid, then use its values to connect
 			try {
+				if(!bindingResult.hasErrors()) {
+					//if the user is an admin, update the values of the connection
+					xmppService.updateXmppUser(xmppUser);
+				}else{
+					//Otherwise, use default XmppUser
+					xmppUser = xmppService.getXmppUser();
+				}
 				loginService.connect(xmppUser.getUsername(), xmppUser.getPassword(), xmppUser.getXmppDomain(), xmppUser.getHost(), xmppUser.getPort(), xmppUser.getFileCA());
 			}catch (Exception e){
 				e.printStackTrace();
-				return "redirect:/dashboard";
 			}
-			xmppService.updateXmppUser(xmppUser);
 		}
 		return "redirect:/dashboard";
 	}
@@ -99,44 +99,5 @@ public class DashboardController extends AbstractController{
 			}
 		}
 	}
-
-
-
-
-	@RequestMapping(value="/api/cimusers", method = RequestMethod.GET, produces ="application/json")
-	@ResponseBody
-	public List<User> getAllAcl(HttpServletResponse response) {
-		prepareResponse(response);
-		List<User> cimusers =  new ArrayList<>();
-		cimusers = userService.getAllUsers();
-		response.setStatus(HttpServletResponse.SC_ACCEPTED);	
-		// By default returns the error code
-		return cimusers;
-	}
-
-	@RequestMapping(value="/api/cimuser", method = RequestMethod.POST)
-	public String saveCimUser(@Valid @ModelAttribute(value="user") User user, BindingResult bindingResult, HttpServletResponse response, Model model) {
-		prepareResponse(response);
-		if(!bindingResult.hasErrors()) {	
-			response.setStatus(HttpServletResponse.SC_ACCEPTED);
-			userService.createUser(user);
-		}else {
-			System.out.println(bindingResult.getAllErrors());
-		}
-		return "redirect:/dashboard";
-	}
-
-	@RequestMapping(value="/api/cimuser", method = RequestMethod.DELETE)
-	@ResponseBody
-	public void deleteCimUser(@RequestBody(required=true) String userId, HttpServletResponse response, Model model) {
-		System.out.println("DELETEANDO");
-		prepareResponse(response);		
-		if(!userId.isEmpty() ) {
-			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
-			userService.remove(userId);
-		}
-
-	}
-
 
 }

@@ -61,21 +61,28 @@ function deleteCimUser(userId){
 function xmppDisconnect(){
 	var url = "/api/disconnect";
 	var xhr = new XMLHttpRequest();
+	var x = false;
 	xhr.open("GET", url, true);
 	xhr.onload = function (aEvt) {
 		if (xhr.readyState == 4) {
 			if(xhr.status == 400){
-				var responseData = JSON.parse(xhr.responseText);
 				$("#disconnectResult").empty();
-				$("#disconnectResult").append("<p>"+responseData.report+"</p>");
+				$("#disconnectResult").append("<p>Not connected</p>");
 				$("#disconnectModal").modal();
+				x=true;
 				console.log("No desconectado\n");
+			}else if (xhr.status == 407){
+				$("#disconnectResult").empty();
+				$("#disconnectResult").append("<p>Not authorized</p>");
+				$("#disconnectModal").modal();
 			}else if(xhr.status == 200){
 				console.log("Desconectado\n");
 			}
 		}	
-		location.reload();
-	};				
+		if(!x){
+			location.reload();
+		}
+	};	
 	console.log("No desconectado\n");
 	xhr.send(null);
 }

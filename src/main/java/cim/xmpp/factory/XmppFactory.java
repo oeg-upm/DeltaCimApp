@@ -4,6 +4,8 @@ import cim.ConfigTokens;
 import cim.model.XmppUser;
 
 public class XmppFactory {
+	
+	
 
 	
 	private XmppFactory() {
@@ -20,8 +22,6 @@ public class XmppFactory {
 		xmpp.setPort(Integer.parseInt(ConfigTokens.P2P_CONFIG_PORT));
 		xmpp.setFileCA(ConfigTokens.P2P_CONFIG_CACERT_FOLDER);
 		return xmpp;
-	}
-	
-	
+	}	
 	
 }
