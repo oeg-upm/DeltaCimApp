@@ -54,7 +54,7 @@ public class ACLController extends AbstractController{
 		prepareResponse(response);
 			if(!bindingResult.hasErrors()) {	
 				response.setStatus(HttpServletResponse.SC_ACCEPTED);
-				aclService.aclRepository.save(acl);
+				aclService.update(acl);
 			}
 		return "redirect:/acl";
 	}
