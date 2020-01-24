@@ -26,8 +26,7 @@ public class DataFetcher {
 
 	private Logger log = Logger.getLogger(DataFetcher.class.getName());
 	
-	@Autowired
-	public KGService kgService;
+
 	
 	public String fetchData(P2PMessage message) {
 		String response =  null;
@@ -94,9 +93,6 @@ public class DataFetcher {
 	
 	
 	private String sendRequest(P2PMessage message, String endpoint) {
-		System.out.println("........");
-		System.out.println(kgService.solveQuery("SELECT * { ?s ?p ?o . }", SparqlResultsFormat.TUPLES));
-		
 		String methodNormalized = message.getMethod().trim().toLowerCase();
 		String responseMessage = null;
 		try {

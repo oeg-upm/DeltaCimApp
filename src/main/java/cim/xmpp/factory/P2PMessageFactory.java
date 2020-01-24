@@ -70,7 +70,8 @@ public class P2PMessageFactory {
 				String parameterValue = URLEncoder.encode(request.getParameter(parameter), "UTF-8");
 				parameters.append(parameter).append("=").append(parameterValue).append("&");
 			}
-			result = parameters.substring(0, parameters.lastIndexOf("&"));
+			if(parameters.length()>1)
+				result = parameters.substring(0, parameters.lastIndexOf("&"));
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

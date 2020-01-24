@@ -2,6 +2,7 @@ package cim.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -21,6 +22,8 @@ import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.mashape.unirest.http.Unirest;
 
 import cim.ConfigTokens;
 import helio.framework.objects.RDF;
@@ -46,13 +49,11 @@ public class CloudService {
 		try {
 			Set<String> endpoints = aclService.getAllUsernames().stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
 			for(String endpoint:endpoints) {
-				System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$>"+endpoint);
-				endpoint = endpoint.replace("<", "").replace(">", "");
-				Query query = QueryFactory.create(queryString, Syntax.syntaxARQ);
-				QueryEngineHTTP qeh = new QueryEngineHTTP(endpoint, query);
-				ResultSet resultSet = qeh.execSelect();
-				answer = formatQueryAnswer(resultSet, format);
-				qeh.close();
+				
+				endpoint = endpoint.replace("<", "").replace(">", "")+"?query="+URLEncoder.encode(queryString, "UTF-8");
+				System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+endpoint);
+				String responseMessage = Unirest.get(endpoint).asString().getBody();
+				System.out.println(responseMessage);
 			}
 			
 		}catch(Exception e) {

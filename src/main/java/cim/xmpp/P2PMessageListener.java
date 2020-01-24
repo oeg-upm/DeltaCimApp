@@ -43,8 +43,7 @@ public class P2PMessageListener implements IncomingChatMessageListener {
 						// X.1.A if message was a request fetch data from third-part service and answer
 						DataFetcher fetcher = new DataFetcher();
 						String responseMessage = fetcher.fetchData(incomingMessage);
-						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(),
-								responseMessage);
+						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(), responseMessage);
 					} else {
 						// X.1.A Otherwise send error message
 						log.severe("[Listener] Received a P2PMessage that is not a request of data");
