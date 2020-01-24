@@ -53,7 +53,7 @@ public class StanzaP2PMessageListener implements StanzaListener{
 					response = messageService.createP2PMessage(XMPPService.getCurrentXmppUser(), from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_1);
 					response.setError(true); // otherwise it will generate an infinite loop
 				}
-				messageService.save(response);
+				//messageService.save(response);
 				
 				
 				//TODO: HOW TO SEND BACK THE RESPONSEchat.send(messageService.fromP2PMessageToJSon(response));

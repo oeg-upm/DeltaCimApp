@@ -67,7 +67,7 @@ public class CloudService {
 	
 	private String transformToDELTAURLs(String user) {
 		StringBuilder formatedEndpoint= new StringBuilder();
-		formatedEndpoint.append("<http://").append(ConfigTokens.P2P_CONFIG_XMPP_DOMAIN).append("/").append(user).append("/sparql").append(">");
+		formatedEndpoint.append("<http://").append(XMPPService.p2pDomain).append("/").append(user).append("/sparql").append(">");
 		return formatedEndpoint.toString();
 	}
 	

@@ -42,25 +42,25 @@ import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
 import cim.model.Route;
 import cim.model.XmppUser;
+import cim.repository.P2PMessageRepository;
 import cim.repository.XmppRepository;
 import cim.xmpp.CimParsingExceptionCallback;
 import cim.xmpp.P2PMessageListener;
 import cim.xmpp.factory.P2PMessageFactory;
-import cim.xmpp.factory.XmppFactory;
+import cim.xmpp.factory.XmppUserFactory;
 
 @Service
 public class XMPPService {
 
 	// -- Attributes
-
-	private P2PMessageFactory messageService;
 	private AbstractXMPPConnection connection;
 	private ChatManager chatManagerReceiver;
 	private Logger log = Logger.getLogger(XMPPService.class.getName());
 
 	@Autowired
 	public XmppRepository xmppRepository;
-	
+	@Autowired
+	public P2PMessageRepository messageRepository;
 	
 	public static String p2pUsername, p2pDomain;
 	static {
@@ -74,7 +74,7 @@ public class XMPPService {
 	
 	public void createDefaultXmppUser() {
 		if(xmppRepository.findAll().isEmpty()) {
-			XmppUser firstConnection = XmppFactory.createDefaultXmpp();
+			XmppUser firstConnection = XmppUserFactory.createDefaultXmpp();
 			p2pUsername = firstConnection.getUsername();
 			p2pDomain = firstConnection.getHost();
 			xmppRepository.save(firstConnection);
@@ -108,7 +108,6 @@ public class XMPPService {
 
 	public XMPPService() {
 		// empty
-		messageService = new P2PMessageFactory();
 	}
 
 
@@ -244,7 +243,7 @@ public class XMPPService {
 	}
 
 	public DeferredResult<String> sendMessage(HttpServletRequest request, Map<String, String> headers, String payload) {
-		P2PMessage p2pMessage = messageService.createP2PRequestMessage(request, headers);
+		P2PMessage p2pMessage = P2PMessageFactory.createP2PRequestMessage(request, headers);
 		p2pMessage.setMessage(payload);
 		DeferredResult<String> response = new DeferredResult<>();
 		String receiverId = p2pMessage.getReceiver();
@@ -263,16 +262,16 @@ public class XMPPService {
 				public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
 					try {
 						// X.1. Check that received message is actually a JSON that fits the P2PMessage
-						P2PMessage p2pResponse = messageService.createP2PMessageFromJson(message.getBody());
+						P2PMessage p2pResponse = P2PMessageFactory.createP2PMessageFromJson(message.getBody());
 						log.info("Response received");
 						if(p2pResponse.getRequest()==null) {
 							// X.1.A If message is contains no message return error message
 							log.severe("ERROR!: Received a P2PMessage that contains no data");
-							p2pResponse = messageService.createP2PMessage(xmppRepository.findAll().get(0).getUsername(), from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_2);
+							p2pResponse = P2PMessageFactory.createP2PMessage(xmppRepository.findAll().get(0).getUsername(), from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_2);
 							p2pResponse.setError(true);
 						}
 						// X.2 Send to front-end response and copy the message
-						messageService.save(p2pResponse);
+						messageRepository.save(p2pResponse);
 						response.setResult(p2pResponse.getMessage());
 
 					} catch (Exception e) {
@@ -300,11 +299,11 @@ public class XMPPService {
 		Chat chat = chatManager.chatWith(jid);
 		try {
 			// 1. Send the message
-			String content = messageService.fromP2PMessageToB64(p2pMessage);
+			String content = P2PMessageFactory.fromP2PMessageToB64(p2pMessage);
 			System.out.println("Sending to "+jid.asEntityBareJidString()+"\n\tContent:"+content);
 			chat.send(content);
 			// 2. Store the message sent
-			messageService.save(p2pMessage);
+			messageRepository.save(p2pMessage);
 		} catch (NotConnectedException e) {
 			log.severe("ERROR: Peer client is not connected!");
 		} catch (InterruptedException e) {
@@ -315,7 +314,8 @@ public class XMPPService {
 		log.info("Message sent");
 	}
 
-
+	
+	
 	/*
 
 	public void connect(String username, String password, String xmppDomain, String host, int port, String caFile) {

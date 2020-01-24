@@ -7,38 +7,39 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import cim.ConfigTokens;
-import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
-import cim.repository.P2PMessageRepository;
 import cim.service.XMPPService;
 
 
 public class P2PMessageFactory {
-
-
+	
 	// -- Attributes
-	private Logger log = Logger.getLogger(P2PMessageFactory.class.getName());
+	private static Logger log = Logger.getLogger(P2PMessageFactory.class.getName());
+	
+	// static P2P Message tokens
+	private static final String SLASH_TOKEN = "/";
+	private static final String OWNER_TOKEN = "owner";
+	private static final String EMPTY_TOKEN = "";
+
 
 	// -- Constructor 
-	public P2PMessageFactory() {
+	private P2PMessageFactory() {
 		// empty
 	}
 	
 	// -- Methods
 	
-	public P2PMessage createP2PRequestMessage(HttpServletRequest request, Map<String, String> headers)  {
+	public static P2PMessage createP2PRequestMessage(HttpServletRequest request, Map<String, String> headers)  {
 		 P2PMessage p2pMessage = new P2PMessage();
 		 Date now = new Date();
 		 // Compute p2pMessage fields
 		 String remotePath = retrievePath(request);
 		 String method = request.getMethod();
-		 String remoteRequest = remotePath.substring(remotePath.indexOf('/'));
+		 String remoteRequest = remotePath.substring(remotePath.indexOf(SLASH_TOKEN));
 		 // __ compute the receiver id
 		 String receiverId = computeP2PMessageReceiver(remotePath);
 		 // __ compute the message id 
@@ -49,35 +50,36 @@ public class P2PMessageFactory {
 		 p2pMessage.setReceiver(receiverId);
 		 p2pMessage.setTime(now.toString());
 		 p2pMessage.setRequest(remoteRequest);
-		 p2pMessage.setMessage("");
+		 p2pMessage.setMessage(EMPTY_TOKEN);
 		 p2pMessage.setMethod(method);
 		 p2pMessage.setError(false);
 		 // TODO: Add headers
 		 return p2pMessage;
 	}
 	
-	private String computeP2PMessageId(String owner, String receiver, Date now) {
+	private static String computeP2PMessageId(String owner, String receiver, Date now) {
 		 StringBuilder documentId = new StringBuilder(owner);
 		 documentId.append("::").append(receiver).append("::").append(now.toString());
 		 return documentId.toString();
 	}
 	
-	private String computeP2PMessageReceiver(String remotePath) {
-		String owner = remotePath.substring(0, remotePath.indexOf('/')).toLowerCase();
+	private static String computeP2PMessageReceiver(String remotePath) {
+		String owner = remotePath.substring(0, remotePath.indexOf(SLASH_TOKEN)).toLowerCase();
 		 StringBuilder receiverId = new StringBuilder(owner);
 		 receiverId.append("@").append(XMPPService.p2pDomain);
 		 return receiverId.toString();
 	}
-	 private String retrievePath(HttpServletRequest request) {
+	 private static String retrievePath(HttpServletRequest request) {
 		 String urlToken = ConfigTokens.URL_TOKEN;
 		 String path = request.getRequestURL().toString();
+		 path = path.substring(path.indexOf("://")+3, path.length());
 		 String remotePath = path.substring(path.indexOf(urlToken)+urlToken.length());
-		 if(remotePath.startsWith("/"))
+		 if(remotePath.startsWith(SLASH_TOKEN))
 			 remotePath = remotePath.substring(1);
 		 return remotePath;
 	 }
 	 
-	 public P2PMessage createP2PMessageFromJson(String jsonDocumentEnconded) {
+	 public static P2PMessage createP2PMessageFromJson(String jsonDocumentEnconded) {
 		 String jsonDocument = "";
 		 
 		 try {
@@ -89,13 +91,12 @@ public class P2PMessageFactory {
 		 P2PMessage p2pMessage = new P2PMessage();
 		 try {
 		 JsonParser parser = new JsonParser();
-		 System.out.println("Parsing: "+jsonDocument);
-		 System.out.println("----------------------");
+		 
 		 JsonObject jsonP2PMessage = parser.parse(jsonDocument).getAsJsonObject();
 		 if(jsonP2PMessage.has("id")) 
 			 p2pMessage.setId(jsonP2PMessage.get("id").getAsString());
-		 if(jsonP2PMessage.has("owner")) 
-			 p2pMessage.setOwner(jsonP2PMessage.get("owner").getAsString());
+		 if(jsonP2PMessage.has(OWNER_TOKEN)) 
+			 p2pMessage.setOwner(jsonP2PMessage.get(OWNER_TOKEN).getAsString());
 		 if(jsonP2PMessage.has("receiver")) 
 			 p2pMessage.setReceiver(jsonP2PMessage.get("receiver").getAsString());
 		 if(jsonP2PMessage.has("time")) 
@@ -119,7 +120,7 @@ public class P2PMessageFactory {
 	 public String fromP2PMessageToJSon(P2PMessage message) {
 		 	JsonObject jsonMessage = new JsonObject();
 		 	jsonMessage.addProperty("id", message.getId());
-		 	jsonMessage.addProperty("owner", message.getOwner());
+		 	jsonMessage.addProperty(OWNER_TOKEN, message.getOwner());
 		 	jsonMessage.addProperty("receiver", message.getReceiver());
 		 	jsonMessage.addProperty("time", message.getTime());
 		 	jsonMessage.addProperty("request", message.getRequest());
@@ -131,10 +132,10 @@ public class P2PMessageFactory {
 	 }
 	 
 	 // TODO: REPLACE THE BASE64 FOR ENCRIPTION 
-	 public String fromP2PMessageToB64(P2PMessage message) {
+	 public static String fromP2PMessageToB64(P2PMessage message) {
 		 	JsonObject jsonMessage = new JsonObject();
 		 	jsonMessage.addProperty("id", message.getId());
-		 	jsonMessage.addProperty("owner", message.getOwner());
+		 	jsonMessage.addProperty(OWNER_TOKEN, message.getOwner());
 		 	jsonMessage.addProperty("receiver", message.getReceiver());
 		 	jsonMessage.addProperty("time", message.getTime());
 		 	jsonMessage.addProperty("request", message.getRequest());
@@ -145,7 +146,7 @@ public class P2PMessageFactory {
 			return Base64.getEncoder().encodeToString(jsonMessage.toString().getBytes());
 	 }
 	 
-	 public P2PMessage createP2PMessage(String owner, String receiver, String message) {
+	 public static P2PMessage createP2PMessage(String owner, String receiver, String message) {
 		 P2PMessage p2pMessage = new P2PMessage();
 		 Date now = new Date();
 		 p2pMessage.setOwner(owner);
@@ -153,19 +154,10 @@ public class P2PMessageFactory {
 		 p2pMessage.setId(computeP2PMessageId(owner, receiver, now));
 		 p2pMessage.setTime(now.toString());
 		 p2pMessage.setMessage(message);
-		 p2pMessage.setRequest("");
-		 p2pMessage.setMethod("");
+		 p2pMessage.setRequest(EMPTY_TOKEN);
+		 p2pMessage.setMethod(EMPTY_TOKEN);
 
 		 return p2pMessage;
-	 }
-
-	 public void save(P2PMessage p2pMessage) {
-		 try {
-			// p2pMessageRepository.save(p2pMessage);
-		 }catch(Exception e) {
-			 e.printStackTrace();
-			 log.severe(e.toString());
-		 }
 	 }
 
 	

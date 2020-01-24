@@ -13,6 +13,10 @@ import cim.ConfigTokens;
 import cim.model.ValidationReport;
 import helio.framework.objects.RDF;
 
+/**
+ * This class is a Factory that helps in the validation of RDF using the Shapes designed for DELTA
+ *
+ */
 public class ValidationReportFactory {
 	
 	private ValidationReportFactory() {
