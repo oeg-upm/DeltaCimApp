@@ -50,10 +50,11 @@ public class CloudService {
 			Set<String> endpoints = aclService.getAllUsernames().stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
 			for(String endpoint:endpoints) {
 				
-				endpoint = endpoint.replace("<", "").replace(">", "")+"?query="+URLEncoder.encode(queryString, "UTF-8");
+				endpoint = endpoint+"?query="+URLEncoder.encode(queryString, "UTF-8");
 				System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+endpoint);
 				String responseMessage = Unirest.get(endpoint).asString().getBody();
 				System.out.println(responseMessage);
+				answer = responseMessage;
 			}
 			
 		}catch(Exception e) {
@@ -95,7 +96,7 @@ public class CloudService {
 	
 	private String transformToDELTAURLs(String user) {
 		StringBuilder formatedEndpoint= new StringBuilder();
-		formatedEndpoint.append("<http://").append("localhost:8080").append("/delta/").append(user).append("/sparql").append(">");
+		formatedEndpoint.append("http://").append("localhost:").append(ConfigTokens.LOCAL_PORT).append("/delta/").append(user).append("/sparql").append("");
 		return formatedEndpoint.toString();
 	}
 	

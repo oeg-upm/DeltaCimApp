@@ -46,7 +46,7 @@ public class DataFetcher {
 		Route sparqlRoute = new Route();
 		sparqlRoute.setAppendPath(true);
 		sparqlRoute.setRegexPath("/sparql.*");
-		sparqlRoute.setEndpoint("http://localhost:8080/api");
+		sparqlRoute.setEndpoint("http://localhost:"+ConfigTokens.LOCAL_PORT+"/api");
 		sparqlRoute.setFormat("SPARQL");
 		return sparqlRoute;
 	}
