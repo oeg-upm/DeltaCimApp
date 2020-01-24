@@ -34,23 +34,22 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
             .authorizeRequests()
-            .antMatchers("/**").permitAll();
-//                .antMatchers("/", "/login", "/api/login", "/css/**", "/images/**", "/vendor/**", "/scss/**").permitAll() 
-//                //.antMatchers("/acl*").access("hasRole('ADMIN')")
-//                .anyRequest().authenticated()
-//                .and()
-//            .formLogin()
-//                .loginPage("/api/login")
-//                .defaultSuccessUrl("/dashboard")
-//                .failureUrl("/login")
-//                .usernameParameter("username")
-//                .passwordParameter("password")
-//                .permitAll()
-//                .and()
-//            .logout()                                    
-//            	.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//            	.logoutSuccessUrl("/")
-//            	.permitAll();
+                .antMatchers("/", "/login", "/api/login", "/css/**", "/images/**", "/vendor/**", "/scss/**").permitAll() 
+                //.antMatchers("/acl*").access("hasRole('ADMIN')")
+                .anyRequest().authenticated()
+                .and()
+            .formLogin()
+                .loginPage("/api/login")
+                .defaultSuccessUrl("/dashboard")
+                .failureUrl("/login")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .permitAll()
+                .and()
+            .logout()                                    
+            	.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+            	.logoutSuccessUrl("/")
+            	.permitAll();
     }
     
      

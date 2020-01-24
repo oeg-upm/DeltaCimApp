@@ -7,14 +7,17 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.annotation.Syntax;
-
+import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,27 @@ public class CloudService {
 	}
 	
 	public String federateQuery(String queryString, SparqlResultsFormat format) {
+		System.out.println(queryString);
+		String answer = null;
+		try {
+			Set<String> endpoints = aclService.getAllUsernames().stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
+			for(String endpoint:endpoints) {
+				System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$>"+endpoint);
+				endpoint = endpoint.replace("<", "").replace(">", "");
+				Query query = QueryFactory.create(queryString, Syntax.syntaxARQ);
+				QueryEngineHTTP qeh = new QueryEngineHTTP(endpoint, query);
+				ResultSet resultSet = qeh.execSelect();
+				answer = formatQueryAnswer(resultSet, format);
+				qeh.close();
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return answer;
+	}
+	
+/*	public String federateQuery(String queryString, SparqlResultsFormat format) {
 		String queryFederated = rewriteQuery(queryString, aclService.getAllUsernames());
 		String answer = null;
 		QueryExecution qexec = null;
@@ -55,7 +79,7 @@ public class CloudService {
 		}
 		
 		return answer;
-	}
+	}*/
 	
 	private String rewriteQuery(String queryString, List<String> users) {
 		Set<String> endpoints = users.stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
