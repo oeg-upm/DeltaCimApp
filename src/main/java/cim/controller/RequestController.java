@@ -31,6 +31,7 @@ public class RequestController extends AbstractController{
 	 @RequestMapping(method = RequestMethod.GET, produces= {"text/html", "text/rdf+n3", "text/n3", "text/ntriples", "text/rdf+ttl", "text/rdf+nt", "text/plain", "text/rdf+turtle", "text/turtle", "application/turtle", "application/x-turtle", "application/x-nice-turtle", "application/json", "application/odata+json", "application/ld+json", "application/x-trig", "application/rdf+xml"})
 	 @ResponseBody
 	 public DeferredResult<String> getResource(@RequestHeader Map<String, String> headers,  final HttpServletRequest request, HttpServletResponse response){
+
 		 prepareResponse(response);
 		 if(p2pService.isConnected()) {
 			 return p2pService.sendMessage(request, headers, "");

@@ -65,7 +65,7 @@ public class P2PMessageFactory {
 	private String computeP2PMessageReceiver(String remotePath) {
 		String owner = remotePath.substring(0, remotePath.indexOf('/')).toLowerCase();
 		 StringBuilder receiverId = new StringBuilder(owner);
-		 receiverId.append("@").append(XMPPService.getCurrentXmppUser());
+		 receiverId.append("@").append(XMPPService.p2pDomain);
 		 return receiverId.toString();
 	}
 	 private String retrievePath(HttpServletRequest request) {
@@ -89,6 +89,8 @@ public class P2PMessageFactory {
 		 P2PMessage p2pMessage = new P2PMessage();
 		 try {
 		 JsonParser parser = new JsonParser();
+		 System.out.println("Parsing: "+jsonDocument);
+		 System.out.println("----------------------");
 		 JsonObject jsonP2PMessage = parser.parse(jsonDocument).getAsJsonObject();
 		 if(jsonP2PMessage.has("id")) 
 			 p2pMessage.setId(jsonP2PMessage.get("id").getAsString());

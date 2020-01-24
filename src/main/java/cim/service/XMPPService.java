@@ -62,9 +62,10 @@ public class XMPPService {
 	public XmppRepository xmppRepository;
 	
 	
-	public static String p2pUsername;
+	public static String p2pUsername, p2pDomain;
 	static {
 		p2pUsername = null;
+		p2pDomain = null;
 	}
 		
 	public static String getCurrentXmppUser(){
@@ -75,7 +76,9 @@ public class XMPPService {
 		if(xmppRepository.findAll().isEmpty()) {
 			XmppUser firstConnection = XmppFactory.createDefaultXmpp();
 			p2pUsername = firstConnection.getUsername();
+			p2pDomain = firstConnection.getHost();
 			xmppRepository.save(firstConnection);
+			
 		}
 	}
 
@@ -86,6 +89,7 @@ public class XMPPService {
 			xmppRepository.deleteAll();
 		}
 		p2pUsername = xmppUser.getUsername();
+		p2pDomain = xmppUser.getHost();
 		xmppRepository.save(xmppUser);
 	}
 
@@ -178,7 +182,7 @@ public class XMPPService {
 			connection.setParsingExceptionCallback(new CimParsingExceptionCallback());
 			// 3. Update static user
 			p2pUsername = username;
-
+			p2pDomain = xmppDomain;
 		}catch(Exception e) {
 			log.info("Peer exception");
 			e.printStackTrace();
