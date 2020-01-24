@@ -78,7 +78,7 @@ public class CloudController  extends AbstractSparqlController {
 			}
 			return result;
 		}
-	
+		
 	
 	
 }

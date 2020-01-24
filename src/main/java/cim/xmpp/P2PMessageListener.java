@@ -27,38 +27,46 @@ public class P2PMessageListener implements IncomingChatMessageListener {
 	@Override
 	public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
 		String P2PUser = from.asEntityBareJidString().substring(0, from.toString().indexOf("@"));
-		if(ACLService.isAuthorized(P2PUser.trim())) {
-			
-	        try {
-		    	  	// X.1 Cast message received to a P2PMessage
-				System.out.println("Received from "+from.asEntityBareJidString());//+"\n\tContent:"+message.getBody());
-	
+
+		try {
+			if (ACLService.isAuthorized(P2PUser.trim())) {
+				// X.1 Cast message received to a P2PMessage
+				System.out.println("Received from " + from.asEntityBareJidString());// +"\n\tContent:"+message.getBody());
+
 				P2PMessage incomingMessage = P2PMessageFactory.createP2PMessageFromJson(message.getBody());
 				log.info("[Listener]Request message received");
-				
-				if(!incomingMessage.getError()) {
+
+				if (!incomingMessage.getError()) {
 					// X.1 Create response message
 					P2PMessage response = null;
-					if(isRequestP2PMessage(incomingMessage)) {
+					if (isRequestP2PMessage(incomingMessage)) {
 						// X.1.A if message was a request fetch data from third-part service and answer
-						DataFetcher fetcher = new DataFetcher(); 
+						DataFetcher fetcher = new DataFetcher();
 						String responseMessage = fetcher.fetchData(incomingMessage);
-						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(), responseMessage);
-					}else {
+						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(),
+								responseMessage);
+					} else {
 						// X.1.A Otherwise send error message
 						log.severe("[Listener] Received a P2PMessage that is not a request of data");
-						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_1);
+						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(),
+								ConfigTokens.ERROR_JSON_MESSAGES_1);
 						response.setError(true); // otherwise it will generate an infinite loop
 					}
-					//messageService.save(response); //TODO PONER UNA COLA EN EL SERVICIO QUE SE GUARDE CADA MINUTO
-					
-					
+					// messageService.save(response); //TODO PONER UNA COLA EN EL SERVICIO QUE SE
+					// GUARDE CADA MINUTO
+
 					chat.send(P2PMessageFactory.fromP2PMessageToB64(response));
 				}
-			} catch (Exception e) {		
-				e.printStackTrace();
-				log.severe("[Listener] ERROR: An error ocurred processing a request message");
+			} else {
+				P2PMessage response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(),
+						ConfigTokens.ERROR_JSON_MESSAGES_3);
+				response.setError(true); // otherwise it will generate an infinite loop
+				chat.send(P2PMessageFactory.fromP2PMessageToB64(response));
 			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.severe("[Listener] ERROR: An error ocurred processing a request message");
 		}
 	}
 	

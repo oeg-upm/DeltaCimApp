@@ -7,9 +7,14 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.env.Environment;
+
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import cim.ConfigTokens;
 import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
 import cim.model.Route;
@@ -19,13 +24,16 @@ public class DataFetcher {
 
 	private Logger log = Logger.getLogger(DataFetcher.class.getName());
 	
+
+	
+	
 	public String fetchData(P2PMessage message) {
 		String response =  null;
 		String endpoint = buildEndpointRoute(message);
 		System.out.println("Local endpoint requested: "+endpoint);
-		if(endpoint!=null)
+		if(endpoint!=null) {
 			response= sendRequest(message, endpoint);
-		if(response==null){
+		}else {
 			response = "{\"error\":\"internal error\"}";
 			log.severe("Endpoint requested was not found: "+endpoint);
 		}
@@ -33,11 +41,20 @@ public class DataFetcher {
 	}
 	
 
+	private Route createSPARQLRoute() {
+		Route sparqlRoute = new Route();
+		sparqlRoute.setAppendPath(true);
+		sparqlRoute.setRegexPath("/sparql.*");
+		sparqlRoute.setEndpoint("http://localhost:8080/api");
+		sparqlRoute.setFormat("SPARQL");
+		return sparqlRoute;
+	}
 
 	private String buildEndpointRoute(P2PMessage message) {
 		String endpointRoute = null;
 		List<Route> routes = new ArrayList<>();
-		routes.addAll(BridgingService.getRoutes());;
+		routes.add(createSPARQLRoute());
+		routes.addAll(BridgingService.getRoutes());
 		int maxSize = routes.size();
 		for(int index=0; index < maxSize; index++) {
 			Route route =  routes.get(index);
@@ -81,6 +98,7 @@ public class DataFetcher {
 			if(methodNormalized.equals("get")) {
 				responseMessage = Unirest.get(endpoint).asString().getBody();
 			}else if(methodNormalized.equals("post")) {
+				System.out.println("POST BODY: "+message.getMessage());
 				responseMessage = Unirest.post(endpoint).body(message.getMessage()).asString().getBody();
 			}else if(methodNormalized.equals("put")) {
 				//responseMessage = Unirest.put(endpoint).body(message.getMessage()).asString().getBody();

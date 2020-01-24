@@ -1,6 +1,5 @@
 package cim.xmpp.factory;
 
-import java.util.logging.Logger;
 import cim.ConfigTokens;
 import cim.model.XmppUser;
 

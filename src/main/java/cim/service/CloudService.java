@@ -45,6 +45,7 @@ public class CloudService {
 			ResultSet results = qexec.execSelect();
 			answer = formatQueryAnswer(results, format);
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.severe(e.toString());
 		}finally {
 			if(qexec!=null)
@@ -67,7 +68,7 @@ public class CloudService {
 	
 	private String transformToDELTAURLs(String user) {
 		StringBuilder formatedEndpoint= new StringBuilder();
-		formatedEndpoint.append("<http://").append(XMPPService.p2pDomain).append("/").append(user).append("/sparql").append(">");
+		formatedEndpoint.append("<http://").append("localhost:8080").append("/delta/").append(user).append("/sparql").append(">");
 		return formatedEndpoint.toString();
 	}
 	

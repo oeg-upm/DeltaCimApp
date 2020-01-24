@@ -12,7 +12,7 @@ public class ConfigTokens {
 	public static final String P2P_CONFIG_CACERT_FOLDER = "./Certificates/cacerts";
 	public static final String VALIDATIONS_SHAPES_FILE = "./shapes/delta-shapes.ttl";
 	public static final String VALIDATIONS_SHAPES_SUCCESS_MESSAGE  = "Successfully validated!";
-	
+	public static String LOCAL_PORT = "8080";
 	// URL token identifier
 	public static final  String URL_TOKEN = "/delta"; 
 	
@@ -33,6 +33,12 @@ public class ConfigTokens {
 			"}";
 
 
+	public static final String ERROR_JSON_MESSAGES_3 = "{\n" + 
+			"  \"error\": {\n" + 
+			"    \"code\": 401,\n" + 
+			"    \"message\": \"Error, unauthorized\"\n" + 
+			"  }\n" + 
+			"}";
 	
 	
 
