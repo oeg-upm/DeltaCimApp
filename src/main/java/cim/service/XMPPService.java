@@ -59,8 +59,8 @@ public class XMPPService {
 
 	@Autowired
 	public XmppUserRepository xmppRepository;
-	@Autowired
-	public P2PMessageRepository messageRepository;
+	//@Autowired
+	//public P2PMessageRepository messageRepository;
 	
 	public static String p2pUsername, p2pDomain;
 	static {
@@ -251,9 +251,6 @@ public class XMPPService {
 		try {
 			// 1. Create a chat with the receiver
 			EntityBareJid jid = JidCreate.entityBareFrom(receiverId);
-
-
-
 			ChatManager chatManager = ChatManager.getInstanceFor(connection);
 			chatManager.setXhmtlImEnabled(true);
 			// 2. Append a listener to catch the response
@@ -271,7 +268,7 @@ public class XMPPService {
 							p2pResponse.setError(true);
 						}
 						// X.2 Send to front-end response and copy the message
-						messageRepository.save(p2pResponse);
+						//messageRepository.save(p2pResponse);
 						response.setResult(p2pResponse.getMessage());
 
 					} catch (Exception e) {
@@ -303,7 +300,7 @@ public class XMPPService {
 			System.out.println("Sending to "+jid.asEntityBareJidString()+"\n\tContent:"+content);
 			chat.send(content);
 			// 2. Store the message sent
-			messageRepository.save(p2pMessage);
+			//messageRepository.save(p2pMessage);
 		} catch (NotConnectedException e) {
 			log.severe("ERROR: Peer client is not connected!");
 		} catch (InterruptedException e) {

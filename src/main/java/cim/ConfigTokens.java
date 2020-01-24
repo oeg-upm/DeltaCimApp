@@ -8,6 +8,7 @@ public class ConfigTokens {
 	public static final String DEFAULT_PASSWORD = "default";
 	public static final String DEFAULT_DOMAIN = "jcano.ddns.net";
 	public static final String DEFAULT_HOST = "jcano.ddns.net";
+	public static final String DEFAULT_PORT = "5222";
 	public static final String P2P_CONFIG_CACERT_FOLDER = "./Certificates/cacerts";
 	public static final String VALIDATIONS_SHAPES_FILE = "./shapes/delta-shapes.ttl";
 	public static final String VALIDATIONS_SHAPES_SUCCESS_MESSAGE  = "Successfully validated!";
@@ -30,6 +31,7 @@ public class ConfigTokens {
 			"    \"message\": \"Error, message received has no content\"\n" + 
 			"  }\n" + 
 			"}";
+
 
 	
 	

@@ -9,10 +9,10 @@ import cim.model.XmppUser;
  */
 public class XmppUserFactory {
 
-	private static Logger log = Logger.getLogger(XmppUserFactory.class.getName());
+	//-- Attributes
 	
 	private XmppUserFactory() {
-		// empty
+		// empty: hides the public constructor
 	}
 	
 	/**
@@ -25,9 +25,8 @@ public class XmppUserFactory {
 		xmpp.setPassword(ConfigTokens.DEFAULT_PASSWORD);
 		xmpp.setXmppDomain(ConfigTokens.DEFAULT_DOMAIN);
 		xmpp.setHost(ConfigTokens.DEFAULT_HOST);
-		xmpp.setPort(Integer.parseInt("8080"));
+		xmpp.setPort(Integer.parseInt(ConfigTokens.DEFAULT_PORT));
 		xmpp.setFileCA(ConfigTokens.P2P_CONFIG_CACERT_FOLDER);
-		log.warning("Created default user for the CIM");
 		return xmpp;
 	}	
 	

@@ -19,9 +19,13 @@ import helio.framework.objects.RDF;
  */
 public class ValidationReportFactory {
 	
+	
+	// -- Constructor
 	private ValidationReportFactory() {
 		// empty: hides the public constructor
 	}
+	
+	// -- Methods
 	
 	/**
 	 * Creates a {@link ValidationReport} that specified that data was successful validated
@@ -54,6 +58,7 @@ public class ValidationReportFactory {
 		return report;
 	}
 	
+	
 	private static String formatValidationReport(RDF reportRDF) {
 		StringBuilder report = new StringBuilder();
 		NodeIterator iterator = reportRDF.getRDF().listObjectsOfProperty(ResourceFactory.createProperty("http://www.w3.org/ns/shacl#result"));
@@ -81,9 +86,9 @@ public class ValidationReportFactory {
 	}
 	
 	/**
-	 * This method 
-	 * @param report
-	 * @return
+	 * This method establishes when a {@link ValidationReport} is success or not
+	 * @param report a {@link ValidationReport}
+	 * @return if the a {@link ValidationReport} is success, true, or not, false
 	 */
 	public static boolean isSuccessfullReport(ValidationReport report) {
 		return report!=null && report.getReport().contains(ConfigTokens.VALIDATIONS_SHAPES_SUCCESS_MESSAGE);
