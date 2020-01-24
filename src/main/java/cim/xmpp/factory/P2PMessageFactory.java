@@ -1,7 +1,9 @@
 package cim.xmpp.factory;
 
+import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -39,7 +41,8 @@ public class P2PMessageFactory {
 		 // Compute p2pMessage fields
 		 String remotePath = retrievePath(request);
 		 String method = request.getMethod();
-		 String remoteRequest = remotePath.substring(remotePath.indexOf(SLASH_TOKEN));
+		 String parameters = buildParameters(request);
+		 String remoteRequest = remotePath.substring(remotePath.indexOf(SLASH_TOKEN))+parameters;
 		 // __ compute the receiver id
 		 String receiverId = computeP2PMessageReceiver(remotePath);
 		 // __ compute the message id 
@@ -56,6 +59,24 @@ public class P2PMessageFactory {
 		 // TODO: Add headers
 		 return p2pMessage;
 	}
+	
+	private static String buildParameters(HttpServletRequest request) {
+		String result = "";
+		try {
+			StringBuilder parameters = new StringBuilder("?");
+			Enumeration<String> parameterNames = request.getParameterNames();
+			while(parameterNames.hasMoreElements()) {
+				String parameter = parameterNames.nextElement();
+				String parameterValue = URLEncoder.encode(request.getParameter(parameter), "UTF-8");
+				parameters.append(parameter).append("=").append(parameterValue).append("&");
+			}
+			result = parameters.substring(0, parameters.lastIndexOf("&"));
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
 	
 	private static String computeP2PMessageId(String owner, String receiver, Date now) {
 		 StringBuilder documentId = new StringBuilder(owner);
