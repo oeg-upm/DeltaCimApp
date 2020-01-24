@@ -27,6 +27,7 @@ public class CloudService {
 	
 	@Autowired
 	public ACLService aclService;
+	
 	private Logger log = Logger.getLogger(CloudService.class.getName());
 	private static final String JSONLD = "JSON-LD";
 	

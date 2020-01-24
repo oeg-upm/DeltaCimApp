@@ -2,6 +2,8 @@ package cim.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,8 @@ public class BridgingController extends AbstractController{
 	// Provide GUI
 	
 	@RequestMapping(value="/bridging", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
-	public String getBridgingService(Model model) {
-		if(!isLogged()) {
+	public String getBridgingService(Model model, HttpServletRequest request) {
+		if(!isLogged(request)) {
 			return "redirect:/login";
 		}
 		model.addAttribute("routes", bridgingService.getAllRoutes());
@@ -43,11 +45,11 @@ public class BridgingController extends AbstractController{
 		
 	@RequestMapping(value="/api/routes", method = RequestMethod.GET, produces ="application/json")
 	@ResponseBody
-	public List<Route> getAllRoutes(HttpServletResponse response) {
+	public List<Route> getAllRoutes(HttpServletResponse response, HttpServletRequest request) {
 		prepareResponse(response);
 		
 		List<Route> routes =  new ArrayList<>();
-		if(isLogged()) {
+		if(isLogged(request)) {
 			routes = bridgingService.getAllRoutes();
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
 		} // By default returns the error code
@@ -56,9 +58,9 @@ public class BridgingController extends AbstractController{
 	
 		
 	@RequestMapping(value="/api/route", method = RequestMethod.POST)
-	public String saveRoute(@Valid @ModelAttribute(value="route") Route route, BindingResult bindingResult, HttpServletResponse response, Model model) {
+	public String saveRoute(@Valid @ModelAttribute(value="route") Route route, BindingResult bindingResult, HttpServletResponse response, Model model, HttpServletRequest request) {
 		prepareResponse(response);
-		if(isLogged()) {
+		if(isLogged(request)) {
 			if(!bindingResult.hasErrors()) {	
 				response.setStatus(HttpServletResponse.SC_ACCEPTED);
 				bridgingService.update(route);
@@ -72,10 +74,10 @@ public class BridgingController extends AbstractController{
 	
 	@RequestMapping(value="/api/route", method = RequestMethod.DELETE)
 	@ResponseBody
-	public void deleteRoute(@RequestBody(required=true) String routeId, HttpServletResponse response, Model model) {
+	public void deleteRoute(@RequestBody(required=true) String routeId, HttpServletResponse response, Model model, HttpServletRequest request) {
 		System.out.println("Enter");
 		prepareResponse(response);		
-		if(isLogged() && !routeId.isEmpty()) {
+		if(isLogged(request) && !routeId.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
 			bridgingService.remove(routeId);
 		}

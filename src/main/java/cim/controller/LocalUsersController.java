@@ -3,7 +3,6 @@ package cim.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cim.model.User;
-import cim.model.XmppUser;
 import cim.service.UserService;
 
 @Controller
@@ -27,10 +25,6 @@ public class LocalUsersController  extends AbstractController{
 	@Autowired
 	public UserService userService;
 	
-	@PreDestroy
-	public void disconnectPeer() {
-		loginService.disconnect();
-	}
 	
 	@RequestMapping(value="/users", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
 	public String getDashboard(Model model, HttpServletResponse response) {
@@ -71,7 +65,6 @@ public class LocalUsersController  extends AbstractController{
 	@RequestMapping(value="/api/cimuser", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteCimUser(@RequestBody(required=true) String userId, HttpServletResponse response, Model model) {
-		System.out.println("DELETEANDO");
 		prepareResponse(response);		
 		if(!userId.isEmpty() ) {
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	

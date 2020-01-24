@@ -1,6 +1,11 @@
 package cim.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +18,22 @@ public class BridgingService {
 	@Autowired
 	public RouteRepository routeRepository;
 	
+	
+	private static Set<Route> routes;
+	
+	static {
+		routes = new HashSet<>();
+	}
+	
+	@PostConstruct
+	public void readAllACL() {
+		routes.addAll(routeRepository.findAll());
+	}
+	
+	public static Set<Route> getRoutes(){
+		return routes;
+	}
+	
 	@Autowired
 	public KGService kgService;
 	
@@ -21,8 +42,9 @@ public class BridgingService {
 	}
 	
 	public void update(Route route){
-		routeRepository.save(route);
+		Route newRoute = routeRepository.save(route);
 		kgService.updateMappings();
+		routes.add(newRoute);
 	}
 
 	public Boolean remove(String routeId) {
@@ -31,6 +53,7 @@ public class BridgingService {
 		if(route!=null) {
 			routeRepository.delete(route);
 			removed = true;
+			routes.remove(route);
 		}
 		kgService.stopService();
 		kgService.initEngine();

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,8 @@ public class ValidationController extends AbstractController {
 	// Provide GUI
 	
 	@RequestMapping(value="/validation", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
-	public String getValidationService(Model model) {
-		if(!isLogged()) {
+	public String getValidationService(Model model, HttpServletRequest request) {
+		if(!isLogged(request)) {
 			return "redirect:/login";
 		}
 		model.addAttribute("reports", validationService.getAllReports());
@@ -46,10 +47,10 @@ public class ValidationController extends AbstractController {
 		
 	@RequestMapping(value="/api/validation/reports", method = RequestMethod.GET, produces ="application/json")
 	@ResponseBody
-	public List<ValidationReport> getAllReports(HttpServletResponse response) {
+	public List<ValidationReport> getAllReports(HttpServletResponse response, HttpServletRequest request) {
 		prepareResponse(response);
 		List<ValidationReport> reports =  new ArrayList<>();
-		if(isLogged()) {
+		if(isLogged(request)) {
 			reports = validationService.getAllReports();
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
 		} // By default returns the error code
@@ -58,9 +59,9 @@ public class ValidationController extends AbstractController {
 	
 	@RequestMapping(value="/api/validation/report", method = RequestMethod.DELETE)
 	@ResponseBody
-	public void deleteReport(@RequestBody(required=true) String reportId, HttpServletResponse response, Model model) {
+	public void deleteReport(@RequestBody(required=true) String reportId, HttpServletResponse response, Model model, HttpServletRequest request) {
 		prepareResponse(response);		
-		if(isLogged() && !reportId.isEmpty()) {
+		if(isLogged(request) && !reportId.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
 			validationService.remove(reportId);
 		}
@@ -70,11 +71,11 @@ public class ValidationController extends AbstractController {
 	
 	@RequestMapping(value="/api/validation/endpoint", method = RequestMethod.GET, produces ="application/json")
 	@ResponseBody
-	public ValidationReport validateRDFEndpoint(@RequestParam String address, @RequestParam String format, HttpServletResponse response) {
+	public ValidationReport validateRDFEndpoint(@RequestParam String address, @RequestParam String format, HttpServletResponse response, HttpServletRequest request) {
 		prepareResponse(response);
 		ValidationReport validationReport = new ValidationReport();
 		validationReport.setReport(ConfigTokens.VALIDATIONS_SHAPES_SUCCESS_MESSAGE);
-		if(isLogged()) {
+		if(isLogged(request)) {
 			ValidationReport validationReportAux = validationService.validateRDFEndpoint(address, format);
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
 			if(validationReportAux!=null) {
@@ -88,10 +89,10 @@ public class ValidationController extends AbstractController {
 	
 	@RequestMapping(value="/api/validation/document", method = RequestMethod.POST, produces ="application/json")
 	@ResponseBody
-	public ValidationReport validateRDF(@RequestParam String format, @RequestBody String data, HttpServletResponse response) {
+	public ValidationReport validateRDF(@RequestParam String format, @RequestBody String data, HttpServletResponse response, HttpServletRequest request) {
 		prepareResponse(response);
 		ValidationReport validationReport = null;
-		if(isLogged()) {
+		if(isLogged(request)) {
 			validationReport = new ValidationReport();
 			
 			validationService.validateRDF(data, format);

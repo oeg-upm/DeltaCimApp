@@ -1,7 +1,5 @@
 package cim.controller;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
@@ -13,15 +11,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import cim.model.User;
 import cim.model.XmppUser;
-import cim.repository.XmppRepository;
-import cim.service.ConnectionService;
 import cim.service.UserService;
 import cim.service.XMPPService;
 
@@ -29,13 +23,7 @@ import cim.service.XMPPService;
 public class DashboardController extends AbstractController{
 
 	@Autowired
-	public ConnectionService loginService;
-
-	@Autowired
 	public XMPPService xmppService;
-
-	@Autowired
-	public XmppRepository xmppRepository;
 
 	@Autowired
 	public UserService userService;
@@ -47,7 +35,7 @@ public class DashboardController extends AbstractController{
 
 	@PreDestroy
 	public void disconnectPeer() {
-		loginService.disconnect();
+		xmppService.disconnect();
 	}
 
 	@RequestMapping(value="/dashboard", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
@@ -57,7 +45,7 @@ public class DashboardController extends AbstractController{
 		if(xmppUser != null) {
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);
 			model.addAttribute("xmppUser", xmppUser);
-			model.addAttribute("isConnected", loginService.isConnected());
+			model.addAttribute("isConnected", xmppService.isConnected());
 		}
 		return "dashboard.html";
 	}
@@ -78,7 +66,7 @@ public class DashboardController extends AbstractController{
 					//Otherwise, use default XmppUser
 					xmppUser = xmppService.getXmppUser();
 				}
-				loginService.connect(xmppUser.getUsername(), xmppUser.getPassword(), xmppUser.getXmppDomain(), xmppUser.getHost(), xmppUser.getPort(), xmppUser.getFileCA());
+				xmppService.connect(xmppUser.getUsername(), xmppUser.getPassword(), xmppUser.getXmppDomain(), xmppUser.getHost(), xmppUser.getPort(), xmppUser.getFileCA());
 			}catch (Exception e){
 				e.printStackTrace();
 			}
@@ -91,9 +79,9 @@ public class DashboardController extends AbstractController{
 	@ResponseBody
 	public void disconnect(HttpServletResponse response, Model model) {
 		prepareResponse(response);		
-		if(loginService.isConnected()) {
+		if(xmppService.isConnected()) {
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);
-			boolean estaDesconectado = loginService.disconnect();
+			boolean estaDesconectado = xmppService.disconnect();
 			if(estaDesconectado) {
 				response.setStatus(HttpServletResponse.SC_CONFLICT);
 			}

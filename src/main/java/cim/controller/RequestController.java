@@ -61,7 +61,7 @@ public class RequestController extends AbstractController{
 		
 		@PreDestroy
 	    public void logOut() {
-	        p2pService.logout();
+	        p2pService.disconnect();
 	    }
 
 		/*

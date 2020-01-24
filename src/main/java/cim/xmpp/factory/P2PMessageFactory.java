@@ -16,13 +16,12 @@ import cim.ConfigTokens;
 import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
 import cim.repository.P2PMessageRepository;
+import cim.service.XMPPService;
 
 
 public class P2PMessageFactory {
 
-	@Autowired
-	private P2PMessageRepository p2pMessageRepository;
-	
+
 	// -- Attributes
 	private Logger log = Logger.getLogger(P2PMessageFactory.class.getName());
 
@@ -43,10 +42,10 @@ public class P2PMessageFactory {
 		 // __ compute the receiver id
 		 String receiverId = computeP2PMessageReceiver(remotePath);
 		 // __ compute the message id 
-		 String documentId = computeP2PMessageId(DeltaCimApplication.getUsername(), receiverId, now);
+		 String documentId = computeP2PMessageId(XMPPService.getCurrentXmppUser(), receiverId, now);
 		 // __init the p2pMessage
 		 p2pMessage.setId(documentId);
-		 p2pMessage.setOwner(DeltaCimApplication.getUsername());
+		 p2pMessage.setOwner(XMPPService.getCurrentXmppUser());
 		 p2pMessage.setReceiver(receiverId);
 		 p2pMessage.setTime(now.toString());
 		 p2pMessage.setRequest(remoteRequest);
@@ -66,7 +65,7 @@ public class P2PMessageFactory {
 	private String computeP2PMessageReceiver(String remotePath) {
 		String owner = remotePath.substring(0, remotePath.indexOf('/')).toLowerCase();
 		 StringBuilder receiverId = new StringBuilder(owner);
-		 receiverId.append("@").append(DeltaCimApplication.getXmppDomain());
+		 receiverId.append("@").append(XMPPService.getCurrentXmppUser());
 		 return receiverId.toString();
 	}
 	 private String retrievePath(HttpServletRequest request) {

@@ -1,6 +1,5 @@
 package cim.model;
 
-import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.JoinColumn;
 import javax.persistence.Entity;

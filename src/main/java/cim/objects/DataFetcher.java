@@ -1,5 +1,8 @@
 package cim.objects;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +13,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
 import cim.model.Route;
+import cim.service.BridgingService;
 
 public class DataFetcher {
 
@@ -32,9 +36,11 @@ public class DataFetcher {
 
 	private String buildEndpointRoute(P2PMessage message) {
 		String endpointRoute = null;
-		int maxSize = DeltaCimApplication.getRoutes().size();
+		List<Route> routes = new ArrayList<>();
+		routes.addAll(BridgingService.getRoutes());;
+		int maxSize = routes.size();
 		for(int index=0; index < maxSize; index++) {
-			Route route =  DeltaCimApplication.getRoutes().get(index);
+			Route route =  routes.get(index);
 			if(match(route.getRegexPath(), message.getRequest())) {
 				endpointRoute = route.getEndpoint();
 				String path = message.getRequest();

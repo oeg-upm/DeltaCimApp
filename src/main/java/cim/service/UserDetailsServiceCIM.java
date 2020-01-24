@@ -36,7 +36,7 @@ public class UserDetailsServiceCIM implements UserDetailsService {
 			    grantList.add(grantedAuthority);
 		    }
 		}
-	    UserDetails user = (UserDetails) new User(appUser.getUsername(), appUser.getPassword(), grantList);
+	    UserDetails user = new User(appUser.getUsername(), appUser.getPassword(), grantList);
 	    return user;
     }
 }

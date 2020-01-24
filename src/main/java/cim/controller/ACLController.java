@@ -2,11 +2,8 @@ package cim.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +21,6 @@ import cim.service.ACLService;
 public class ACLController extends AbstractController{
 
 	@Autowired
-	@Singleton
 	public ACLService aclService;
 
 	// Provide GUI
