@@ -23,6 +23,10 @@ public class ValidationReportFactory {
 		// empty: hides the public constructor
 	}
 	
+	/**
+	 * Creates a {@link ValidationReport} that specified that data was successful validated
+	 * @return a successful validated {@link ValidationReport} 
+	 */
 	public static ValidationReport createSuccessfullReport() {
 		ValidationReport report = new ValidationReport();
 		Date date = new Date();
@@ -31,6 +35,11 @@ public class ValidationReportFactory {
 		return report;
 	}
 	
+	/**
+	 * Creates a human-readable {@link ValidationReport} from a given {@link RDF} SHACL shape validation result
+	 * @param validationResult the results of validating an RDF document against a SHACL shape
+	 * @return a human-readable {@link ValidationReport}  
+	 */
 	public static ValidationReport createFromRDF(RDF validationResult) {
 		Date now = new Date();
 		ValidationReport report = new ValidationReport();
@@ -71,6 +80,11 @@ public class ValidationReportFactory {
 		return report.toString().replace("http://www.w3.org/ns/shacl#", "");
 	}
 	
+	/**
+	 * This method 
+	 * @param report
+	 * @return
+	 */
 	public static boolean isSuccessfullReport(ValidationReport report) {
 		return report!=null && report.getReport().contains(ConfigTokens.VALIDATIONS_SHAPES_SUCCESS_MESSAGE);
 	}

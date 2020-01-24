@@ -21,8 +21,8 @@ public class XmppUserFactory {
 	 */
 	public static XmppUser createDefaultXmpp() {
 		XmppUser xmpp = new XmppUser();
-		xmpp.setUsername("");
-		xmpp.setPassword("");
+		xmpp.setUsername(ConfigTokens.DEFAULT_USER);
+		xmpp.setPassword(ConfigTokens.DEFAULT_PASSWORD);
 		xmpp.setXmppDomain(ConfigTokens.DEFAULT_DOMAIN);
 		xmpp.setHost(ConfigTokens.DEFAULT_HOST);
 		xmpp.setPort(Integer.parseInt("8080"));

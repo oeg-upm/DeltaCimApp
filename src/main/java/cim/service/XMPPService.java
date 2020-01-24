@@ -43,7 +43,7 @@ import cim.model.P2PMessage;
 import cim.model.Route;
 import cim.model.XmppUser;
 import cim.repository.P2PMessageRepository;
-import cim.repository.XmppRepository;
+import cim.repository.XmppUserRepository;
 import cim.xmpp.CimParsingExceptionCallback;
 import cim.xmpp.P2PMessageListener;
 import cim.xmpp.factory.P2PMessageFactory;
@@ -58,7 +58,7 @@ public class XMPPService {
 	private Logger log = Logger.getLogger(XMPPService.class.getName());
 
 	@Autowired
-	public XmppRepository xmppRepository;
+	public XmppUserRepository xmppRepository;
 	@Autowired
 	public P2PMessageRepository messageRepository;
 	

@@ -4,6 +4,8 @@ public class ConfigTokens {
 
 	
 	// Default setup
+	public static final String DEFAULT_USER = "default";
+	public static final String DEFAULT_PASSWORD = "default";
 	public static final String DEFAULT_DOMAIN = "jcano.ddns.net";
 	public static final String DEFAULT_HOST = "jcano.ddns.net";
 	public static final String P2P_CONFIG_CACERT_FOLDER = "./Certificates/cacerts";
@@ -28,6 +30,8 @@ public class ConfigTokens {
 			"    \"message\": \"Error, message received has no content\"\n" + 
 			"  }\n" + 
 			"}";
+
+	
 	
 
 }
