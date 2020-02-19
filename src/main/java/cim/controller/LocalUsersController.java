@@ -59,7 +59,7 @@ public class LocalUsersController  extends AbstractController{
 		}else {
 			System.out.println(bindingResult.getAllErrors());
 		}
-		return "redirect:/dashboard";
+		return "redirect:/users";
 	}
 
 	@RequestMapping(value="/api/cimuser", method = RequestMethod.DELETE)

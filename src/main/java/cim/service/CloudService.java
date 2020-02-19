@@ -23,6 +23,9 @@ import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mashape.unirest.http.Unirest;
 
 import cim.ConfigTokens;
@@ -32,38 +35,52 @@ import helio.framework.objects.SparqlResultsFormat;
 @Service
 public class CloudService {
 
-	
+
 	@Autowired
 	public ACLService aclService;
-	
+
 	private Logger log = Logger.getLogger(CloudService.class.getName());
 	private static final String JSONLD = "JSON-LD";
-	
+
 	public CloudService() {
 		//empty
 	}
-	
+
 	public String federateQuery(String queryString, SparqlResultsFormat format) {
-		System.out.println(queryString);
-		String answer = null;
-		try {
-			Set<String> endpoints = aclService.getAllUsernames().stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
-			for(String endpoint:endpoints) {
-				
+		JsonObject answer = new JsonObject();
+		JsonObject header = null;
+		JsonObject results = new JsonObject();
+		JsonArray bindingResults = new JsonArray();
+		JsonParser parser = new JsonParser();
+		Set<String> endpoints = aclService.getAllUsernames().stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
+		for(String endpoint:endpoints) {
+			try {
+				Unirest.setTimeouts(60000, 60000);
 				endpoint = endpoint+"?query="+URLEncoder.encode(queryString, "UTF-8");
-				System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+endpoint);
 				String responseMessage = Unirest.get(endpoint).asString().getBody();
-				System.out.println(responseMessage);
-				answer = responseMessage;
+				JsonObject jsonPartialResult = parser.parse(responseMessage).getAsJsonObject();
+				if(header ==null) {
+					header = jsonPartialResult.getAsJsonObject("head");
+				}
+				JsonArray bindingResultsMessage = jsonPartialResult.getAsJsonObject("results").getAsJsonArray("bindings");
+				bindingResults.addAll(bindingResultsMessage);
+			}catch(Exception e) {
+				e.printStackTrace();
 			}
-			
-		}catch(Exception e) {
-			e.printStackTrace();
 		}
-		return answer;
+		if(header!=null) {
+			results.add("bindings", bindingResults);
+		}else{
+			results.add("bindings", new JsonArray());
+			header = new JsonObject();
+		}
+		answer.add("head", header);
+		answer.add("results", results);
+
+		return answer.toString();
 	}
-	
-/*	public String federateQuery(String queryString, SparqlResultsFormat format) {
+
+	/*	public String federateQuery(String queryString, SparqlResultsFormat format) {
 		String queryFederated = rewriteQuery(queryString, aclService.getAllUsernames());
 		String answer = null;
 		QueryExecution qexec = null;
@@ -79,10 +96,10 @@ public class CloudService {
 			if(qexec!=null)
 				qexec.close();
 		}
-		
+
 		return answer;
 	}*/
-	
+
 	private String rewriteQuery(String queryString, List<String> users) {
 		Set<String> endpoints = users.stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
 		// TODO: perform discovery over the endpoints
@@ -93,13 +110,13 @@ public class CloudService {
 		System.out.println(rewrittenQuery);
 		return rewrittenQuery;
 	}
-	
+
 	private String transformToDELTAURLs(String user) {
 		StringBuilder formatedEndpoint= new StringBuilder();
 		formatedEndpoint.append("http://").append("localhost:").append(ConfigTokens.LOCAL_PORT).append("/delta/").append(user).append("/sparql").append("");
 		return formatedEndpoint.toString();
 	}
-	
+
 	private String buildQueryServiceToken(Set<String> endpoints) {
 		StringBuilder fragment = new StringBuilder();
 		fragment.append("\n\t} VALUES ?service { ");
@@ -149,12 +166,12 @@ public class CloudService {
 		}else if(format.equals(SparqlResultsFormat.TUPLES)) {
 			ResultSetFormatter.output(formattedAnswerStream, results, ResultsFormat.FMT_TUPLES);
 		}else if(format.equals(SparqlResultsFormat.JSON_LD)){
-			 ByteArrayOutputStream formattedAnswerStreamAux = new ByteArrayOutputStream();
-			 ResultSetFormatter.output(formattedAnswerStreamAux, results, ResultsFormat.FMT_RDF_TURTLE);
-			 RDF rdfData = new RDF();
-			 rdfData.parseRDF(new String(formattedAnswerStreamAux.toByteArray()));
-			 try {
-				 formattedAnswerStream.write(rdfData.toString(JSONLD).getBytes());
+			ByteArrayOutputStream formattedAnswerStreamAux = new ByteArrayOutputStream();
+			ResultSetFormatter.output(formattedAnswerStreamAux, results, ResultsFormat.FMT_RDF_TURTLE);
+			RDF rdfData = new RDF();
+			rdfData.parseRDF(new String(formattedAnswerStreamAux.toByteArray()));
+			try {
+				formattedAnswerStream.write(rdfData.toString(JSONLD).getBytes());
 			} catch (IOException e) {
 				log.severe("An error happened when transforming SPARQL answer into JSON-LD");
 			}
@@ -171,10 +188,10 @@ public class CloudService {
 			log.warning("Returning answer in JSON format");
 			ResultSetFormatter.output(formattedAnswerStream, results, ResultsFormat.FMT_RS_JSON);
 		}
-			
+
 		return new String(formattedAnswerStream.toByteArray());
 	}
-	
-	
-	
+
+
+
 }

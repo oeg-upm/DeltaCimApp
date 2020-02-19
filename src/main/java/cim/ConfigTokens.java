@@ -9,7 +9,8 @@ public class ConfigTokens {
 	public static final String DEFAULT_DOMAIN = "jcano.ddns.net";
 	public static final String DEFAULT_HOST = "jcano.ddns.net";
 	public static final String DEFAULT_PORT = "5222";
-	public static final String P2P_CONFIG_CACERT_FOLDER = "./Certificates/cacerts";
+	public static final String P2P_CONFIG_CACERT_FOLDER = "./Certificates/cacertsExpired";
+	public static final String P2P_CONFIG_MUTAL_AUTH__FOLDER = "./Certificates/upm_cert.pem";
 	public static final String VALIDATIONS_SHAPES_FILE = "./shapes/delta-shapes.ttl";
 	public static final String VALIDATIONS_SHAPES_SUCCESS_MESSAGE  = "Successfully validated!";
 	public static String LOCAL_PORT = "8080";

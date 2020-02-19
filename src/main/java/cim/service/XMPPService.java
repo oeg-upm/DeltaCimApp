@@ -7,17 +7,19 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
@@ -38,11 +40,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import cim.ConfigTokens;
-import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
-import cim.model.Route;
 import cim.model.XmppUser;
-import cim.repository.P2PMessageRepository;
 import cim.repository.XmppUserRepository;
 import cim.xmpp.CimParsingExceptionCallback;
 import cim.xmpp.P2PMessageListener;
@@ -156,10 +155,10 @@ public class XMPPService {
 					.setSendPresence(true)
 					.enableDefaultDebugger()
 					.setPort(port)
-					//.setKeystorePath(certificates)
-					.setCustomSSLContext(getSSLContext(caFile))
+					.setCustomSSLContext(getSSLContext(certificates))
+					//.setKeystorePath("C:\\Users\\jcano\\Documents\\GitHub\\DeltaCimApp\\Certificates")
 					.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
-
+			
 			//1.2 Add the certificates to the configuration
 
 			XMPPTCPConnectionConfiguration config = build.build();
@@ -306,7 +305,6 @@ public class XMPPService {
 		} catch (InterruptedException e) {
 			log.severe("ERROR: Connection was interrupted!");
 			Thread.currentThread().interrupt();
-
 		}
 		log.info("Message sent");
 	}
