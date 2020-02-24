@@ -5,8 +5,8 @@
 * Install the maven dependencies: "helio-framework", "helio-writer" and "helio-core".
 * Export the .jar
 * Create two folders: "Certificates" and "shapes"
-* Into "Certificates" folder, copy the java keystore.
-* Into "shapes" folder, copy the correspont shapes.
+* Into "Certificates" folder, copy the java keystore. An example of a functional java keystore is inside "Certificates" folder in this proyect.
+* Into "shapes" folder, copy the correspont shapes. An example of a functional shape is inside "shape" folder in this proyect.
 
 # BUGS:
 * Nothing to report :)
