@@ -1,16 +1,17 @@
 # DeltaCimApp
 
-# QUICK START CONFIGURATION:
+## QUICK START CONFIGURATION:
 
-Go to the release section of this proyect and download the lastest version. Following unzip the files, the output folder has the next structure:
+Go to the release section of this proyect, download the lastest version, and unzip the main file (cim-X.X.X.zip). The output folder has the following structure:
 
-* Certificates: This folder must contain a Keystore that has the encryption certificate and the certificate for the mutual authentication.
-* Shapes: This folder must contain a ttl file that is available throught this link: https://github.com/oeg-upm/DeltaCimApp/tree/master/shapes
+* Certificates: This folder contains an empty Keystore, by default its password is "changeit". In this Keystore either an encription certificate and an identity certificate for mutual authentication must be persisted.
+* shapes: The file within this folder must contain the shacl shapes associated to the ontology of DELTA. In order the CIM to correctly function the file shall be named *delta-shapes.ttl*
+* cim-X.X.X.jar: This is the compiled version of the CIM software.
 
 Finally, to run the CIM, type down:
 
 ```` java -jar cim-1.0.0.jar --server.port=8080 ````
 
-**WARNING**: The argument --server.port must always be specified for the correct fucntioning of the CIM.
+**WARNING**: The argument --server.port must always be specified for the correct functioning of the CIM.
 
 
