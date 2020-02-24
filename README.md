@@ -1,16 +1,16 @@
 # DeltaCimApp
 
-# CONFIGURATION:
+# QUICK START CONFIGURATION:
 
-* Install the maven dependencies: "helio-framework", "helio-writer" and "helio-core".
-* Export the .jar
-* Create two folders: "Certificates" and "shapes"
-* Into "Certificates" folder, copy the java keystore. An example of a functional java keystore is inside "Certificates" folder in this proyect.
-* Into "shapes" folder, copy the correspont shapes. An example of a functional shape is inside "shape" folder in this proyect.
+Go to the release section of this proyect and download the lastest version. Following unzip the files, the output folder has the next structure:
 
-# BUGS:
-* Nothing to report :)
+* Certificates: This folder must contain a Keystore that has the encryption certificate and the certificate for the mutual authentication.
+* Shapes: This folder must contain a ttl file that is available throught this link: https://github.com/oeg-upm/DeltaCimApp/tree/master/shapes
 
-# IMPROVEMENTS:
-* Optimize the createUser / createAdmin code
-* Memory. When the server is started for at least 30 minutes, it slows down.
+Finally, to run the CIM, type down:
+
+```` java -jar cim-1.0.0.jar --server.port=8080 ````
+
+**WARNING**: The argument --server.port must always be specified for the correct fucntioning of the CIM.
+
+
