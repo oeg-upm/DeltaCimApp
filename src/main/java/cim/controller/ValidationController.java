@@ -26,12 +26,7 @@ public class ValidationController extends AbstractController {
 
 	@Autowired
 	public ValidationService validationService;
-	
-	@PostConstruct
-	public void initShapes() {
-		validationService.initShapes();
-	}
-	
+		
 	// Provide GUI
 	
 	@RequestMapping(value="/validation", method = RequestMethod.GET, produces = {"text/html", "application/xhtml+xml", "application/xml"})
@@ -94,7 +89,6 @@ public class ValidationController extends AbstractController {
 		ValidationReport validationReport = null;
 		if(isLogged(request)) {
 			validationReport = new ValidationReport();
-			
 			validationService.validateRDF(data, format);
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
 		} else {
@@ -103,7 +97,21 @@ public class ValidationController extends AbstractController {
 		return validationReport;
 	}
 	
-	
+
+	@RequestMapping(value="/api/validation", method = RequestMethod.POST, produces ="application/json")
+	@ResponseBody
+	public ValidationReport validateCustomRDF(@RequestParam String format, @RequestBody String data, HttpServletResponse response, HttpServletRequest request) {
+		prepareResponse(response);
+		ValidationReport validationReport = null;
+		if(isLogged(request)) {
+			validationReport = new ValidationReport();
+			validationService.validateRDF(data, format);
+			response.setStatus(HttpServletResponse.SC_ACCEPTED);	
+		} else {
+			//return to login
+		}
+		return validationReport;
+	}
 
 	
 }

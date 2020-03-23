@@ -7,8 +7,8 @@ import javax.persistence.Id;
 @Entity
 public class P2PMessage {
 	@Id
+	@Column(name="message_id")
 	private String id;
-	
 	private String owner;
 	private String receiver;
 	private String time;
@@ -17,6 +17,8 @@ public class P2PMessage {
 	private String message;
 	private String method;
 	private Boolean error;
+	@Column(columnDefinition="TEXT")	
+	private String headers;
 	
 	public P2PMessage() {
 		error = false;
@@ -73,16 +75,28 @@ public class P2PMessage {
 	public void setError(Boolean error) {
 		this.error = error;
 	}
+	
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+
+
+	public String getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(String headers) {
+		this.headers = headers;
+	}
+
 	@Override
 	public String toString() {
 		return "P2PMessage [id=" + id + ", owner=" + owner + ", receiver=" + receiver + ", time=" + time + ", request="
-				+ request + ", message=" + message + ", method=" + method + ", error=" + error + "]";
+				+ request + ", message=" + message + ", method=" + method + ", error=" + error + ", header=" + headers
+				+ "]";
 	}
-		
+
+
+
+
 	
 	
 }

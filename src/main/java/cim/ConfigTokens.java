@@ -1,5 +1,7 @@
 package cim;
 
+import org.apache.jena.riot.Lang;
+
 public class ConfigTokens {
 
 	
@@ -13,11 +15,18 @@ public class ConfigTokens {
 	public static final String P2P_CONFIG_MUTAL_AUTH__FOLDER = "./Certificates/upm_cert.pem";
 	public static final String VALIDATIONS_SHAPES_FILE = "./shapes/delta-shapes.ttl";
 	public static final String VALIDATIONS_SHAPES_SUCCESS_MESSAGE  = "Successfully validated!";
+	public static final String MODULES_FOLDER = "./modules";
+	public static final String MODULES_BASE_DIR = "./modules/";
+	public static final String MODULES_FILE_EXTENSION = ".module";
+	public static final String MODULES_BASE_DIR_READING = "/reading/";
+	public static final String MODULES_BASE_DIR_WRITTING = "/writting/";
+	
 	public static String LOCAL_PORT = "8080";
 	// URL token identifier
 	public static final  String URL_TOKEN = "/delta"; 
 	
-	
+	// Syntactic interoperability by defaul
+	public static final String DEFAULT_RDF_SERIALISATION = Lang.JSONLD.getLabel();
 	
 	public static final String ERROR_JSON_MESSAGES_1 = "{\n" + 
 			"  \"error\": {\n" + 
@@ -41,6 +50,12 @@ public class ConfigTokens {
 			"  }\n" + 
 			"}";
 	
+	public static final String ERROR_JSON_MESSAGES_4 = "{\n" + 
+			"  \"error\": {\n" + 
+			"    \"code\": 418,\n" + 
+			"    \"message\": \"Remote service provided incorrect data\"\n" + 
+			"  }\n" + 
+			"}";
 	
 
 }

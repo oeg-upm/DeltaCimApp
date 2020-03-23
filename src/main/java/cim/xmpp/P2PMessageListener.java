@@ -6,17 +6,15 @@ import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
 
 import cim.ConfigTokens;
-import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
 import cim.objects.DataFetcher;
 import cim.service.ACLService;
 import cim.service.XMPPService;
 import cim.xmpp.factory.P2PMessageFactory;
+import helio.framework.objects.Tuple;
 
 
 public class P2PMessageListener implements IncomingChatMessageListener {
@@ -42,8 +40,15 @@ public class P2PMessageListener implements IncomingChatMessageListener {
 					if (isRequestP2PMessage(incomingMessage)) {
 						// X.1.A if message was a request fetch data from third-part service and answer
 						DataFetcher fetcher = new DataFetcher();
-						String responseMessage = fetcher.fetchData(incomingMessage);
-						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(), responseMessage);
+						Tuple<String, Integer> responseMessage = fetcher.fetchData(incomingMessage);
+						// TODO: Manejar mejor los posibles errores que devuelva el data fetcher en base al codigo de error
+						if(responseMessage.getSecondElement()==200) {
+							response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(), responseMessage.getFirstElement());
+						}else {
+							log.severe("[Listener] Received a P2PMessage that is not a request of data");
+							response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(),ConfigTokens.ERROR_JSON_MESSAGES_4);
+							response.setError(true); // otherwise it will generate an infinite loop
+						}
 					} else {
 						// X.1.A Otherwise send error message
 						log.severe("[Listener] Received a P2PMessage that is not a request of data");
@@ -53,7 +58,6 @@ public class P2PMessageListener implements IncomingChatMessageListener {
 					}
 					// messageService.save(response); //TODO PONER UNA COLA EN EL SERVICIO QUE SE
 					// GUARDE CADA MINUTO
-
 					chat.send(P2PMessageFactory.fromP2PMessageToB64(response));
 				}
 			} else {

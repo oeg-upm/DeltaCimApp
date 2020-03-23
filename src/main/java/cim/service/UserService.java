@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import cim.model.Authority;
+import cim.model.LocalUserAuthority;
 import cim.model.User;
-import cim.repository.AuthorityRepository;
-import cim.repository.UserRepository;
+import cim.repository.LocalUserAuthorityRepository;
+import cim.repository.LocalUserRepository;
 import cim.xmpp.factory.AuthorityFactory;
 import cim.xmpp.factory.UserFactory;
 
@@ -20,10 +20,10 @@ public class UserService {
 
 
 	@Autowired
-	public UserRepository userRepository;
+	public LocalUserRepository userRepository;
 
 	@Autowired
-	public AuthorityRepository authorityRepository;
+	public LocalUserAuthorityRepository authorityRepository;
 
 
 	public List<User> getAllUsers(){
@@ -33,7 +33,7 @@ public class UserService {
 	public void createDefaultUser() {
 		if(userRepository.findAll().isEmpty()) {
 			User admin = UserFactory.createDefaultUser();
-			Set<Authority> authorities = AuthorityFactory.createDefaultAuthority();
+			Set<LocalUserAuthority> authorities = AuthorityFactory.createDefaultAuthority();
 			authorities.forEach(authority -> authorityRepository.save(authority));
 			admin.setAuthority(authorities);
 			userRepository.save(admin);
@@ -43,7 +43,7 @@ public class UserService {
 	public void createAdmin() {
 		if(userRepository.findAll().isEmpty()) {
 			User admin = UserFactory.createDefaultUser();
-			Set<Authority> authorities = AuthorityFactory.createAdminAuthority();
+			Set<LocalUserAuthority> authorities = AuthorityFactory.createAdminAuthority();
 			authorities.forEach(authority -> authorityRepository.save(authority));
 			admin.setAuthority(authorities);
 			userRepository.save(admin);
@@ -54,7 +54,7 @@ public class UserService {
 	public void createUser(User newUser) {
 		if(!userRepository.existsById(newUser.getUsername())) {
 			newUser.setPassword(encode(newUser.getPassword()));
-			Set<Authority> authorities;
+			Set<LocalUserAuthority> authorities;
 			if(newUser.getAuthorityTemp().contentEquals("ROLE_ADMIN")) {
 				authorities = AuthorityFactory.createAdminAuthority();
 				authorities.forEach(authority -> authorityRepository.save(authority));
@@ -86,10 +86,10 @@ public class UserService {
 		return bCryptPasswordEncoder.encode(password);
 	}
 
-	public Set<Authority> stringToSet(String authority) {
-		Authority autorityInput = new Authority();
+	public Set<LocalUserAuthority> stringToSet(String authority) {
+		LocalUserAuthority autorityInput = new LocalUserAuthority();
 		autorityInput.setAuthority(authority);
-		Set<Authority> auth = new HashSet<>();
+		Set<LocalUserAuthority> auth = new HashSet<>();
 		auth.add(autorityInput);
 		return auth; 
 	}

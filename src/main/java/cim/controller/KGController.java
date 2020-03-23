@@ -1,10 +1,11 @@
 package cim.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,32 +17,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import cim.model.ValidationReport;
 import cim.service.KGService;
-import cim.xmpp.factory.ValidationReportFactory;
+import cim.xmpp.factory.RequestsFactory;
 import helio.framework.objects.SparqlResultsFormat;
 import helio.framework.objects.Tuple;
 
 @Controller
 public class KGController extends AbstractSparqlController{
 	
-	@Autowired
-	public KGService kgService;
+	
 	private Logger log = Logger.getLogger(KGController.class.getName());
 	
-	
-	@PostConstruct
-	public void initMappings() {
-		kgService.initEngine();
-		kgService.startService();
-		kgService.updateMappings();
-	}
-	
-	
-	@PreDestroy
-	public void stopKGServices() {
-		kgService.stopService();
-	}
 
 	// Provide GUI
 	
@@ -72,41 +58,45 @@ public class KGController extends AbstractSparqlController{
 	 * @param response A {@link HttpServletResponse} containing the possible responses, i.e., OK (200), syntax error (400), error processing query or fetching data or missing mappings (500)
 	 * @return The query answer in the specified format
 	 */
-	private String solveQuery(String query, Map<String, String> headers, HttpServletResponse response) {
+	private String solveQuery(String query, Map<String, String> headersMap, HttpServletResponse response) {
 		String result = "";
 		prepareResponse(response);
 		try {
-			// When query comes from the get it has the query=...
-			if(query.startsWith("query="))
-				query = query.substring(6);
-			if(query.startsWith("update="))
-				query = query.substring(7);
-			query = java.net.URLDecoder.decode(query, StandardCharsets.UTF_8.toString());
-			SparqlResultsFormat specifiedFormat = extractResponseAnswerFormat(headers);
-			Tuple<String,ValidationReport> resultTuple = kgService.solveQuery(query, specifiedFormat);
+			query = cleanQuery(query);
+			SparqlResultsFormat specifiedFormat = extractResponseAnswerFormat(headersMap);
+			// Solve query
+			String headers = RequestsFactory.fromHeadersMaptoString(headersMap);
+			Tuple<String,Integer> resultTuple = KGService.solveQuery(query, specifiedFormat, null, headers);
+			// Check results
+			response.setStatus(resultTuple.getSecondElement());
 			String queryResults = resultTuple.getFirstElement();
-			ValidationReport validationReport = resultTuple.getSecondElement();
 			if(queryResults == null) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				log.info("Query has syntax errors or remote endpoints did not answered");
+				log.info("Query has syntax errors");
 			}else {
-				if(!ValidationReportFactory.isSuccessfullReport(validationReport)) {
-					response.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
-					result = validationReport.getReport();
-				}else {
-					response.setStatus(HttpServletResponse.SC_ACCEPTED);
-					
-				}
 				result = queryResults;
 				log.info("Query solved");
 			}
 		} catch (Exception e) {
 			log.severe(e.getMessage());
-			e.printStackTrace();
 		}
 		return result;
 	}
-	
+
+	private String cleanQuery(String query) {
+		String cleanedQuery = query;
+		try {
+			// When query comes from the get it has the query=...
+			if (cleanedQuery.startsWith("query="))
+				cleanedQuery = cleanedQuery.substring(6);
+			if (cleanedQuery.startsWith("update="))
+				cleanedQuery = cleanedQuery.substring(7);
+			cleanedQuery = java.net.URLDecoder.decode(cleanedQuery, StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException e) {
+			log.severe(e.toString());
+		}
+		return cleanedQuery;
+	}
 
 	
 }

@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.mashape.unirest.http.Unirest;
@@ -22,14 +24,17 @@ public class ValidationService {
 
 	@Autowired
 	public ValidationReportRepository validationRepository;
-	private Logger log = Logger.getLogger(ValidationService.class.getName());
-	public String validationShapes;
+	private static Logger log = Logger.getLogger(ValidationService.class.getName());
+	private static String validationShapes;
 		
-	public void initShapes() {
+	public static List<ValidationReport> reportsQueue;
+	
+	static {
+		reportsQueue = new CopyOnWriteArrayList<>();
 		validationShapes = readFile(ConfigTokens.VALIDATIONS_SHAPES_FILE);
 	}
-	
-	 public String readFile(String fileName) {
+		
+	 private static String readFile(String fileName) {
 		 StringBuilder data = new StringBuilder();
 			// 1. Read the file
 			try {
@@ -44,6 +49,14 @@ public class ValidationService {
 			} 
 			return data.toString();
 	 }
+	 
+		@Scheduled(fixedRate = 60000)
+		public void storeQueuedReports() {
+			for(int index = 0; index < reportsQueue.size(); index++) {
+				ValidationReport toStore = reportsQueue.remove(index);
+				this.update(toStore);
+			}
+		}
 
 	 public ValidationReport validateRDFEndpoint(String endpoint, String format) {
 		 ValidationReport validationReport = null;
@@ -56,32 +69,36 @@ public class ValidationService {
 		 return validationReport;
 	 }
 	 
+	 
 	public ValidationReport validateRDF(String rdfDocument, String format) {
 		return validateAndStore(rdfDocument, format, null);
 	}
 	
 	private ValidationReport validateAndStore(String rdfDocument, String format, String endpoint) {
-		ValidationReport validationReport = null;
-		try {
-			RDF rdf = new RDF();
-			rdf.parseRDF(rdfDocument, format);
-			RDF validationResult = rdf.validateShape(validationShapes);
-			validationReport = ValidationReportFactory.createFromRDF(validationResult);
-			if(endpoint!=null) {
-				 validationReport.setEndpoint(endpoint);
-			}else {
-				 validationReport.setEndpoint("Endpoints involved in the KG");
-			}
-		}catch (Exception e ) {
-			log.severe(e.toString());
-		}
+		ValidationReport validationReport = generateValidationReport(rdfDocument, format, endpoint);
 		if(validationReport!= null && !ValidationReportFactory.isSuccessfullReport(validationReport))
 			update(validationReport);
 		
 		return validationReport;
 	}
 
-	
+	public static ValidationReport generateValidationReport(String rdfDocument, String format, String endpoint) {
+			ValidationReport validationReport = null;
+			try {
+				RDF rdf = new RDF();
+				rdf.parseRDF(rdfDocument, format);
+				RDF validationResult = rdf.validateShape(validationShapes);
+				validationReport = ValidationReportFactory.createFromRDF(validationResult);
+				if(endpoint!=null) {
+					 validationReport.setEndpoint(endpoint);
+				}else {
+					 validationReport.setEndpoint("Endpoints involved in the KG");
+				}
+			}catch (Exception e ) {
+				log.severe(e.toString());
+			}
+			return validationReport;
+	}
 	
 	public List<ValidationReport> getAllReports(){
 		return validationRepository.findAll();

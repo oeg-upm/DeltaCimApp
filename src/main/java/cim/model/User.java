@@ -7,10 +7,12 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 
 @Entity
+@Table(name="User")
 public class User {
 	
 	@Id
@@ -23,7 +25,7 @@ public class User {
 	@JoinTable(name="authorities_users",
 	joinColumns=@JoinColumn(name="usuario_id"),
 	inverseJoinColumns=@JoinColumn(name="authority_id"))
-	private Set<Authority> authority;
+	private Set<LocalUserAuthority> authority;
 	
 	//No persistent variable. It will not be save in the database, just for provide information to Set<Authority>.
 	@Transient
@@ -57,19 +59,19 @@ public class User {
 		this.password = password;
 	}
 
-	public Set<Authority> getAuthority() {
+	public Set<LocalUserAuthority> getAuthority() {
 		return authority;
 	}
 
-	public void setAuthority(Set<Authority> authority) {
+	public void setAuthority(Set<LocalUserAuthority> authority) {
 		this.authority = authority;
 	}
 	
 	//Get the authority of an user and replace with the correspondent authority
 	public String getAuthorities(User user) {
-		Set<Authority> set = user.getAuthority();
+		Set<LocalUserAuthority> set = user.getAuthority();
 		String authorities = "";
-		for (Authority s : set) {
+		for (LocalUserAuthority s : set) {
 			authorities += s.getAuthority();
 		}
 		authorities = authorities.replaceAll("ROLE_USER", "USER");

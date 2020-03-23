@@ -9,17 +9,16 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cim.model.Route;
-import cim.repository.RouteRepository;
+import cim.model.BridgingRule;
+import cim.repository.BridgingRuleRepository;
 
 @Service
 public class BridgingService {
 
 	@Autowired
-	public RouteRepository routeRepository;
+	public BridgingRuleRepository routeRepository;
 	
-	
-	private static Set<Route> routes;
+	private static Set<BridgingRule> routes;
 	
 	static {
 		routes = new HashSet<>();
@@ -30,35 +29,28 @@ public class BridgingService {
 		routes.addAll(routeRepository.findAll());
 	}
 	
-	public static Set<Route> getRoutes(){
+	public static Set<BridgingRule> getRoutes(){
 		return routes;
 	}
 	
-	@Autowired
-	public KGService kgService;
 	
-	public List<Route> getAllRoutes(){
+	public List<BridgingRule> getAllRoutes(){
 		return routeRepository.findAll();
 	}
 	
-	public void update(Route route){
-		Route newRoute = routeRepository.save(route);
-		kgService.updateMappings();
+	public void update(BridgingRule route){
+		BridgingRule newRoute = routeRepository.save(route);
 		routes.add(newRoute);
 	}
 
 	public Boolean remove(String routeId) {
 		Boolean removed = false;
-		Route route = routeRepository.findByRegexPath(routeId);
+		BridgingRule route = routeRepository.findByRegexPath(routeId);
 		if(route!=null) {
 			routeRepository.delete(route);
 			removed = true;
 			routes.remove(route);
 		}
-		kgService.stopService();
-		kgService.initEngine();
-		kgService.startService();
-		kgService.updateMappings();
 		return removed;
 	}
 

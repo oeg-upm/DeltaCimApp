@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.logging.Logger;
-
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.JsonObject;
@@ -26,7 +25,8 @@ public class P2PMessageFactory {
 	private static final String SLASH_TOKEN = "/";
 	private static final String OWNER_TOKEN = "owner";
 	private static final String EMPTY_TOKEN = "";
-
+	private static final String REQUESTER_TOKEN = "delta-requester";
+	private static final String RECEIVER_TOKEN = "delta-receiver";
 
 	// -- Constructor 
 	private P2PMessageFactory() {
@@ -56,9 +56,13 @@ public class P2PMessageFactory {
 		 p2pMessage.setMessage(EMPTY_TOKEN);
 		 p2pMessage.setMethod(method);
 		 p2pMessage.setError(false);
-		 // TODO: Add headers
+		 headers.put(REQUESTER_TOKEN, XMPPService.getCurrentXmppUser());
+		 headers.put(RECEIVER_TOKEN, receiverId);
+		 String headersString = RequestsFactory.fromHeadersMaptoString(headers);
+		 p2pMessage.setHeaders(headersString);
 		 return p2pMessage;
 	}
+	
 	
 	private static String buildParameters(HttpServletRequest request) {
 		String result = "";
@@ -73,7 +77,7 @@ public class P2PMessageFactory {
 			if(parameters.length()>1)
 				result = parameters.substring(0, parameters.lastIndexOf("&"));
 		}catch(Exception e) {
-			e.printStackTrace();
+			log.severe(e.toString());
 		}
 		return result;
 	}
@@ -106,9 +110,9 @@ public class P2PMessageFactory {
 		 
 		 try {
 			 jsonDocument = new String(Base64.getDecoder().decode(jsonDocumentEnconded.getBytes()), "UTF-8");
-			 System.out.println(">>>>>"+jsonDocument);
+			 	System.out.println("############## DEcoded document: "+jsonDocument);
 		 	}catch(Exception e) {
-		 		System.out.println("Error processing message "+jsonDocumentEnconded);
+		 		log.severe("Error processing message "+e.toString());
 			 }
 		 P2PMessage p2pMessage = new P2PMessage();
 		 try {
@@ -131,10 +135,12 @@ public class P2PMessageFactory {
 			 p2pMessage.setMethod(jsonP2PMessage.get("method").getAsString());
 		 if(jsonP2PMessage.has("error")) 
 			 p2pMessage.setError(jsonP2PMessage.get("error").getAsBoolean());
+		 if(jsonP2PMessage.has("headers") && jsonP2PMessage.get("headers")!=null) 
+			 p2pMessage.setHeaders(jsonP2PMessage.get("headers").getAsString());
 		 }catch(Exception e) {
 			 log.severe("Errors raised when transforming into P2PMessage the following json: "+jsonDocument);
 			 log.severe(jsonDocument);
-			 e.printStackTrace();
+			 log.severe(e.toString());
 		 }
 		 return p2pMessage;
 	}
@@ -149,11 +155,11 @@ public class P2PMessageFactory {
 		 	jsonMessage.addProperty("message", message.getMessage());
 		 	jsonMessage.addProperty("method", message.getMethod());
 		 	jsonMessage.addProperty("error", message.getError());
-		    // TODO: Add headers
+		 	jsonMessage.addProperty("headers", message.getHeaders());
+		 	
 			return jsonMessage.toString();
 	 }
 	 
-	 // TODO: REPLACE THE BASE64 FOR ENCRIPTION 
 	 public static String fromP2PMessageToB64(P2PMessage message) {
 		 	JsonObject jsonMessage = new JsonObject();
 		 	jsonMessage.addProperty("id", message.getId());
@@ -164,7 +170,7 @@ public class P2PMessageFactory {
 		 	jsonMessage.addProperty("message", message.getMessage());
 		 	jsonMessage.addProperty("method", message.getMethod());
 		 	jsonMessage.addProperty("error", message.getError());
-		    // TODO: Add headers
+		 	jsonMessage.addProperty("headers", message.getHeaders());
 			return Base64.getEncoder().encodeToString(jsonMessage.toString().getBytes());
 	 }
 	 
@@ -178,7 +184,7 @@ public class P2PMessageFactory {
 		 p2pMessage.setMessage(message);
 		 p2pMessage.setRequest(EMPTY_TOKEN);
 		 p2pMessage.setMethod(EMPTY_TOKEN);
-
+		 p2pMessage.setHeaders("");
 		 return p2pMessage;
 	 }
 

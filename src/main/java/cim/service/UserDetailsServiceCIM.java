@@ -12,14 +12,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import cim.model.Authority;
-import cim.repository.UserRepository;
+import cim.model.LocalUserAuthority;
+import cim.repository.LocalUserRepository;
 
 @Service
 public class UserDetailsServiceCIM implements UserDetailsService {
 
     @Autowired
-    public UserRepository userRepository;
+    public LocalUserRepository userRepository;
 	
     @Override
      public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -31,7 +31,7 @@ public class UserDetailsServiceCIM implements UserDetailsService {
 		}
 		List<GrantedAuthority> grantList = new ArrayList<>();
 		if(appUser!=null) {
-			for (Authority authority: appUser.getAuthority()) {
+			for (LocalUserAuthority authority: appUser.getAuthority()) {
 				GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(authority.getAuthority());
 			    grantList.add(grantedAuthority);
 		    }

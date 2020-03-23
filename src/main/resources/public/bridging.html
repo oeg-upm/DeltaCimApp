@@ -22,8 +22,6 @@
   <link href="css/sb-admin.css" rel="stylesheet">-->
   <link rel="stylesheet" type="text/css" th:href="@{css/sb-admin.css}"/>
 
-
-
 </head>
 
 <body id="page-top" sec:authorize="isAuthenticated()">
@@ -98,11 +96,12 @@
           <form action="#" th:action="@{/api/route}" th:object="${route}" method="POST">
               <h3>Add new rules:</h3>
               <div class="form-row align-items-center">
+
                 <div class="col-auto">
                   <label class="" for="regexPath">P2P regex interface:</label>
                   <div class="input-group mb-2">
                     <div class="input-group-prepend">
-                      <div class="input-group-text">http://delta.eu/delta</div>
+                      <div class="input-group-text">http://delta.eu/delta/</div>
                       <input type="text" class="form-control" id="regexPath" placeholder="Interface regex" th:field="*{regexPath}" required>
                     </div>
                   </div>
@@ -110,29 +109,29 @@
 
                 <div class="col-auto">
                   <label class="" for="endpoint">Local service:</label>
-                  <input type="text" class="form-control mb-2" id="endpoint" placeholder="Local endpoint" th:field="*{endpoint}" required>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                        <input type="text" class="form-control mb-2" id="endpoint" placeholder="Local endpoint" th:field="*{endpoint}" required>
+                    </div>
+                  </div>
                 </div>
+
                 <div class="col-auto">
-                  <label class="" for="endpoint">Payload's format:</label>
-                  <select class="form-control mb-2" th:field="*{format}">
-                    <option value="JSONLD">JSONLD</option>
-                    <option value="TURTLE">TURTLE</option>
-                    <option value="RDF/XML">RDF/XML</option>
-                    <option value="N-Triples">N-Triples</option>
-                    <option value="N-Quads">N-Quads</option>
-                    <option value="TriG">TriG</option>
+                  <label class="" for="endpoint">Append relative route:</label>
+                  <select class="form-control mb-2" th:field="*{appendPath}">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </div>
+
+                <div class="col-auto">
+                  <label class="" for="InteroperabilityRules">Interoperability modules:</label>
+                  <select class="form-control mb-2" th:field="*{mappingsFolder}">
+                    <option th:each="module: ${modules}" id="InteroperabilityRules" data-th-attr="value=${module}" th:text="${module}"></option>
                   </select>
                 </div>
 
 
-                <div class="col-auto" style="top:13px">
-                  <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="appendPath" th:field="*{appendPath}">
-                    <label class="form-check-label" for="appendPath">
-                      Append route 
-                    </label>
-                  </div>
-                </div>
                 <div class="col-auto" style="top:13px">
                   <button type="submit" class="btn btn-success mb-2"><i class="fas fa-fw fa-plus-circle"></i></button>
                 </div>
@@ -150,8 +149,8 @@
                 <tr>
                   <th>P2P regex interface</th>
                   <th>Local service</th>
-                  <th style="text-align: center">Append route</th>
-                  <th style="text-align: center">Format</th>
+                  <th style="text-align: center">Append relative route</th>
+                  <th style="text-align: center">Interoperability module</th>
                   <th style="text-align: center"></th>
                   <th style="text-align: center"></th>
                 </tr>
@@ -160,9 +159,9 @@
                 <tr th:each="route: ${routes}">
                     <td th:text="${route.regexPath}" />
                     <td th:text="${route.endpoint}" />
-                    <td style="text-align: center" th:text="${route.appendPath}" />
-                    <td style="text-align: center" th:text="${route.format}" />
-                    <td style="text-align: center" ><button type="button" class="btn btn-warning" data-th-attr="id=${route.endpoint}, name=${route.format}" onclick="validateReport(this.id, this.name)">Validate payload</button></td>
+                    <td style="text-align: center" th:text="${route.appendPath} ? 'Yes' : 'No'" />
+                    <td style="text-align: center" th:text="${route.mappingsFolder}" />
+                    <td style="text-align: center" ><button type="button" class="btn btn-warning" data-th-attr="id=${route.endpoint}, name=${route.mappingsFolder}" onclick="validateReport(this.id, this.name)">Validate payload</button></td>
                     <td style="text-align: center" ><button type="button" class="btn btn-danger" th:attr="id=${route.regexPath}" onclick="deleteRoute(this.id)"><i class="fas fa-fw fa-trash-alt"></i></button></td>
                 </tr>
               </tbody>

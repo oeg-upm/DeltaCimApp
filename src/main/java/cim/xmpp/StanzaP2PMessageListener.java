@@ -12,9 +12,7 @@ import org.jxmpp.jid.Jid;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cim.ConfigTokens;
-import cim.DeltaCimApplication;
 import cim.model.P2PMessage;
-import cim.model.XmppUser;
 import cim.objects.DataFetcher;
 import cim.service.XMPPService;
 import cim.xmpp.factory.P2PMessageFactory;
@@ -36,7 +34,7 @@ public class StanzaP2PMessageListener implements StanzaListener{
           Jid from = message.getFrom();
           try {
 	    	  	// X.1 Cast message received to a P2PMessage
-			P2PMessage incomingMessage = messageService.createP2PMessageFromJson(message.getBody());
+			P2PMessage incomingMessage = P2PMessageFactory.createP2PMessageFromJson(message.getBody());
 			log.info("[Stanza Listener] Request message received");
 			
 			if(!incomingMessage.getError()) {
@@ -45,12 +43,12 @@ public class StanzaP2PMessageListener implements StanzaListener{
 				if(isRequestP2PMessage(incomingMessage)) {
 					// X.1.A if message was a request fetch data from third-part service and answer
 					DataFetcher fetcher = new DataFetcher(); 
-					String responseMessage = fetcher.fetchData(incomingMessage);
-					response = messageService.createP2PMessage(XMPPService.getCurrentXmppUser(), from.toString(), responseMessage);
+					String responseMessage = fetcher.fetchData(incomingMessage).getFirstElement();
+					response = P2PMessageFactory.createP2PMessage(XMPPService.getCurrentXmppUser(), from.toString(), responseMessage);
 				}else {
 					// X.1.A Otherwise send error message
 					log.severe("[Stanza Listener] Received a P2PMessage that is not a request of data");
-					response = messageService.createP2PMessage(XMPPService.getCurrentXmppUser(), from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_1);
+					response = P2PMessageFactory.createP2PMessage(XMPPService.getCurrentXmppUser(), from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_1);
 					response.setError(true); // otherwise it will generate an infinite loop
 				}
 				//messageService.save(response);
