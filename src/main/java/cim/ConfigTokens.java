@@ -21,9 +21,11 @@ public class ConfigTokens {
 	public static final String MODULES_BASE_DIR_READING = "/reading/";
 	public static final String MODULES_BASE_DIR_WRITTING = "/writting/";
 	
+	
 	public static String LOCAL_PORT = "8080";
 	// URL token identifier
 	public static final  String URL_TOKEN = "/delta"; 
+	
 	
 	// Syntactic interoperability by defaul
 	public static final String DEFAULT_RDF_SERIALISATION = Lang.JSONLD.getLabel();
@@ -54,6 +56,13 @@ public class ConfigTokens {
 			"  \"error\": {\n" + 
 			"    \"code\": 418,\n" + 
 			"    \"message\": \"Remote service provided incorrect data\"\n" + 
+			"  }\n" + 
+			"}";
+	
+	public static final String ERROR_JSON_MESSAGES_5= "{\n" + 
+			"  \"error\": {\n" + 
+			"    \"code\": 418,\n" + 
+			"    \"message\": \"Posted data is not interoperable\"\n" + 
 			"  }\n" + 
 			"}";
 	

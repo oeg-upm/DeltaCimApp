@@ -1,48 +1,33 @@
 package cim.objects;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.riot.Lang;
-import org.json.JSONObject;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-
-import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.GetRequest;
-
 import cim.ConfigTokens;
 import cim.model.P2PMessage;
-import cim.model.ValidationReport;
-import cim.repository.ValidationReportRepository;
 import cim.model.BridgingRule;
 import cim.service.BridgingService;
 import cim.service.KGService;
-import cim.service.ValidationService;
 import cim.xmpp.factory.RequestsFactory;
-import cim.xmpp.factory.ValidationReportFactory;
-import helio.components.engine.EngineImp;
-import helio.framework.MappingTranslator;
-import helio.framework.mapping.Mapping;
 import helio.framework.objects.RDF;
 import helio.framework.objects.SparqlResultsFormat;
 import helio.framework.objects.Tuple;
-import helio.mappings.translators.AutomaticTranslator;
+
+import org.apache.jena.Jena;
+import org.apache.jena.datatypes.xsd.impl.RDFLangString;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFLanguages;
+import org.json.JSONObject;
 
 public class DataFetcher {
 
@@ -102,6 +87,7 @@ public class DataFetcher {
 	
 	
 	private Tuple<String,Integer> sendRequest(P2PMessage message, String endpoint, BridgingRule rule) throws UnirestException {
+		Tuple<String, Integer> requestResponse = null;
 		String methodNormalized = message.getMethod().trim().toLowerCase();
 		String responseMessage = null;
 		String headers = message.getHeaders();
@@ -112,9 +98,13 @@ public class DataFetcher {
 				if(responseMessageRDF!=null) {
 					responseMessage = responseMessageRDF.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION);
 					code = KGService.validateRDF(responseMessage, endpoint);
+					if(code!=200)
+						responseMessage = ConfigTokens.ERROR_JSON_MESSAGES_4;
 				}else {
+					responseMessage = ConfigTokens.ERROR_JSON_MESSAGES_1;
 					code = 409;
 				}
+				 requestResponse = new Tuple<>(responseMessage, code);
 			}else if(endpoint.contains("/sparql")) {
 				String query = null;
 				if(methodNormalized.equals("post"))
@@ -125,11 +115,17 @@ public class DataFetcher {
 					 Tuple<String,Integer> tuple = KGService.solveQuery(query, SparqlResultsFormat.JSON, message, headers);
 					 responseMessage = tuple.getFirstElement();
 					 code = tuple.getSecondElement();
+					 if(code!=200)
+							responseMessage = ConfigTokens.ERROR_JSON_MESSAGES_4;
 				}else {
+					responseMessage = ConfigTokens.ERROR_JSON_MESSAGES_1;
 					code = 409;
 				}
+				requestResponse = new Tuple<>(responseMessage, code);
 			}else if(methodNormalized.equals("post") && !endpoint.contains("/sparql")) {
-				//responseMessage = solvePostRequest(message, endpoint, rule);
+				requestResponse = solvePostRequest(message, endpoint, rule, headers);
+				if(requestResponse.getSecondElement()!=200)
+					requestResponse.setFirstElement(ConfigTokens.ERROR_JSON_MESSAGES_5);
 				//code = validateRDF(responseMessage, endpoint);
 			}/*else if(methodNormalized.equals("put")) {
 				//responseMessage = Unirest.put(endpoint).body(message.getMessage()).asString().getBody();
@@ -141,11 +137,11 @@ public class DataFetcher {
 				//responseMessage = Unirest.patch(endpoint).body(message.getMessage()).asString().getBody();
 				System.out.println("PATCH requests not implemented yet");
 			}*/
-		
-		return new Tuple<String,Integer>(responseMessage, code);
+			
+		return requestResponse;
 	}
 	
-	// -- Validation Methods
+
 	
 	
 	 
@@ -179,16 +175,70 @@ public class DataFetcher {
 	/// --- Other methods
 	
 
-	private String solvePostRequest(P2PMessage message, String endpoint, BridgingRule rule) {
-		 String responseMessage = null;
-		 /*try {
-			 // TODO: si es un POST SI necesitamos transformar el body primero
-			 responseMessage = Unirest.post(endpoint).body(message.getMessage()).asString().getBody();
+	private Tuple<String,Integer> solvePostRequest(P2PMessage message, String endpoint, BridgingRule rule, String headers) {
+		Tuple<String,Integer> tuple = new Tuple<>(); 
+		 try {
+			 // If this route has no mapping associated perform the POST with current body
+			 String requestBody = message.getMessage();
+			 if(rule.getWrittingMapping()!=null && !rule.getWrittingMapping().isEmpty()) {
+				 requestBody = devirtualizeData(requestBody, rule.getWrittingMapping());
+			 }
+			 if(requestBody==null) {
+				 tuple.setFirstElement(ConfigTokens.ERROR_JSON_MESSAGES_5);
+				 tuple.setSecondElement(418);
+			 }
+			 Map<String,String> headersMap = retrieveHeaders(headers);
+			 Integer code = KGService.validateRDF(requestBody, endpoint);
+			 tuple.setSecondElement(code);
+			 String responseMessage = null;
+			 if(code==200)
+				 responseMessage = Unirest.post(endpoint).headers(headersMap).body(requestBody).asString().getBody();
+			 tuple.setFirstElement(responseMessage);
 			
 		 } catch (UnirestException e) {
 				e.printStackTrace();
 				System.out.println(endpoint);
-			}*/
-		 return responseMessage;
+		}
+		 return tuple;
+	}
+	
+	private String devirtualizeData(String data, String writtingMapping) {
+		String transaltedData = null;
+		if(writtingMapping.startsWith("# RDF")) {
+			String format = writtingMapping.split(":")[1].trim();
+			System.out.println(ConfigTokens.DEFAULT_RDF_SERIALISATION);
+			try {
+				RDF rdfData = new RDF();
+				rdfData.parseRDF(data, format);
+				transaltedData = rdfData.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION);
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}else {
+			//TODO: run devirtualisation engine 
+		}
+		return transaltedData;
+	}
+
+
+	private Map<String,String> retrieveHeaders(String headersStr){
+		Map<String,String> headers = new HashMap<>();
+		try {
+			JSONObject headersJson = new JSONObject(headersStr);
+			@SuppressWarnings("unchecked")
+			Iterator<String> keys = headersJson.keys();
+			while(keys.hasNext()) {
+				String key = keys.next();
+				if(!key.equals("content-length")){
+					String entry = headersJson.getString(key);
+					headers.put(key, entry);
+				}
+			}
+				
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("Error processing headers for POST request");
+		}
+		return headers;
 	}
 }

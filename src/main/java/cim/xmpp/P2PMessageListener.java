@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Message.Type;
 import org.jxmpp.jid.EntityBareJid;
 
 
@@ -25,7 +26,12 @@ public class P2PMessageListener implements IncomingChatMessageListener {
 	@Override
 	public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
 		String P2PUser = from.asEntityBareJidString().substring(0, from.toString().indexOf("@"));
-
+		Type[] types = message.getType().values();
+		
+		for(Type type:types) {
+			System.out.println(">>>>"+type);
+		}
+		System.out.println(">>>####:"+message.getType().valueOf("groupchat"));
 		try {
 			if (ACLService.isAuthorized(P2PUser.trim())) {
 				// X.1 Cast message received to a P2PMessage
@@ -41,23 +47,16 @@ public class P2PMessageListener implements IncomingChatMessageListener {
 						// X.1.A if message was a request fetch data from third-part service and answer
 						DataFetcher fetcher = new DataFetcher();
 						Tuple<String, Integer> responseMessage = fetcher.fetchData(incomingMessage);
-						// TODO: Manejar mejor los posibles errores que devuelva el data fetcher en base al codigo de error
-						if(responseMessage.getSecondElement()==200) {
-							response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(), responseMessage.getFirstElement());
-						}else {
-							log.severe("[Listener] Received a P2PMessage that is not a request of data");
-							response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(),ConfigTokens.ERROR_JSON_MESSAGES_4);
+						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(), responseMessage.getFirstElement());
+						if(responseMessage.getSecondElement()!=200)
 							response.setError(true); // otherwise it will generate an infinite loop
-						}
+						
 					} else {
 						// X.1.A Otherwise send error message
 						log.severe("[Listener] Received a P2PMessage that is not a request of data");
-						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(),
-								ConfigTokens.ERROR_JSON_MESSAGES_1);
+						response = P2PMessageFactory.createP2PMessage(XMPPService.p2pUsername, from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_1);
 						response.setError(true); // otherwise it will generate an infinite loop
 					}
-					// messageService.save(response); //TODO PONER UNA COLA EN EL SERVICIO QUE SE
-					// GUARDE CADA MINUTO
 					chat.send(P2PMessageFactory.fromP2PMessageToB64(response));
 				}
 			} else {

@@ -174,6 +174,7 @@ public class XMPPService {
 			createMessageHandlers();	
 			log.info("Peer message handlers established"); 
 			connection.setParsingExceptionCallback(new CimParsingExceptionCallback());
+			
 			// 3. Update static user
 			p2pUsername = username;
 			p2pDomain = xmppDomain;
@@ -233,7 +234,6 @@ public class XMPPService {
 		chatManagerReceiver = ChatManager.getInstanceFor(connection);
 		chatManagerReceiver.addIncomingListener(new P2PMessageListener());
 		chatManagerReceiver.setXhmtlImEnabled(true);
-
 		//connection.addSyncStanzaListener(new StanzaP2PMessageListener(), StanzaTypeFilter.MESSAGE);
 	}
 
@@ -294,6 +294,7 @@ public class XMPPService {
 			String content = P2PMessageFactory.fromP2PMessageToB64(p2pMessage);
 			System.out.println("Sending to "+jid.asEntityBareJidString()+"\n\tContent:"+content);
 			chat.send(content);
+		
 			// 2. Store the message sent
 			//messageRepository.save(p2pMessage);
 		} catch (NotConnectedException e) {
