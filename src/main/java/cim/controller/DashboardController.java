@@ -46,13 +46,14 @@ public class DashboardController extends AbstractController{
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);
 			model.addAttribute("xmppUser", xmppUser);
 			model.addAttribute("isConnected", xmppService.isConnected());
+			model.addAttribute("connectionError", XMPPService.getConnectionError());
 		}
 		return "dashboard.html";
 	}
 
 
 	@RequestMapping(value="/api/dashboard", method = RequestMethod.POST)
-	public String connect(@Valid @ModelAttribute(value="xmppUser") XmppUser xmppUser, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String connect(@ModelAttribute(value="xmppUser") XmppUser xmppUser, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response, Model model) {
 		prepareResponse(response);
 		//Connect only if user has authority, admin always have role user
 		if(isUser(request)) {
@@ -73,7 +74,7 @@ public class DashboardController extends AbstractController{
 		}
 		return "redirect:/dashboard";
 	}
-
+	
 
 	@RequestMapping(value="/api/disconnect", method = RequestMethod.GET)
 	@ResponseBody

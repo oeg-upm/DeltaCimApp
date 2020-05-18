@@ -188,7 +188,7 @@ public class KGService {
 		ValidationReport report = ValidationService.generateValidationReport(responseMessage, ConfigTokens.DEFAULT_RDF_SERIALISATION, endpoint);
 		Integer code = 200;
 		if(!ValidationReportFactory.isSuccessfullReport(report)) {
-			code = 403;
+			code = 418;
 			storeReport(report);
 		}
 		return code;

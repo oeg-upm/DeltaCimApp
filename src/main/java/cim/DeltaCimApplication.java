@@ -26,6 +26,7 @@ public class DeltaCimApplication {
 	@PostConstruct
 	public void initLocalPort() {
 		ConfigTokens.LOCAL_PORT = environment.getProperty("server.port");
+		ConfigTokens.PASSWORD_CERT = environment.getProperty("certificate.password");
 	}
 
 

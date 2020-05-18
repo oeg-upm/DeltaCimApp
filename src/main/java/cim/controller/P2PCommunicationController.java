@@ -34,7 +34,7 @@ public class P2PCommunicationController extends AbstractController{
 	 public DeferredResult<String> getResource(@RequestHeader Map<String, String> headers,  final HttpServletRequest request, HttpServletResponse response){
 		 prepareResponse(response);
 		 if(p2pService.isConnected()) {
-			 return p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), "");
+			 return p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), "", response);
 		 }else {
 			 return null;
 		 }
@@ -47,7 +47,7 @@ public class P2PCommunicationController extends AbstractController{
 	 public DeferredResult<String> postResource(@RequestHeader Map<String, String> headers, @RequestBody(required = true) String payload, final HttpServletRequest request, HttpServletResponse response){
 		 prepareResponse(response);
 		 if(p2pService.isConnected()) {
-			 return p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), payload);
+			 return p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), payload, response);
 		 }else {
 			 return null;
 		 }

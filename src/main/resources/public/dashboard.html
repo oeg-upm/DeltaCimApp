@@ -127,11 +127,20 @@
 						</div>
 
 						<div class="col-auto" style="top: 13px">
-							STATUS: <a th:if="${isConnected}"> <span
-								class="fa fa-check-circle text-success"> CONNECTED </a> <a
-								th:unless="${isConnected}"> <span
-								class="fa fa-times text-danger"> NOT CONNECTED </a>
+							STATUS: <a th:if="${isConnected}"> <span class="fa fa-check-circle text-success"> CONNECTED </span> </a> 
+							<a th:unless="${isConnected}"> <span class="fa fa-times text-danger"> NOT CONNECTED </span> </a>
 						</div>
+						
+						<div class="alert alert-danger" th:if="${connectionError == -1}" role="alert">
+							Certificate not found
+						</div>
+						<div class="alert alert-danger" th:if="${connectionError == -2}" role="alert">
+							Incorrect certificate password
+						</div>
+						<div class="alert alert-info" th:if="${connectionError == -3}" role="alert">
+							User not found
+						</div>
+
 					</div>
 				</form>
 
@@ -225,8 +234,6 @@
 						</div>
 					</div>
 				</div>
-
-
 
 				<!-- Bootstrap core JavaScript-->
 				<script type="text/javascript"

@@ -39,7 +39,7 @@ public class UserService {
 			userRepository.save(admin);
 		}
 	}
-	
+
 	public void createAdmin() {
 		if(userRepository.findAll().isEmpty()) {
 			User admin = UserFactory.createDefaultUser();

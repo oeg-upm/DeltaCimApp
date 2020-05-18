@@ -21,8 +21,9 @@ public class ConfigTokens {
 	public static final String MODULES_BASE_DIR_READING = "/reading/";
 	public static final String MODULES_BASE_DIR_WRITTING = "/writting/";
 	
-	
 	public static String LOCAL_PORT = "8080";
+	public static String PASSWORD_CERT = "changeit";
+	
 	// URL token identifier
 	public static final  String URL_TOKEN = "/delta"; 
 	

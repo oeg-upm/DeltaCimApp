@@ -17,6 +17,8 @@ public class P2PMessage {
 	private String message;
 	private String method;
 	private Boolean error;
+	private Integer responseCode;
+
 	@Column(columnDefinition="TEXT")	
 	private String headers;
 	
@@ -76,7 +78,13 @@ public class P2PMessage {
 		this.error = error;
 	}
 	
+	public Integer getResponseCode() {
+		return responseCode;
+	}
 
+	public void setResponseCode(Integer responseCode) {
+		this.responseCode = responseCode;
+	}
 
 
 	public String getHeaders() {
@@ -90,8 +98,8 @@ public class P2PMessage {
 	@Override
 	public String toString() {
 		return "P2PMessage [id=" + id + ", owner=" + owner + ", receiver=" + receiver + ", time=" + time + ", request="
-				+ request + ", message=" + message + ", method=" + method + ", error=" + error + ", header=" + headers
-				+ "]";
+				+ request + ", message=" + message + ", method=" + method + ", error=" + error +  ", responseCode=" + responseCode
+				+", header=" + headers	+ "]";
 	}
 
 

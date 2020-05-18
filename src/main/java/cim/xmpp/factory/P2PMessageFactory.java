@@ -56,6 +56,7 @@ public class P2PMessageFactory {
 		 p2pMessage.setMessage(EMPTY_TOKEN);
 		 p2pMessage.setMethod(method);
 		 p2pMessage.setError(false);
+		 p2pMessage.setResponseCode(200);
 		 headers.put(REQUESTER_TOKEN, XMPPService.getCurrentXmppUser());
 		 headers.put(RECEIVER_TOKEN, receiverId);
 		 String headersString = RequestsFactory.fromHeadersMaptoString(headers);
@@ -135,6 +136,8 @@ public class P2PMessageFactory {
 			 p2pMessage.setMethod(jsonP2PMessage.get("method").getAsString());
 		 if(jsonP2PMessage.has("error")) 
 			 p2pMessage.setError(jsonP2PMessage.get("error").getAsBoolean());
+		 if(jsonP2PMessage.has("responseCode")) 
+			 p2pMessage.setResponseCode(jsonP2PMessage.get("responseCode").getAsInt());
 		 if(jsonP2PMessage.has("headers") && jsonP2PMessage.get("headers")!=null) 
 			 p2pMessage.setHeaders(jsonP2PMessage.get("headers").getAsString());
 		 }catch(Exception e) {
@@ -145,21 +148,7 @@ public class P2PMessageFactory {
 		 return p2pMessage;
 	}
 	 
-	 public String fromP2PMessageToJSon(P2PMessage message) {
-		 	JsonObject jsonMessage = new JsonObject();
-		 	jsonMessage.addProperty("id", message.getId());
-		 	jsonMessage.addProperty(OWNER_TOKEN, message.getOwner());
-		 	jsonMessage.addProperty("receiver", message.getReceiver());
-		 	jsonMessage.addProperty("time", message.getTime());
-		 	jsonMessage.addProperty("request", message.getRequest());
-		 	jsonMessage.addProperty("message", message.getMessage());
-		 	jsonMessage.addProperty("method", message.getMethod());
-		 	jsonMessage.addProperty("error", message.getError());
-		 	jsonMessage.addProperty("headers", message.getHeaders());
-		 	
-			return jsonMessage.toString();
-	 }
-	 
+
 	 public static String fromP2PMessageToB64(P2PMessage message) {
 		 	JsonObject jsonMessage = new JsonObject();
 		 	jsonMessage.addProperty("id", message.getId());
@@ -170,6 +159,7 @@ public class P2PMessageFactory {
 		 	jsonMessage.addProperty("message", message.getMessage());
 		 	jsonMessage.addProperty("method", message.getMethod());
 		 	jsonMessage.addProperty("error", message.getError());
+		 	jsonMessage.addProperty("responseCode", message.getResponseCode());
 		 	jsonMessage.addProperty("headers", message.getHeaders());
 			return Base64.getEncoder().encodeToString(jsonMessage.toString().getBytes());
 	 }
@@ -182,6 +172,7 @@ public class P2PMessageFactory {
 		 p2pMessage.setId(computeP2PMessageId(owner, receiver, now));
 		 p2pMessage.setTime(now.toString());
 		 p2pMessage.setMessage(message);
+		 p2pMessage.setResponseCode(200);
 		 p2pMessage.setRequest(EMPTY_TOKEN);
 		 p2pMessage.setMethod(EMPTY_TOKEN);
 		 p2pMessage.setHeaders("");

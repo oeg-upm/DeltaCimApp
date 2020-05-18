@@ -1,8 +1,12 @@
 package cim.service;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -16,7 +20,12 @@ import java.util.logging.Logger;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -32,6 +41,7 @@ import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -51,6 +61,7 @@ public class XMPPService {
 	private AbstractXMPPConnection connection;
 	private ChatManager chatManagerReceiver;
 	private Logger log = Logger.getLogger(XMPPService.class.getName());
+	private static int connectionError = -9;
 
 	@Autowired
 	public XmppUserRepository xmppRepository;
@@ -73,16 +84,15 @@ public class XMPPService {
 			p2pUsername = firstConnection.getUsername();
 			p2pDomain = firstConnection.getHost();
 			xmppRepository.save(firstConnection);
-			
 		}
 	}
 
 
 	public void updateXmppUser(XmppUser xmppUser) {
-		List<XmppUser> xmppUsers = xmppRepository.findAll();
-		if(xmppUsers.size() >= 1) {
-			xmppRepository.deleteAll();
-		}
+//		List<XmppUser> xmppUsers = xmppRepository.findAll();
+//		if(xmppUsers.size() >= 1) {
+		xmppRepository.deleteAll();
+//		}
 		p2pUsername = xmppUser.getUsername();
 		p2pDomain = xmppUser.getHost();
 		xmppRepository.save(xmppUser);
@@ -126,6 +136,10 @@ public class XMPPService {
 		return connection.isConnected();
 	}
 	
+	public static int getConnectionError() {
+		return connectionError;
+	}
+	
 	
 	public boolean isConnected() {
 		boolean result = false;
@@ -136,12 +150,13 @@ public class XMPPService {
 		}
 		return result;
 	}
-	
+		
 	public void connect(String username, String password, String xmppDomain, String host, int port, String caFile) {
+		connectionError = 0;
 		try {
 			// 0. Reading the certificates
 			String certificates = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
-
+			
 			// 1. Configuring the XMPPT connection
 			XMPPTCPConnectionConfiguration.Builder build =  XMPPTCPConnectionConfiguration.builder()
 					.setUsernameAndPassword(username, password)
@@ -178,10 +193,19 @@ public class XMPPService {
 			// 3. Update static user
 			p2pUsername = username;
 			p2pDomain = xmppDomain;
+			connectionError = 1;
+		}catch(FileNotFoundException e) {
+			connectionError = -1;
+			log.severe("CertException");
+			log.severe(e.toString());
+		}catch(IOException e) {
+			connectionError = -2;
+			log.severe("Peer exception");
+			log.severe(e.toString());
 		}catch(Exception e) {
-			log.info("Peer exception");
-			e.printStackTrace();
-			System.exit(-1);
+			connectionError = -3;
+			log.severe("Peer exception");
+			log.severe(e.toString());
 		}
 	}
 	
@@ -189,8 +213,8 @@ public class XMPPService {
 	 * setKeyStorePath dont work, so we must implement this method in order to handle the certificates
 	 */
     private SSLContext getSSLContext(String caFile) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-        char[] JKS_PASSWORD = "changeit".toCharArray();
-        char[] KEY_PASSWORD = "changeit".toCharArray();
+        char[] JKS_PASSWORD = ConfigTokens.PASSWORD_CERT.toCharArray();
+        char[] KEY_PASSWORD = ConfigTokens.PASSWORD_CERT.toCharArray();
         caFile = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
         
         KeyStore keyStore = KeyStore.getInstance("JKS");
@@ -206,27 +230,6 @@ public class XMPPService {
     }
 
 	/**
-	 * setKeyStorePath dont work, so we must implement this method in order to handle the certificates
-	 */
-	private SSLContext getSSLContext() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-		char[] JKS_PASSWORD = "changeit".toCharArray();
-		char[] KEY_PASSWORD = "changeit".toCharArray();
-
-		KeyStore keyStore = KeyStore.getInstance("JKS");
-		//Change "\\cacerts" in order to be dynamic
-		InputStream is = new FileInputStream(ConfigTokens.P2P_CONFIG_CACERT_FOLDER);
-		keyStore.load(is, JKS_PASSWORD);
-		KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		kmf.init(keyStore, KEY_PASSWORD);
-		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-		tmf.init(keyStore);
-		SSLContext sc = SSLContext.getInstance("TLS");
-		sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
-		return sc;
-	}
-
-
-	/**
 	 * This method instantiates a message listener that will receive {@link P2PMessages} with requests isRequestMessage()==true
 	 */
 	private void createMessageHandlers() {
@@ -237,7 +240,7 @@ public class XMPPService {
 		//connection.addSyncStanzaListener(new StanzaP2PMessageListener(), StanzaTypeFilter.MESSAGE);
 	}
 
-	public DeferredResult<String> sendMessage(HttpServletRequest request, Map<String, String> headers, String payload) {
+	public DeferredResult<String> sendMessage(HttpServletRequest request, Map<String, String> headers, String payload, HttpServletResponse controllerResponse) {
 		P2PMessage p2pMessage = P2PMessageFactory.createP2PRequestMessage(request, headers);
 		p2pMessage.setMessage(payload);
 		DeferredResult<String> response = new DeferredResult<>();
@@ -265,7 +268,8 @@ public class XMPPService {
 						// X.2 Send to front-end response and copy the message
 						//messageRepository.save(p2pResponse);
 						response.setResult(p2pResponse.getMessage());
-
+						controllerResponse.setStatus(p2pResponse.getResponseCode());
+						System.out.println(p2pResponse.getResponseCode());
 					} catch (Exception e) {
 						//e.printStackTrace();
 					}

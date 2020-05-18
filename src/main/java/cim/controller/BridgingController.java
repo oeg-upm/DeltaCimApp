@@ -50,6 +50,7 @@ public class BridgingController extends AbstractController{
 		route.setReadingMapping("");
 		route.setWrittingMapping("");
 		model.addAttribute("route", route);
+		model.addAttribute("port", ConfigTokens.LOCAL_PORT);
 		List<String> modules = readAvailableModules();
 		model.addAttribute("modules",modules);
 		return "bridging.html";

@@ -66,15 +66,15 @@ function xmppDisconnect(){
 	xhr.onload = function (aEvt) {
 		if (xhr.readyState == 4) {
 			if(xhr.status == 400){
-				$("#disconnectResult").empty();
-				$("#disconnectResult").append("<p>Not connected</p>");
-				$("#disconnectModal").modal();
+				$("#reportResult").empty();
+				$("#reportResult").append("<p>Not connected</p>");
+				$("#reportModal").modal();
 				x=true;
 				console.log("No desconectado\n");
 			}else if (xhr.status == 407){
-				$("#disconnectResult").empty();
-				$("#disconnectResult").append("<p>Not authorized</p>");
-				$("#disconnectModal").modal();
+				$("#reportResult").empty();
+				$("#reportResult").append("<p>Not authorized</p>");
+				$("#reportModal").modal();
 			}else if(xhr.status == 200){
 				console.log("Desconectado\n");
 			}
@@ -86,4 +86,3 @@ function xmppDisconnect(){
 	console.log("No desconectado\n");
 	xhr.send(null);
 }
-

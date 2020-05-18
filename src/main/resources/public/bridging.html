@@ -101,7 +101,7 @@
                   <label class="" for="regexPath">P2P regex interface:</label>
                   <div class="input-group mb-2">
                     <div class="input-group-prepend">
-                      <div class="input-group-text">http://delta.eu/delta/</div>
+                      <div class="input-group-text">http://localhost:<span th:text="${port}"></span>/delta/</div>
                       <input type="text" class="form-control" id="regexPath" placeholder="Interface regex" th:field="*{regexPath}" required>
                     </div>
                   </div>
