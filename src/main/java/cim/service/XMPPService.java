@@ -67,17 +67,17 @@ public class XMPPService {
 	public XmppUserRepository xmppRepository;
 	//@Autowired
 	//public P2PMessageRepository messageRepository;
-	
+
 	public static String p2pUsername, p2pDomain;
 	static {
 		p2pUsername = null;
 		p2pDomain = null;
 	}
-		
+
 	public static String getCurrentXmppUser(){
 		return p2pUsername;
 	}
-	
+
 	public void createDefaultXmppUser() {
 		if(xmppRepository.findAll().isEmpty()) {
 			XmppUser firstConnection = XmppUserFactory.createDefaultXmpp();
@@ -89,10 +89,10 @@ public class XMPPService {
 
 
 	public void updateXmppUser(XmppUser xmppUser) {
-//		List<XmppUser> xmppUsers = xmppRepository.findAll();
-//		if(xmppUsers.size() >= 1) {
+		//		List<XmppUser> xmppUsers = xmppRepository.findAll();
+		//		if(xmppUsers.size() >= 1) {
 		xmppRepository.deleteAll();
-//		}
+		//		}
 		p2pUsername = xmppUser.getUsername();
 		p2pDomain = xmppUser.getHost();
 		xmppRepository.save(xmppUser);
@@ -118,7 +118,7 @@ public class XMPPService {
 
 	// -- Methods
 
-	
+
 	public void sendPresence() {
 		if(isConnected()) {
 			Presence presence = new Presence(Presence.Type.available, "online",127, Presence.Mode.available);
@@ -135,28 +135,29 @@ public class XMPPService {
 		connection.disconnect();
 		return connection.isConnected();
 	}
-	
+
 	public static int getConnectionError() {
 		return connectionError;
 	}
-	
-	
+
+
 	public boolean isConnected() {
 		boolean result = false;
 		try {
-			result = connection != null && connection.isConnected();
+			if(getConnectionError() >= 0)
+				result = connection != null && connection.isConnected();
 		}catch (Exception e) {
 			e.getStackTrace();
 		}
 		return result;
 	}
-		
+
 	public void connect(String username, String password, String xmppDomain, String host, int port, String caFile) {
 		connectionError = 0;
 		try {
 			// 0. Reading the certificates
 			String certificates = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
-			
+
 			// 1. Configuring the XMPPT connection
 			XMPPTCPConnectionConfiguration.Builder build =  XMPPTCPConnectionConfiguration.builder()
 					.setUsernameAndPassword(username, password)
@@ -167,9 +168,8 @@ public class XMPPService {
 					.enableDefaultDebugger()
 					.setPort(port)
 					.setCustomSSLContext(getSSLContext(certificates))
-					//.setKeystorePath("C:\\Users\\jcano\\Documents\\GitHub\\DeltaCimApp\\Certificates")
 					.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
-			
+
 			//1.2 Add the certificates to the configuration
 
 			XMPPTCPConnectionConfiguration config = build.build();
@@ -189,7 +189,7 @@ public class XMPPService {
 			createMessageHandlers();	
 			log.info("Peer message handlers established"); 
 			connection.setParsingExceptionCallback(new CimParsingExceptionCallback());
-			
+
 			// 3. Update static user
 			p2pUsername = username;
 			p2pDomain = xmppDomain;
@@ -208,26 +208,26 @@ public class XMPPService {
 			log.severe(e.toString());
 		}
 	}
-	
+
 	/**
 	 * setKeyStorePath dont work, so we must implement this method in order to handle the certificates
 	 */
-    private SSLContext getSSLContext(String caFile) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-        char[] JKS_PASSWORD = ConfigTokens.PASSWORD_CERT.toCharArray();
-        char[] KEY_PASSWORD = ConfigTokens.PASSWORD_CERT.toCharArray();
-        caFile = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
-        
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        InputStream is = new FileInputStream(caFile);
-        keyStore.load(is, JKS_PASSWORD);
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(keyStore, KEY_PASSWORD);
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(keyStore);
-        SSLContext sc = SSLContext.getInstance("TLS");
-        sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
-        return sc;
-    }
+	private SSLContext getSSLContext(String caFile) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
+		char[] JKS_PASSWORD = ConfigTokens.PASSWORD_CERT.toCharArray();
+		char[] KEY_PASSWORD = ConfigTokens.PASSWORD_CERT.toCharArray();
+		caFile = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
+
+		KeyStore keyStore = KeyStore.getInstance("JKS");
+		InputStream is = new FileInputStream(caFile);
+		keyStore.load(is, JKS_PASSWORD);
+		KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		kmf.init(keyStore, KEY_PASSWORD);
+		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+		tmf.init(keyStore);
+		SSLContext sc = SSLContext.getInstance("TLS");
+		sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
+		return sc;
+	}
 
 	/**
 	 * This method instantiates a message listener that will receive {@link P2PMessages} with requests isRequestMessage()==true
@@ -298,7 +298,7 @@ public class XMPPService {
 			String content = P2PMessageFactory.fromP2PMessageToB64(p2pMessage);
 			System.out.println("Sending to "+jid.asEntityBareJidString()+"\n\tContent:"+content);
 			chat.send(content);
-		
+
 			// 2. Store the message sent
 			//messageRepository.save(p2pMessage);
 		} catch (NotConnectedException e) {
@@ -310,12 +310,12 @@ public class XMPPService {
 		log.info("Message sent");
 	}
 
-	
-	
+
+
 	/*
 
 	public void connect(String username, String password, String xmppDomain, String host, int port, String caFile) {
-		
+
 		try {
 			System.out.println("Trying connection");
 
@@ -328,7 +328,7 @@ public class XMPPService {
 					.setSendPresence(true)
 					.setCustomSSLContext(getSSLContext(caFile))
 					.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
-			
+
 			connection = new XMPPTCPConnection(buildConnection.build());
 			connection.connect();
 			connection.login();
@@ -336,15 +336,15 @@ public class XMPPService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public boolean disconnect() {
 		connection.disconnect();
 		return connection.isConnected();
 	}
-	
-	
+
+
 	public boolean isConnected() {
 		boolean result = false;
 		try {
@@ -360,7 +360,7 @@ public class XMPPService {
         char[] JKS_PASSWORD = "changeit".toCharArray();
         char[] KEY_PASSWORD = "changeit".toCharArray();
         caFile = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
-        
+
         KeyStore keyStore = KeyStore.getInstance("JKS");
         InputStream is = new FileInputStream(caFile);
         keyStore.load(is, JKS_PASSWORD);
