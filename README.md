@@ -10,7 +10,7 @@ Go to the release section of this proyect, download the lastest version, and unz
 
 Finally, to run the CIM, type down:
 
-```` java -jar cim-1.0.0.jar --server.port=8080 ````
+```` java -jar cim-1.0.0.jar --server.port=8080 --certificate.password=changeit````
 
 **WARNING**: The argument --server.port must always be specified for the correct functioning of the CIM.
 
