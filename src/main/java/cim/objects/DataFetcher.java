@@ -11,6 +11,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import cim.ConfigTokens;
@@ -22,6 +25,9 @@ import cim.xmpp.factory.RequestsFactory;
 import helio.framework.objects.RDF;
 import helio.framework.objects.SparqlResultsFormat;
 import helio.framework.objects.Tuple;
+import helio.writer.HelioWriter;
+import helio.writer.framework.DevirtualisationMapping;
+import helio.writer.framework.serialiser.JsonTranslator;
 
 import org.apache.jena.Jena;
 import org.apache.jena.datatypes.xsd.impl.RDFLangString;
@@ -180,21 +186,27 @@ public class DataFetcher {
 		 try {
 			 // If this route has no mapping associated perform the POST with current body
 			 String requestBody = message.getMessage();
-			 if(rule.getWrittingMapping()!=null && !rule.getWrittingMapping().isEmpty()) {
-				 requestBody = devirtualizeData(requestBody, rule.getWrittingMapping());
-			 }
-			 if(requestBody==null) {
-				 tuple.setFirstElement(ConfigTokens.ERROR_JSON_MESSAGES_5);
-				 tuple.setSecondElement(418);
-			 }
 			 Map<String,String> headersMap = retrieveHeaders(headers);
 			 Integer code = KGService.validateRDF(requestBody, endpoint);
 			 tuple.setSecondElement(code);
-			 String responseMessage = null;
-			 if(code==200)
-				 responseMessage = Unirest.post(endpoint).headers(headersMap).body(requestBody).asString().getBody();
-			 tuple.setFirstElement(responseMessage);
-			
+			 if(code==200 && rule.getWrittingMapping()!=null && !rule.getWrittingMapping().isEmpty()) {
+				 requestBody = devirtualizeData(requestBody, rule.getWrittingMapping());
+			 }
+			 if(code!=200) {
+				 tuple.setFirstElement("Provided data has validation errors");
+				 tuple.setSecondElement(418);
+			 }else if(requestBody==null) {
+				 tuple.setFirstElement(ConfigTokens.ERROR_JSON_MESSAGES_5);
+				 tuple.setSecondElement(418);
+			 }else{
+				 String responseMessage = null;
+				 if(code==200) {
+					 HttpResponse<String> response = Unirest.post(endpoint).headers(headersMap).body(requestBody).asString();
+					 tuple.setSecondElement(response.getStatus());
+					 responseMessage = response.getBody();
+				 }
+				 tuple.setFirstElement(responseMessage);
+			 }
 		 } catch (UnirestException e) {
 				e.printStackTrace();
 				System.out.println(endpoint);
@@ -209,13 +221,23 @@ public class DataFetcher {
 			System.out.println(ConfigTokens.DEFAULT_RDF_SERIALISATION);
 			try {
 				RDF rdfData = new RDF();
-				rdfData.parseRDF(data, format);
-				transaltedData = rdfData.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION);
+				rdfData.parseRDF(data, ConfigTokens.DEFAULT_RDF_SERIALISATION);
+				transaltedData = rdfData.toString(format);
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 		}else {
 			//TODO: run devirtualisation engine 
+			try {
+				writtingMapping = writtingMapping.replaceAll("#GetConnectorReplacement#", data.replace("\"", "\\\\\""));
+				JsonObject mappingJson = new Gson().fromJson(writtingMapping, JsonObject.class);
+				JsonTranslator translator = new JsonTranslator();
+				DevirtualisationMapping mapping = translator.translate(mappingJson.toString());
+				HelioWriter writer = new HelioWriter(mapping);
+				transaltedData = writer.devirtualise();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 		return transaltedData;
 	}

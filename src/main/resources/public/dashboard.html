@@ -111,7 +111,7 @@
 								th:field="*{port}" required>
 						</div>
 
-						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')">
+						<div class="col-auto" sec:authorize="hasRole('ROLE_ADMIN')" style="visibility:none">
 							<label for="exampleFormControlFile1">CA Certificate</label> <input
 								type="file" th:field="*{fileCA}" class="form-control-file"
 								id="exampleFormControlFile1">

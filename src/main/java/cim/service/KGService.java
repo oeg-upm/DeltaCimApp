@@ -115,6 +115,7 @@ public class KGService {
 			result.setFirstElement(queryAnswer);
 		} catch (Exception e) {
 			log.severe(e.toString());
+			e.printStackTrace();
 		}
 
 		return result;
@@ -129,19 +130,22 @@ public class KGService {
 	 */
 	private static Tuple<RDF,Integer> aggregateLocalEndpointsRDF(P2PMessage message, String headers) {
 		RDF dataAggregation = new RDF();
-		Integer code = null;
+		Integer code = 404;
 		Boolean error = false;
+		BridgingService.getRoutes().forEach( route -> System.out.println(">"+route.getEndpoint()));
 		for(BridgingRule route: BridgingService.getRoutes()) {
-			String localEndpoint = route.getEndpoint();
+			String localEndpoint = route.getEndpoint().trim();
 			if(message!=null)
 				localEndpoint = RequestsFactory.buildRealLocalEndpoint(message, route);
-			RDF auxiliarData = virtualiseRDF(localEndpoint, route.getReadingMapping(), headers); 
-			if(auxiliarData!=null) {
-				code = validateRDF(auxiliarData.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION), localEndpoint);
-				dataAggregation.addRDF(auxiliarData);
+			if(route.getReadingMapping()!=null) {
+				RDF auxiliarData = virtualiseRDF(localEndpoint, route.getReadingMapping(), headers); 
+				if(auxiliarData!=null && !auxiliarData.getRDF().isEmpty()) {
+					code = validateRDF(auxiliarData.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION), localEndpoint);
+					dataAggregation.addRDF(auxiliarData);
+				}
+				if(code!=null && code != 200) 
+					error = true;
 			}
-			if(code != 200) 
-				error = true;
 		}
 		if(error)
 			code = 418;
