@@ -20,51 +20,39 @@
 <!-- Custom styles for this template -->
 <link rel="stylesheet" type="text/css" th:href="@{css/sb-admin.css}"/>
 
-
-
 </head>
 
 <body class="bg-dark">
 
 	<div class="container">
-		<div class="card card-login mx-auto mt-5">
+		<div class="card card-login mx-auto mt-3">
 			<img src="images/delta.jpeg" class="card-header" alt="Logo">
 			<!-- <div class="card-header">Login</div> -->
 			<div class="card-body">
 			
 			
-			
-				<form action="#" th:action="@{/api/login}" th:object="${user}" method="post">
+				
 					<div class="form-group">
 						<div class="form-label-group">
 							<input type="text" id="username" class="form-control"
 								placeholder="username" required
-								autofocus="autofocus" th:field="*{username}"> <label for="username" >Username</label>
+								autofocus="autofocus"> <label for="username" >Username</label>
 						</div>
 					</div>
 					<div class="form-group">
 						<div class="form-label-group">
-							<input type="password" id="inputPassword" class="form-control"
-								placeholder="Password" required th:field="*{password}"> <label
+							<input type="password" id="password" class="form-control"
+								placeholder="Password" required> <label
 								for="inputPassword">Password</label>
 						</div>
 					</div>
-					<div class="form-group">
-						<div class="checkbox">
-							<label> <input type="checkbox" value="remember-me">
-								Remember Password
-							</label>
-						</div>
+					<button type="submit" onclick="login()" class="btn btn-primary btn-block">Login</button>
+				
+				
+				<div class="text-center" style="margin-top:10px">
+					<div class="alert alert-danger" role="alert" id="wrongCredentials" style="visibility: hidden">
+					  Username/password wrong!
 					</div>
-					<button type="submit" class="btn btn-primary btn-block">Login</button>
-				</form>
-				
-				
-				
-				<div class="text-center">
-					<a class="d-block small mt-3" href="register.html">Register an
-						Account</a> <a class="d-block small" href="forgot-password.html">Forgot
-						Password?</a>
 				</div>
 			</div>
 		</div>
@@ -76,5 +64,30 @@
 	<!-- Core plugin JavaScript-->
 	<script type="text/javascript" th:src="@{vendor/jquery-easing/jquery.easing.min.js}"></script>
 </body>
+
+<script type="text/javascript">
+        function login(){
+        	var username = $("#username").val();
+        	var password = $("#password").val();
+        	
+        	var userLogin = "{\"username\" : \""+username+"\", \"password\" : \""+password+"\"}";
+            $.ajax({
+                type : 'POST',
+                url: "/api/login",
+                contentType: 'application/json',
+    			data: userLogin,
+                success: function(data) {
+
+                   	location.reload();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                	console.log(">"+xhr.status);
+			        if(xhr.status == 401)
+			        	$('#wrongCredentials').css('visibility', 'visible');
+			    }
+            });
+        }
+       
+   </script>
 
 </html>

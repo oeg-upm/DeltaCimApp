@@ -1,97 +1,82 @@
 package cim.service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import cim.model.LocalUserAuthority;
 import cim.model.User;
-import cim.repository.LocalUserAuthorityRepository;
-import cim.repository.LocalUserRepository;
-import cim.xmpp.factory.AuthorityFactory;
-import cim.xmpp.factory.UserFactory;
+import cim.repository.UserRepository;
 
 @Service
 public class UserService {
 
 
 	@Autowired
-	public LocalUserRepository userRepository;
-
-	@Autowired
-	public LocalUserAuthorityRepository authorityRepository;
-
+	public UserRepository userRepository;
+	private PasswordEncoder bcryptEncoder = new BCryptPasswordEncoder();
+	private static final String USER_DEFAULT_TOKEN = "root";
+	
+	public Boolean existUsername(String username) {
+		return  userRepository.existsById(username);
+	}
+	
+	public User getUser(String username) {
+		return userRepository.findByUsername(username);
+	}
 
 	public List<User> getAllUsers(){
-		return userRepository.findAll();
+		List<User> users = userRepository.findAll();
+		users.forEach(user -> user.setPassword(""));
+		return users;
 	}
 
 	public void createDefaultUser() {
 		if(userRepository.findAll().isEmpty()) {
-			User admin = UserFactory.createDefaultUser();
-			Set<LocalUserAuthority> authorities = AuthorityFactory.createDefaultAuthority();
-			authorities.forEach(authority -> authorityRepository.save(authority));
-			admin.setAuthority(authorities);
-			userRepository.save(admin);
+			User root = new User();
+			root.setUsername(USER_DEFAULT_TOKEN);
+			root.setPassword(bcryptEncoder.encode(USER_DEFAULT_TOKEN));
+			userRepository.save(root);
 		}
 	}
-
-	public void createAdmin() {
-		if(userRepository.findAll().isEmpty()) {
-			User admin = UserFactory.createDefaultUser();
-			Set<LocalUserAuthority> authorities = AuthorityFactory.createAdminAuthority();
-			authorities.forEach(authority -> authorityRepository.save(authority));
-			admin.setAuthority(authorities);
-			userRepository.save(admin);
-		}
-	}
-
-
+	
 	public void createUser(User newUser) {
-		if(!userRepository.existsById(newUser.getUsername())) {
-			newUser.setPassword(encode(newUser.getPassword()));
-			Set<LocalUserAuthority> authorities;
-			if(newUser.getAuthorityTemp().contentEquals("ROLE_ADMIN")) {
-				authorities = AuthorityFactory.createAdminAuthority();
-				authorities.forEach(authority -> authorityRepository.save(authority));
-				newUser.setAuthority(authorities);
-				userRepository.save(newUser);
-			}else{
-				authorities = AuthorityFactory.createNewUserAuthority();
-				authorities.forEach(authority -> authorityRepository.save(authority));
-				newUser.setAuthority(authorities);
-				userRepository.save(newUser);
-			}
+		Boolean isNewUser = userRepository.existsById(newUser.getUsername());
+		if(!isNewUser) {
+			newUser.setPassword(bcryptEncoder.encode(newUser.getPassword()));
+			userRepository.save(newUser);
 		}
 	}
-
-
-
-	public Boolean remove(String userId) {
-		Boolean removed = false;
-		User user = userRepository.findByUsername(userId);
-		if(user!=null && !user.getUsername().contentEquals("root")) {
+	
+	public void updateUser(User user) {
+		Boolean userExists = userRepository.existsById(user.getUsername());
+		if(userExists) {
 			userRepository.delete(user);
-			removed = true;
 		}
-		return removed;
+		userRepository.save(user);
 	}
 
-	public static String encode(String password){
-		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(4);
-		return bCryptPasswordEncoder.encode(password);
+	
+	public Boolean checkLogin(User user) {
+		Boolean loginCorrect = false;
+		Optional<User> optionalUser = userRepository.findById(user.getUsername());
+		if (optionalUser.isPresent()) {
+			User storedUser = optionalUser.get();
+			loginCorrect = storedUser != null && user.getUsername().equals(storedUser.getUsername())
+					&& bcryptEncoder.matches(user.getPassword(), storedUser.getPassword());
+		}
+		return loginCorrect;
 	}
 
-	public Set<LocalUserAuthority> stringToSet(String authority) {
-		LocalUserAuthority autorityInput = new LocalUserAuthority();
-		autorityInput.setAuthority(authority);
-		Set<LocalUserAuthority> auth = new HashSet<>();
-		auth.add(autorityInput);
-		return auth; 
+
+	public void remove(String userId) {
+		User user = userRepository.findByUsername(userId);
+		if(user!=null) 
+			userRepository.delete(user);
 	}
+
+	
+
 
 }

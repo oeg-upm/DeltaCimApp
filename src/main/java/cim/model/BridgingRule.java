@@ -1,27 +1,46 @@
 package cim.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import cim.ConfigTokens;
+import cim.factory.InteroperabilityModuleFactory;
+import cim.model.enums.Method;
+import helio.framework.objects.Tuple;
+
 @Entity
-public class BridgingRule {
+public class BridgingRule implements Serializable{
 	
 	// --- Attributes
 	
+	@Transient
+	private static final long serialVersionUID = 1L;
+
 	@Id
-	private String regexPath;
-	
+	@GeneratedValue(strategy=GenerationType.AUTO) 
+	private long id;
 	@NotEmpty
+	private String xmppPattern;
+	
+	
 	private String endpoint;
 
 	@NotNull
 	private Boolean appendPath;
 	
 	@NotNull
-	private String mappingsFolder;
+	private Method method;
+	
+	@NotNull
+	private String interoperabilityModuleFile;
 	
 	@Column(columnDefinition="TEXT")
 	private String readingMapping;
@@ -31,17 +50,25 @@ public class BridgingRule {
 	// --- Constructor
 	
 	public BridgingRule() {
-		appendPath=false;
+		// empty
 	}
 	
 	// --- Getters & Setters
 
-	public String getRegexPath() {
-		return regexPath;
+	public long getId() {
+		return id;
 	}
 
-	public void setRegexPath(String regexPath) {
-		this.regexPath = regexPath;
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getXmppPattern() {
+		return xmppPattern;
+	}
+
+	public void setXmppPattern(String xmppPattern) {
+		this.xmppPattern = xmppPattern;
 	}
 
 	public String getEndpoint() {
@@ -60,12 +87,20 @@ public class BridgingRule {
 		this.appendPath = appendPath;
 	}
 
-	public String getMappingsFolder() {
-		return mappingsFolder;
+	public Method getMethod() {
+		return method;
 	}
 
-	public void setMappingsFolder(String mappingsFolder) {
-		this.mappingsFolder = mappingsFolder;
+	public void setMethod(Method method) {
+		this.method = method;
+	}
+
+	public String getInteroperabilityModuleFile() {
+		return interoperabilityModuleFile;
+	}
+
+	public void setInteroperabilityModuleFile(String interoperabilityModuleFile) {
+		this.interoperabilityModuleFile = interoperabilityModuleFile;
 	}
 
 	public String getReadingMapping() {
@@ -83,22 +118,27 @@ public class BridgingRule {
 	public void setWrittingMapping(String writtingMapping) {
 		this.writtingMapping = writtingMapping;
 	}
+
+	
 	
 	// --- Auxiliary methods
+
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((regexPath == null) ? 0 : regexPath.hashCode());
+		result = prime * result + ((method == null) ? 0 : method.hashCode());
+		result = prime * result + ((xmppPattern == null) ? 0 : xmppPattern.hashCode());
 		return result;
 	}
 
+	
 	@Override
 	public String toString() {
-		return "BridgingRule [regexPath=" + regexPath + ", endpoint=" + endpoint + ", appendPath=" + appendPath
-				+ ", mappingsFolder=" + mappingsFolder + ", readingMapping=" + readingMapping + ", writtingMapping="
-				+ writtingMapping + "]";
+		return "BridgingRule [regexPath=" + xmppPattern + ", endpoint=" + endpoint + ", appendPath=" + appendPath
+				+ ", method=" + method + ", mappingsFolder=" + interoperabilityModuleFile + ", readingMapping=" + readingMapping
+				+ ", writtingMapping=" + writtingMapping + "]";
 	}
 
 	@Override
@@ -110,12 +150,27 @@ public class BridgingRule {
 		if (getClass() != obj.getClass())
 			return false;
 		BridgingRule other = (BridgingRule) obj;
-		if (regexPath == null) {
-			if (other.regexPath != null)
+		if (method == null) {
+			if (other.method != null)
 				return false;
-		} else if (!regexPath.equals(other.regexPath))
+		} else if (!method.equals(other.method))
+			return false;
+		if (xmppPattern == null) {
+			if (other.xmppPattern != null)
+				return false;
+		} else if (!xmppPattern.equals(other.xmppPattern))
 			return false;
 		return true;
 	}
+	
+
+	public void updateMappingContent() {
+		if(getInteroperabilityModuleFile()!=null) {
+			Tuple<String,String> module = InteroperabilityModuleFactory.readInteroperabilityModule(ConfigTokens.MODULES_BASE_DIR+getInteroperabilityModuleFile());
+			this.readingMapping = module.getFirstElement();
+			this.writtingMapping = module.getSecondElement();
+		}
+	}
+
 	
 }

@@ -1,32 +1,33 @@
 package cim.service;
 
 import java.util.logging.Logger;
+
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cim.ConfigTokens;
+import cim.factory.RequestsFactory;
+import cim.factory.ValidationReportFactory;
 import cim.model.BridgingRule;
 import cim.model.P2PMessage;
 import cim.model.ValidationReport;
-import cim.xmpp.factory.RequestsFactory;
-import cim.xmpp.factory.ValidationReportFactory;
-import helio.components.engine.EngineImp;
 import helio.components.engine.sparql.SparqlEndpoint;
-import helio.framework.MappingTranslator;
-import helio.framework.exceptions.MalformedMappingException;
-import helio.framework.mapping.Mapping;
 import helio.framework.objects.RDF;
 import helio.framework.objects.SparqlResultsFormat;
 import helio.framework.objects.Tuple;
-import helio.mappings.translators.AutomaticTranslator;
 
-
+@Service
 public class KGService {
 
+	@Autowired
+	public ValidationService validationService;
+	@Autowired
+	public BridgingService bridgingService;
+	
+	
 	private static Logger log = Logger.getLogger(KGService.class.getName());
-
 
 	// -- Query Solving methods
 
@@ -37,7 +38,7 @@ public class KGService {
 	 * @param answerFormat A {@link SparqlResultsFormat} object specifying the output format
 	 * @return The query results
 	 */
-	public static Tuple<String,Integer> solveQuery(String query, SparqlResultsFormat answerFormat, P2PMessage message, String headers){
+	public  Tuple<String,Integer> solveQuery(String query, SparqlResultsFormat answerFormat, P2PMessage message, String headers){
 		Tuple<String,Integer> response = new Tuple<>();
 		if(!isReadableQuery(query) && isQueryCorrect(query)){
 			/*Boolean correctProcess = true;
@@ -103,7 +104,7 @@ public class KGService {
 	 * Materialisation methods
 	 */
  
-	private static Tuple<String, Integer> solveMaterialisationQuery(String query, SparqlResultsFormat answerFormat, P2PMessage message, String headers) {
+	private  Tuple<String, Integer> solveMaterialisationQuery(String query, SparqlResultsFormat answerFormat, P2PMessage message, String headers) {
 		Tuple<String,Integer> result = new Tuple<>();
 		try {
 			// Generate virtual RDF
@@ -128,12 +129,12 @@ public class KGService {
 	 * @param headers a set of headers sent with the virtualization request
 	 * @return A tuple in which the first argument is the aggregated RDF and the second is a code that can be 200 (everything ok) or 418 (validation error)
 	 */
-	private static Tuple<RDF,Integer> aggregateLocalEndpointsRDF(P2PMessage message, String headers) {
+	private Tuple<RDF,Integer> aggregateLocalEndpointsRDF(P2PMessage message, String headers) {
 		RDF dataAggregation = new RDF();
 		Integer code = 404;
 		Boolean error = false;
-		BridgingService.getRoutes().forEach( route -> System.out.println(">"+route.getEndpoint()));
-		for(BridgingRule route: BridgingService.getRoutes()) {
+		bridgingService.getAllRoutes().forEach( route -> System.out.println(">"+route.getEndpoint()));
+		for(BridgingRule route: bridgingService.getAllRoutes()) {
 			String localEndpoint = route.getEndpoint().trim();
 			if(message!=null)
 				localEndpoint = RequestsFactory.buildRealLocalEndpoint(message, route);
@@ -168,18 +169,8 @@ public class KGService {
 		RDF rdfData = null; // it is the RDF representation of heterogeneous data
 		
 		try {
-			// The modification of the mappings must be done here because the DataFetcher injects the dynamic parameters of a requested URL
-			if(rawMapping!=null && rawMapping.contains("GetConnectorReplacement")) 
-				rawMapping = rawMapping.replace("#GetConnectorReplacement#", endpoint.replace("\"", "\\\""));
-			if(rawMapping!=null && rawMapping.contains("#GetConnectorHeadersReplacement#") && headers!=null && !headers.isEmpty())
-				rawMapping = rawMapping.replace("#GetConnectorHeadersReplacement#", headers.replace("\"", "\\\""));
 			
-			MappingTranslator translator = new AutomaticTranslator();
-			Mapping mapping = translator.translate(rawMapping);
-			EngineImp virtualiser = new EngineImp(mapping);
-			virtualiser.initialize();
-			rdfData = virtualiser.publishRDF();	
-			virtualiser.close();
+			
 			
 		} catch (Exception e) {
 			log.severe(e.toString());
@@ -188,8 +179,8 @@ public class KGService {
 		return rdfData;
 	}
 	
-	public static Integer validateRDF(String responseMessage, String endpoint) {
-		ValidationReport report = ValidationService.generateValidationReport(responseMessage, ConfigTokens.DEFAULT_RDF_SERIALISATION, endpoint);
+	public Integer validateRDF(String responseMessage, String endpoint) {
+		ValidationReport report = validationService.generateValidationReport(responseMessage, ConfigTokens.DEFAULT_RDF_SERIALISATION, endpoint);
 		Integer code = 200;
 		if(!ValidationReportFactory.isSuccessfullReport(report)) {
 			code = 418;
@@ -198,9 +189,9 @@ public class KGService {
 		return code;
 	}
 
-	 private static void storeReport(ValidationReport report) {
+	 private void storeReport(ValidationReport report) {
 		try {
-			ValidationService.reportsQueue.add(report);
+			validationService.update(report);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

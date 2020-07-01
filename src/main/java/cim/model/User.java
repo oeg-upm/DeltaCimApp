@@ -1,19 +1,22 @@
 package cim.model;
 
-import java.util.Set;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.JoinColumn;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 
 @Entity
-@Table(name="User")
-public class User {
+@Table(name="user")
+public class User implements Serializable, Comparable<User> {
 	
 	@Id
 	@NotEmpty
@@ -21,26 +24,18 @@ public class User {
 	@NotEmpty
 	private String password;
 	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name="authorities_users",
-	joinColumns=@JoinColumn(name="usuario_id"),
-	inverseJoinColumns=@JoinColumn(name="authority_id"))
-	private Set<LocalUserAuthority> authority;
+    @ElementCollection
+    @CollectionTable(name = "tokens", 
+      joinColumns = {@JoinColumn(name = "token_id", referencedColumnName = "username")})
+    @MapKeyColumn(name = "token")
+    @Column(name = "expiration_minutes")
+	private Map<String,String> tokens;
 	
-	//No persistent variable. It will not be save in the database, just for provide information to Set<Authority>.
 	@Transient
-	private String authorityTemp;
+	private static final long serialVersionUID = 1L;
 	
-	public String getAuthorityTemp() {
-		return authorityTemp;
-	}
-
-	public void setAuthorityTemp(String authorityTemp) {
-		this.authorityTemp = authorityTemp;
-	}
-
 	public User() {
-		
+		tokens = new HashMap<>();
 	}
 
 	public String getUsername() {
@@ -58,31 +53,50 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	public Set<LocalUserAuthority> getAuthority() {
-		return authority;
-	}
-
-	public void setAuthority(Set<LocalUserAuthority> authority) {
-		this.authority = authority;
-	}
 	
-	//Get the authority of an user and replace with the correspondent authority
-	public String getAuthorities(User user) {
-		Set<LocalUserAuthority> set = user.getAuthority();
-		String authorities = "";
-		for (LocalUserAuthority s : set) {
-			authorities += s.getAuthority();
-		}
-		authorities = authorities.replaceAll("ROLE_USER", "USER");
-		authorities = authorities.replaceAll("ROLE_ADMINUSER", "ADMIN");
-		authorities = authorities.replaceAll("USERROLE_ADMIN", "ADMIN");
-		return authorities;
+	public Map<String, String> getTokens() {
+		return tokens;
 	}
+
+	public void setTokens(Map<String, String> tokens) {
+		this.tokens = tokens;
+	}
+
+	// -- Ancillary methods
 	
 	@Override
 	public String toString() {
-		return "User [username=" + username + ", password=" + password + ", authority=" + authority + "]";
+		return "User [username=" + username +", tokens=" + tokens + "]";
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (username == null) {
+			if (other.username != null)
+				return false;
+		} else if (!username.equals(other.username))
+			return false;
+		return true;
+	}
+
+	@Override
+	public int compareTo(User o) {
+		return this.getUsername().compareTo(o.getUsername());
 	}
 
 

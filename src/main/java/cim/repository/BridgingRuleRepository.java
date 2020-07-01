@@ -3,9 +3,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import cim.model.BridgingRule;
 
-public interface BridgingRuleRepository  extends JpaRepository<BridgingRule, String> {
+public interface BridgingRuleRepository  extends JpaRepository<BridgingRule, Long> {
 
-	public BridgingRule findByRegexPath(String regexPath);
-
+	public BridgingRule findByXmppPattern(String regexPath);
+	public BridgingRule findByEndpoint(String endpoint);
 	
 }

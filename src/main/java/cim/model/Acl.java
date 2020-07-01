@@ -1,13 +1,22 @@
 package cim.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Entity
-public class Acl {
+@Table(name = "acl")
+public class Acl implements Serializable {
 	
+	@Transient
+	private static final long serialVersionUID = 1L;
 	@Id
+	@NotEmpty
 	private String username;
 	@NotNull
 	private boolean readable;
@@ -30,6 +39,13 @@ public class Acl {
 
 	public void setReadable(boolean readable) {
 		this.readable = readable;
+	}
+	
+	
+
+	@Override
+	public String toString() {
+		return "Acl [username=" + username + ", readable=" + readable + "]";
 	}
 
 	@Override

@@ -4,9 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -19,82 +16,65 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.sasl.SASLErrorException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
-
 import cim.ConfigTokens;
+import cim.exceptions.CimParsingExceptionCallback;
+import cim.factory.P2PMessageFactory;
+import cim.factory.StringFactory;
 import cim.model.P2PMessage;
 import cim.model.XmppUser;
+import cim.model.enums.ConnectionStatus;
 import cim.repository.XmppUserRepository;
-import cim.xmpp.CimParsingExceptionCallback;
-import cim.xmpp.P2PMessageListener;
-import cim.xmpp.factory.P2PMessageFactory;
-import cim.xmpp.factory.XmppUserFactory;
+import cim.service.components.XmppMessageListener;
 
 @Service
 public class XMPPService {
 
 	// -- Attributes
-	private AbstractXMPPConnection connection;
-	private ChatManager chatManagerReceiver;
-	private Logger log = Logger.getLogger(XMPPService.class.getName());
-	private static int connectionError = -9;
-
+	
 	@Autowired
 	public XmppUserRepository xmppRepository;
-	//@Autowired
-	//public P2PMessageRepository messageRepository;
+	@Autowired
+	public XmppMessageListener xmppMessageListener;
+	
+	private AbstractXMPPConnection connection;
+	protected ChatManager chatManagerReceiver;
+	private Logger log = Logger.getLogger(XMPPService.class.getName());
 
-	public static String p2pUsername, p2pDomain;
-	static {
-		p2pUsername = null;
-		p2pDomain = null;
-	}
+	
+	// -- Constructor
 
-	public static String getCurrentXmppUser(){
-		return p2pUsername;
-	}
-
-	public void createDefaultXmppUser() {
-		if(xmppRepository.findAll().isEmpty()) {
-			XmppUser firstConnection = XmppUserFactory.createDefaultXmpp();
-			p2pUsername = firstConnection.getUsername();
-			p2pDomain = firstConnection.getHost();
-			xmppRepository.save(firstConnection);
-		}
+	public XMPPService() {
+		// empty
 	}
 
 
+	// -- Getters & Setters
+	
 	public void updateXmppUser(XmppUser xmppUser) {
-		//		List<XmppUser> xmppUsers = xmppRepository.findAll();
-		//		if(xmppUsers.size() >= 1) {
 		xmppRepository.deleteAll();
-		//		}
-		p2pUsername = xmppUser.getUsername();
-		p2pDomain = xmppUser.getHost();
 		xmppRepository.save(xmppUser);
 	}
 
@@ -103,57 +83,43 @@ public class XMPPService {
 		List<XmppUser> xmppUsers = xmppRepository.findAll();
 		if(xmppUsers.size() == 1) {
 			result = xmppUsers.get(0);
-			//result.setPassword("");
 		}
 		return result;
-
 	}
-
-	// -- Constructor
-
-	public XMPPService() {
-		// empty
-	}
-
 
 	// -- Methods
 
-
-	public void sendPresence() {
-		if(isConnected()) {
-			Presence presence = new Presence(Presence.Type.available, "online",127, Presence.Mode.available);
-			try {
-				connection.sendStanza(presence);
-			} catch (Exception e) {
-				log.severe(">"+e.getMessage());	
-
-			}
-		}
-	}
-
-	public boolean disconnect() {
-		connection.disconnect();
-		return connection.isConnected();
-	}
-
-	public static int getConnectionError() {
-		return connectionError;
-	}
-
-
+	
 	public boolean isConnected() {
 		boolean result = false;
 		try {
-			if(getConnectionError() >= 0)
-				result = connection != null && connection.isConnected();
+			result = connection != null && connection.isConnected();
 		}catch (Exception e) {
 			e.getStackTrace();
 		}
 		return result;
 	}
 
-	public void connect(String username, String password, String xmppDomain, String host, int port, String caFile) {
-		connectionError = 0;
+	public void disconnect() {
+		if(connection!=null)
+			connection.disconnect();
+	}
+	
+	public ConnectionStatus connect() {
+		ConnectionStatus status = ConnectionStatus.ALREADY_CONNECTED;
+		if(!isConnected()) {
+			XmppUser user = getXmppUser();
+			if(user!=null) {
+				status = connect(user.getUsername(), user.getPassword(), user.getXmppDomain(), user.getHost(), user.getPort());
+			}else {
+				status = ConnectionStatus.INCORRECT_XMPP_USER_CREDENTIALS;
+			}
+		}
+		return status;
+	}
+	
+	private ConnectionStatus connect(String username, String password, String xmppServerDomain, String host, int port) {
+		ConnectionStatus status = ConnectionStatus.DISCONNECTED;
 		try {
 			// 0. Reading the certificates
 			String certificates = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
@@ -161,7 +127,7 @@ public class XMPPService {
 			// 1. Configuring the XMPPT connection
 			XMPPTCPConnectionConfiguration.Builder build =  XMPPTCPConnectionConfiguration.builder()
 					.setUsernameAndPassword(username, password)
-					.setXmppDomain(xmppDomain)
+					.setXmppDomain(xmppServerDomain)
 					.setHost(host)
 					.setResource(username)
 					.setSendPresence(true)
@@ -171,19 +137,7 @@ public class XMPPService {
 					.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
 
 			//1.2 Add the certificates to the configuration
-
-			XMPPTCPConnectionConfiguration config = build.build();
-
-			log.info("Peer configured");
-			log.info("Connecting to "+host+":"+port);
-			connection = new XMPPTCPConnection(config);
-			connection.connect();
-			connection.login();// username, password
-			log.info("Login successful: "+String.valueOf(connection.isAuthenticated()));
-			log.info("SASL Mechanism used: "+connection.getUsedSaslMechansism());
-			log.info("Connection secured: "+connection.isSecureConnection());
-			log.info("Peer "+username+" logged"); 
-
+			addCertificatesToConfiguration(build, host, port, username); 
 
 			// 2. Create message handler and stanza handler
 			createMessageHandlers();	
@@ -191,37 +145,64 @@ public class XMPPService {
 			connection.setParsingExceptionCallback(new CimParsingExceptionCallback());
 
 			// 3. Update static user
-			p2pUsername = username;
-			p2pDomain = xmppDomain;
-			connectionError = 1;
+			status = ConnectionStatus.CONNECTED;
+			xmppMessageListener.setXmppUser(username); // update current xmpp user in the listener
 		}catch(FileNotFoundException e) {
-			connectionError = -1;
-			log.severe("CertException");
+			status = ConnectionStatus.CERTIFICATE_NOT_FOUND;
 			log.severe(e.toString());
+			connection = null;
+		}catch (SSLHandshakeException e) {
+			status = ConnectionStatus.BAD_CERTIFICATE;
+			log.severe(e.toString());
+			connection = null;
+		}catch(SASLErrorException e) {
+			status = ConnectionStatus.INCORRECT_XMPP_USER_CREDENTIALS;
+			log.severe(e.toString());
+			connection = null;
 		}catch(IOException e) {
-			connectionError = -2;
-			log.severe("Peer exception");
+			status = ConnectionStatus.INCORRECT_CERTIFICATE_PASSWORD;
 			log.severe(e.toString());
+			connection = null;
 		}catch(Exception e) {
-			connectionError = -3;
-			log.severe("Peer exception");
+			status = ConnectionStatus.ERROR_CONNECTING_WITH_OPENFIRE;
 			log.severe(e.toString());
+			connection = null;
 		}
+		return status;
 	}
+	
+	private void addCertificatesToConfiguration(XMPPTCPConnectionConfiguration.Builder build, String host, int port, String username) throws SmackException, IOException, XMPPException, InterruptedException {
+		
+		String message = StringFactory.concatenateStrings("Peer configured, connecting to ",host,":",port);
+		log.info(message);
+		XMPPTCPConnectionConfiguration config = build.build();
+		connection = new XMPPTCPConnection(config);
+		connection.connect();
+		connection.login();
+		
+		message = StringFactory.concatenateStrings("Login successful: ",String.valueOf(connection.isAuthenticated()));
+		log.info(message);
+		message = StringFactory.concatenateStrings("SASL Mechanism used: ",connection.getUsedSaslMechansism());
+		log.info(message);
+		message = StringFactory.concatenateStrings("Connection secured: ",connection.isSecureConnection());
+		log.info(message);
+		message = StringFactory.concatenateStrings("Peer ",username," logged");
+		log.info(message); 
+	}
+	
 
 	/**
 	 * setKeyStorePath dont work, so we must implement this method in order to handle the certificates
 	 */
 	private SSLContext getSSLContext(String caFile) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-		char[] JKS_PASSWORD = ConfigTokens.PASSWORD_CERT.toCharArray();
-		char[] KEY_PASSWORD = ConfigTokens.PASSWORD_CERT.toCharArray();
-		caFile = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
+		char[] jksPassword = ConfigTokens.PASSWORD_CERT.toCharArray();
+		char[] keyPassword = ConfigTokens.PASSWORD_CERT.toCharArray();
 
 		KeyStore keyStore = KeyStore.getInstance("JKS");
 		InputStream is = new FileInputStream(caFile);
-		keyStore.load(is, JKS_PASSWORD);
+		keyStore.load(is, jksPassword);
 		KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		kmf.init(keyStore, KEY_PASSWORD);
+		kmf.init(keyStore, keyPassword);
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		tmf.init(keyStore);
 		SSLContext sc = SSLContext.getInstance("TLS");
@@ -235,13 +216,12 @@ public class XMPPService {
 	private void createMessageHandlers() {
 		// 1. Create chat manager & append incoming message listener
 		chatManagerReceiver = ChatManager.getInstanceFor(connection);
-		chatManagerReceiver.addIncomingListener(new P2PMessageListener());
+		chatManagerReceiver.addIncomingListener(xmppMessageListener);
 		chatManagerReceiver.setXhmtlImEnabled(true);
-		//connection.addSyncStanzaListener(new StanzaP2PMessageListener(), StanzaTypeFilter.MESSAGE);
 	}
 
 	public DeferredResult<String> sendMessage(HttpServletRequest request, Map<String, String> headers, String payload, HttpServletResponse controllerResponse) {
-		P2PMessage p2pMessage = P2PMessageFactory.createP2PRequestMessage(request, headers);
+		P2PMessage p2pMessage = P2PMessageFactory.createP2PRequestMessage(request, headers, getXmppUser().getUsername(), getXmppUser().getXmppDomain());
 		p2pMessage.setMessage(payload);
 		DeferredResult<String> response = new DeferredResult<>();
 		String receiverId = p2pMessage.getReceiver();
@@ -266,12 +246,10 @@ public class XMPPService {
 							p2pResponse.setError(true);
 						}
 						// X.2 Send to front-end response and copy the message
-						//messageRepository.save(p2pResponse);
 						response.setResult(p2pResponse.getMessage());
 						controllerResponse.setStatus(p2pResponse.getResponseCode());
-						System.out.println(p2pResponse.getResponseCode());
 					} catch (Exception e) {
-						//e.printStackTrace();
+						e.printStackTrace();
 					}
 				}
 			});
@@ -295,12 +273,11 @@ public class XMPPService {
 		Chat chat = chatManager.chatWith(jid);
 		try {
 			// 1. Send the message
-			String content = P2PMessageFactory.fromP2PMessageToB64(p2pMessage);
-			System.out.println("Sending to "+jid.asEntityBareJidString()+"\n\tContent:"+content);
+			String content = p2pMessage.toJsonString();
+			String logMessage = StringFactory.concatenateStrings("Sending to ",jid.asEntityBareJidString(),"\n\tContent:",content);
+			log.info(logMessage);
 			chat.send(content);
 
-			// 2. Store the message sent
-			//messageRepository.save(p2pMessage);
 		} catch (NotConnectedException e) {
 			log.severe("ERROR: Peer client is not connected!");
 		} catch (InterruptedException e) {
@@ -312,65 +289,4 @@ public class XMPPService {
 
 
 
-	/*
-
-	public void connect(String username, String password, String xmppDomain, String host, int port, String caFile) {
-
-		try {
-			System.out.println("Trying connection");
-
-			XMPPTCPConnectionConfiguration.Builder buildConnection = XMPPTCPConnectionConfiguration.builder()
-					.setUsernameAndPassword(username, password)
-					.setXmppDomain(xmppDomain)
-					.setHost(host)
-					.setPort(port)
-					.setResource(username)
-					.setSendPresence(true)
-					.setCustomSSLContext(getSSLContext(caFile))
-					.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
-
-			connection = new XMPPTCPConnection(buildConnection.build());
-			connection.connect();
-			connection.login();
-			System.out.println("All ok");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public boolean disconnect() {
-		connection.disconnect();
-		return connection.isConnected();
-	}
-
-
-	public boolean isConnected() {
-		boolean result = false;
-		try {
-			result = connection != null && connection.isConnected();
-		}catch (Exception e) {
-			e.getStackTrace();
-		}
-		return result;
-	}
-
-
-    private SSLContext getSSLContext(String caFile) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-        char[] JKS_PASSWORD = "changeit".toCharArray();
-        char[] KEY_PASSWORD = "changeit".toCharArray();
-        caFile = ConfigTokens.P2P_CONFIG_CACERT_FOLDER;
-
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        InputStream is = new FileInputStream(caFile);
-        keyStore.load(is, JKS_PASSWORD);
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(keyStore, KEY_PASSWORD);
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(keyStore);
-        SSLContext sc = SSLContext.getInstance("TLS");
-        sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
-        return sc;
-    }
-	 */
 }

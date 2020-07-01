@@ -4,8 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import com.google.gson.JsonObject;
+
 @Entity
 public class P2PMessage {
+	
 	@Id
 	@Column(name="message_id")
 	private String id;
@@ -18,12 +21,14 @@ public class P2PMessage {
 	private String method;
 	private Boolean error;
 	private Integer responseCode;
+	private Boolean destroyAfterReading;
 
 	@Column(columnDefinition="TEXT")	
 	private String headers;
 	
 	public P2PMessage() {
 		error = false;
+		destroyAfterReading = false;
 	}
 	
 	public String getId() {
@@ -94,15 +99,41 @@ public class P2PMessage {
 	public void setHeaders(String headers) {
 		this.headers = headers;
 	}
+	
+	
 
-	@Override
-	public String toString() {
-		return "P2PMessage [id=" + id + ", owner=" + owner + ", receiver=" + receiver + ", time=" + time + ", request="
-				+ request + ", message=" + message + ", method=" + method + ", error=" + error +  ", responseCode=" + responseCode
-				+", header=" + headers	+ "]";
+	public Boolean getDestroyAfterReading() {
+		return destroyAfterReading;
+	}
+
+	public void setDestroyAfterReading(Boolean destroyAfterReading) {
+		this.destroyAfterReading = destroyAfterReading;
 	}
 
 
+	
+	@Override
+	public String toString() {
+		return "P2PMessage [id=" + id + ", owner=" + owner + ", receiver=" + receiver + ", time=" + time + ", request="
+				+ request + ", message=" + message + ", method=" + method + ", error=" + error + ", responseCode="
+				+ responseCode + ", destroyAfterReading=" + destroyAfterReading + ", headers=" + headers + "]";
+	}
+
+	public String toJsonString() {
+		JsonObject jsonMessage = new JsonObject();
+	 	jsonMessage.addProperty("id", getId());
+	 	jsonMessage.addProperty("owner", getOwner());
+	 	jsonMessage.addProperty("receiver", getReceiver());
+	 	jsonMessage.addProperty("time", getTime());
+	 	jsonMessage.addProperty("request", getRequest());
+	 	jsonMessage.addProperty("message", getMessage());
+	 	jsonMessage.addProperty("method", getMethod());
+	 	jsonMessage.addProperty("error", getError());
+	 	jsonMessage.addProperty("responseCode", getResponseCode());
+	 	jsonMessage.addProperty("headers", getHeaders());
+	 	jsonMessage.addProperty("destroy", getDestroyAfterReading());
+	 	return jsonMessage.toString();
+	}
 
 
 	

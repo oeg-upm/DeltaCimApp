@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<title>DELTA CIM</title>
+
+<!-- Custom fonts for this template
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">-->
+<link rel="stylesheet" type="text/css"
+	th:href="@{vendor/fontawesome-free/css/all.min.css}" />
+
+<!-- Page level plugin CSS
+  <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">-->
+<link rel="stylesheet" type="text/css"
+	th:href="@{vendor/datatables/dataTables.bootstrap4.css}" />
+<!-- Custom styles for this template
+  <link href="css/sb-admin.css" rel="stylesheet">-->
+<link rel="stylesheet" type="text/css" th:href="@{css/sb-admin.css}" />
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+</head>
+
+<body id="page-top">
+
+	<nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+		<a class="navbar-brand mr-1" href="/xmpp">DELTA CIM</a>
+		<button class="btn btn-link btn-sm text-white order-1 order-sm-0"
+			id="sidebarToggle" href="#">
+			<i class="fas fa-bars"></i>
+		</button>
+	</nav>
+	<!-- PAGE CONTENT -->
+	<div id="wrapper">
+		<!-- Sidebar -->
+		<ul class="sidebar navbar-nav">
+			<li class="nav-item active"><a class="nav-link"
+				href="/xmpp"> <i class="fas fa-fw fa-tachometer-alt"></i> <span>XMPP Configuration</span>
+			</a></li>
+			<li class="nav-item"><a class="nav-link" href="/bridging"> <i
+					class="fas fa-fw fa-random"></i> <span>Bridging</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="/acl"> <i
+					class="fas fa-fw fa-eye"></i> <span>Access List</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="/kg"> <i
+					class="fas fa-fw fa-star"></i> <span>Knowledge Graph</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="/cloud"> <i
+					class="fas fa-fw fa-cloud"></i> <span>Cloud Access</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="/validation">
+					<i class="fas fa-fw fa-thumbs-up"></i> <span>Validation</span>
+			</a></li>
+			<li class="nav-item"><a class="nav-link" href="/users"> <i
+					class="fas fa-fw fa-user"></i> <span>Users</span></a></li>
+			<li class="nav-item"><a class="nav-link" href="#"
+				data-toggle="modal" data-target="#logoutModal"> <i
+					class="fas fa-fw fa-power-off"></i> <span>Logout</span></a></li>
+		</ul>
+
+		<!-- Central menu -->
+		<div id="content-wrapper">
+			<div class="container-fluid" id="app">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="/index">Dashboard</a></li>
+					<li class="breadcrumb-item active">Xmpp configuration</li>
+				</ol>
+
+				<h3>Connection:</h3>
+				<div class="row">
+					<div class="col-auto">
+						<div class="form-row align-items-center">
+
+							<div class="col-auto">
+								<label class="" for="username">Username:</label> <input
+									type="text" class="form-control mb-2" id="username"
+									placeholder="Username" v-model="xmppUser.username" required>
+							</div>
+							<div class="col-auto">
+								<label class="" for="password">Password:</label> <input
+									type="text" class="form-control mb-2" id="password" v-model="xmppUser.password" placeholder="password"
+									required>
+							</div>
+
+							<div class="col-auto">
+								<label class="" for="xmppDomain">Xmpp Domain:</label> <input
+									type="text" class="form-control mb-2" id="xmppDomain" v-model="xmppUser.xmppDomain"
+									required placeholder="Xmpp domain">
+							</div>
+
+							<div class="col-auto">
+								<label class="" for="host">Host:</label> <input type="text"
+									class="form-control mb-2" id="host" placeholder="Host" v-model="xmppUser.host"
+									required>
+							</div>
+
+							<div class="col-auto">
+								<label class="" for="port">Port:</label> <input type="number"
+									class="form-control mb-2" id="port" placeholder="Port" v-model="xmppUser.port"
+									required>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr>
+				<div class="row">
+					<div class="col-auto">
+					<div class="form-row align-items-center">
+						<div class="col-auto">
+							<button type="submit" id="connectButton" class="btn btn-primary btn-block" onclick="xmppConnect()">Connect</button>
+						</div>
+
+						<div class="col-auto">
+							<button type="button" id="disconnectButton" class="btn btn-danger"
+								onclick="xmppDisconnect()">Disconnect</button>
+						</div>
+					
+						<div class="col-auto">
+							STATUS: <a v-show="connected"> <span class="fa fa-check-circle text-success"> CONNECTED </span> </a> 
+							<a v-show="!connected"> <span class="fa fa-times text-danger"> NOT CONNECTED </span> </a>
+						</div>
+				
+					</div>
+					</div>
+				</div>
+				<div class="row" style="margin-top: 10px;">
+					<div class="col">
+					<div class="form-row align-items-center">
+						<div class="col-12" style="text-align: center">
+							<div class="alert alert-danger" v-html="message" v-show="message.length>1" role="alert">
+							</div>
+						</div>
+					</div>
+					</div>
+				</div>
+				 <!-- Sticky Footer -->
+			    <footer class="sticky-footer">
+			        <div class="container my-auto">
+			          <div class="copyright text-center my-auto">
+			           <span>Copyright © <a href="http://www.oeg-upm.net/"> Ontology Engeneering Group (OEG)</a> 2019</span>
+			          </div>
+			        </div>
+			    </footer>
+				<!-- Scroll to Top Button-->
+				<a class="scroll-to-top rounded" href="#page-top"> <i
+					class="fas fa-angle-up"></i>
+				</a>
+				<!-- Logout Modal-->
+				<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog"
+					aria-labelledby="logoutModelLabel" aria-hidden="true">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="logoutModelLabel">Ready to
+									Leave?</h5>
+								<button class="close" type="button" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">×</span>
+								</button>
+							</div>
+							<div class="modal-body">Select "Logout" below if you are
+								ready to end your current session.</div>
+							<div class="modal-footer">
+								<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+								<button type="submit" class="btn btn-danger" onclick="logout()">Logout</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- [end] Central menu -->
+	</div>
+	<!-- [end] CONTENT -->
+
+	<!-- Bootstrap core JavaScript-->
+	<script type="text/javascript"
+		th:src="@{vendor/jquery/jquery.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+	<!-- Core plugin JavaScript-->
+	<script type="text/javascript"
+		th:src="@{vendor/jquery-easing/jquery.easing.min.js}"></script>
+	<!-- Custom scripts for all pages-->
+	<script type="text/javascript" th:src="@{js/sb-admin.min.js}"></script>
+	<script type="text/javascript" th:src="@{js/cim-scripts.js}"></script>
+
+</body>
+	<script type="text/javascript">
+        var app = new Vue({
+            el: '#app',
+            data: {
+                xmppUser :  { 
+                	"username" : "",
+                	"password" : "",
+                	"xmppDomain" : "",
+                	"host" : "",
+                	"port" : 0
+                },
+                connected : false,
+                message : "",
+            }
+        });
+
+        app.$watch('xmppUser', function (newValue, oldValue) {
+          loadXmppUser();
+        });
+
+        function loadXmppUser(){
+            $.ajax({
+                type : 'GET',
+                url: "/api/xmpp/user",
+                success: function(data) {
+                	if(JSON.stringify(data).length>2 && JSON.stringify(app.xmppUser) != JSON.stringify(data)){
+                    	app.xmppUser = data;
+                	}
+                	checkConnectionStatus();
+                }
+            });
+        }
+       
+        function checkConnectionStatus(){
+        	$.ajax({
+                type : 'GET',
+                url: "/api/xmpp/status",
+                success: function(data) {
+                	var strData = JSON.stringify(data);
+                	if(strData.length>2){
+                		var payload = JSON.parse(data);
+                		var isConnected = payload.xmpp.is_connected;
+                    	app.connected = isConnected;
+                    	if(app.connected)
+                    		app.message="";
+                	}
+                }
+            });
+        }
+       	function xmppConnect(){
+       		// This function first updates the xmpp connection setup (xmpp user)
+	    	$.ajax({
+	                type : 'POST',
+	                url: "/api/xmpp/user",
+	                contentType: 'application/json',
+	    			data: JSON.stringify(app.xmppUser),
+	                success: function(data) {
+	                  console.log("User updated!");
+	                  // then if correct, sends the connection order that uses the latest xmpp configuration
+	                  xmppConnectOrder();
+	                }, error: function (xhr, ajaxOptions, thrownError) {
+	                  console.log("Error updating user, code "+xhr.status);
+				    }
+	            });
+	    }
+
+        function xmppConnectOrder(){
+	        $.ajax({
+	                type : 'POST',
+	                url: "/api/xmpp/connect",
+	                success: function(data) {
+	                  console.log("connected!");
+	                  checkConnectionStatus();
+	                }, error: function (xhr, ajaxOptions, thrownError) {
+	                	var strData = xhr.responseText;
+	                	if(strData && strData.length>2){
+	                		var payload = JSON.parse(strData);
+	                		var newMessage = payload.xmpp.message;
+	                    	app.message = newMessage;
+	                	}
+	                	checkConnectionStatus();
+				    }
+	        });
+	    }
+
+        function xmppDisconnect(){
+            $.ajax({
+	                type : 'POST',
+	                url: "/api/xmpp/disconnect",
+	                success: function(data) {
+	                  console.log("disconnected!");
+	                  checkConnectionStatus();
+	                }, error: function (xhr, ajaxOptions, thrownError) {
+	                	app.message = "Error disconnecting from the xmpp server";
+				    	checkConnectionStatus();
+				    }
+	        });
+        }
+
+        loadXmppUser();
+       
+   </script>
+</html>

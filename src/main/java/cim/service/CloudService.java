@@ -29,9 +29,9 @@ public class CloudService {
 
 	@Autowired
 	public ACLService aclService;
-
+	
+	
 	private Logger log = Logger.getLogger(CloudService.class.getName());
-	private static final String JSONLD = "JSON-LD";
 
 	public CloudService() {
 		//empty
@@ -43,7 +43,7 @@ public class CloudService {
 		JsonObject results = new JsonObject();
 		JsonArray bindingResults = new JsonArray();
 		JsonParser parser = new JsonParser();
-		Set<String> endpoints = aclService.getAllUsernames().stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
+		Set<String> endpoints = aclService.getAllXmppUsernames().stream().map(user -> transformToDELTAURLs(user)).collect(Collectors.toSet());
 		for(String endpoint:endpoints) {
 			try {
 				Unirest.setTimeouts(60000, 60000);
@@ -104,7 +104,7 @@ public class CloudService {
 
 	private String transformToDELTAURLs(String user) {
 		StringBuilder formatedEndpoint= new StringBuilder();
-		formatedEndpoint.append("http://").append("localhost:").append(ConfigTokens.LOCAL_PORT).append("/delta/").append(user).append("/sparql").append("");
+		formatedEndpoint.append("http://").append("localhost:").append(ConfigTokens.SERVER_PORT).append("/delta/").append(user).append("/sparql").append("");
 		return formatedEndpoint.toString();
 	}
 
@@ -162,7 +162,7 @@ public class CloudService {
 			RDF rdfData = new RDF();
 			rdfData.parseRDF(new String(formattedAnswerStreamAux.toByteArray()));
 			try {
-				formattedAnswerStream.write(rdfData.toString(JSONLD).getBytes());
+				formattedAnswerStream.write(rdfData.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION).getBytes());
 			} catch (IOException e) {
 				log.severe("An error happened when transforming SPARQL answer into JSON-LD");
 			}

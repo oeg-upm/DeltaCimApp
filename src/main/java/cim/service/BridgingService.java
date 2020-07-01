@@ -1,10 +1,9 @@
 package cim.service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,41 +16,47 @@ public class BridgingService {
 
 	@Autowired
 	public BridgingRuleRepository routeRepository;
-	
-	private static Set<BridgingRule> routes;
-	
-	static {
-		routes = new HashSet<>();
-	}
-	
-	@PostConstruct
-	public void readAllACL() {
-		routes.addAll(routeRepository.findAll());
-	}
-	
-	public static Set<BridgingRule> getRoutes(){
-		return routes;
-	}
-	
+		
 	
 	public List<BridgingRule> getAllRoutes(){
 		return routeRepository.findAll();
 	}
 	
 	public void update(BridgingRule route){
-		BridgingRule newRoute = routeRepository.save(route);
-		routes.add(newRoute);
-	}
-
-	public Boolean remove(String routeId) {
-		Boolean removed = false;
-		BridgingRule route = routeRepository.findByRegexPath(routeId);
-		if(route!=null) {
-			routeRepository.delete(route);
-			removed = true;
-			routes.remove(route);
+		if(route.getXmppPattern()!=null) {
+			BridgingRule existingRule = findByXmppPattern(route.getXmppPattern());
+			if(existingRule!=null) {
+				routeRepository.delete(existingRule);
+			}
 		}
-		return removed;
+		routeRepository.save(route);
+	}
+	
+	public BridgingRule findByEndpoint(String endpoint){
+		return routeRepository.findByEndpoint(endpoint);
+	}
+	
+	public BridgingRule findByXmppPattern(String xmppPattern){
+		return routeRepository.findByXmppPattern(xmppPattern);
 	}
 
+	public Optional<BridgingRule> findByXmppPatternMatch(String xmppRoute){
+		return routeRepository.findAll().stream().filter(rule -> match(rule.getXmppPattern(), xmppRoute)).findFirst();
+	}
+	
+	private boolean match(String pattern,String value) {
+		Boolean match = false; 
+		Pattern reegexPattern = Pattern.compile(pattern);
+	    Matcher matcher = reegexPattern.matcher(value);
+	    if (matcher.find()) 
+	    		match = true;
+		return match;
+	}
+	
+	public void remove(long routeId) {
+		Optional<BridgingRule> route = routeRepository.findById(routeId);
+		if(route.isPresent())
+			routeRepository.delete(route.get());
+	}
+	
 }
