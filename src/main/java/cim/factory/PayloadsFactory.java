@@ -46,9 +46,15 @@ public class PayloadsFactory {
 	
 	// Payloads for xmpp message received
 	
-	private static final String ERROR_JSON_MESSAGES_CIM_UNAUTHORISED = "{\n  \"error\": {\n    \"code\": 403,\n    \"message\": \"Error, your CIM is not authorized by remote CIM\"\n  }\n }";
+	private static final String ERROR_JSON_MESSAGES_CIM_UNAUTHORISED = "{\n  \"error\": {\n    \"code\": 401,\n    \"message\": \"Error, your CIM is not authorized by remote CIM\"\n  }\n }";
 	public static final String ERROR_JSON_MESSAGES_REQUEST_ERROR = "{\n  \"error\": {\n    \"code\": 409,\n    \"message\": \"Error in the request\"\n  }\n }";
-	
+	public static final String ERROR_JSON_MESSAGES_REMOTE_ROUTE_NOT_FOUND = "{\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"Remote endpoint was not found\"\n  }\n }";
+	public static final String ERROR_JSON_MESSAGES_METHOD_NOT_ALLOWED = "{\n  \"error\": {\n    \"code\": 405,\n    \"message\": \"Requested method is not supported, currently CIM supports only GET and POST\"\n  }\n }";
+	public static final String ERROR_JSON_MESSAGES_REMOTE_ENDPOINT_DOWN = "{\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"Requested endpoint seems to be down since does not respond\"\n  }\n }";
+	public static final String ERROR_JSON_MESSAGES_QUERY_HAS_SYNTAX_ERRORS = "{\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"Query provided has syntax errors\"\n  }\n }";
+	public static final String ERROR_JSON_MESSAGES_QUERY_TYPE_NOT_SUPPORTED = "{\n  \"error\": {\n    \"code\": 405,\n    \"message\": \"Query provided is not supported, currently only SELECT, ASK, DESCRIBE, and CONSTRUCT queries are supported\"\n  }\n }";
+	private static final String ERROR_JSON_MESSAGES_CIM_UNAUTHORISED_SENDING_DATA = "{\n  \"error\": {\n    \"code\": 401,\n    \"message\": \"Error, your CIM is not authorized to send data to the remote CIM\"\n  }\n }";
+
 	public static Tuple<String,Integer> getUnauthorisedCIMErrorPayload() {
 		return new Tuple<>(ERROR_JSON_MESSAGES_CIM_UNAUTHORISED, HttpServletResponse.SC_UNAUTHORIZED);
 	}
@@ -57,6 +63,30 @@ public class PayloadsFactory {
 		return new Tuple<>(ERROR_JSON_MESSAGES_REQUEST_ERROR, HttpServletResponse.SC_CONFLICT);
 	}
 
+	public static Tuple<String,Integer> getErrorPayloadRemoteRouteDoesNotExists() {
+		return new Tuple<>(ERROR_JSON_MESSAGES_REMOTE_ROUTE_NOT_FOUND, HttpServletResponse.SC_NOT_FOUND);
+	}
+	
+	
+	public static Tuple<String,Integer> getErrorPayloadMethodRequestedNotAllowed() {
+		return new Tuple<>(ERROR_JSON_MESSAGES_METHOD_NOT_ALLOWED, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+	}
+	
+	public static Tuple<String,Integer> getErrorPayloadRemoteEndpointDown() {
+		return new Tuple<>(ERROR_JSON_MESSAGES_REMOTE_ENDPOINT_DOWN, HttpServletResponse.SC_NOT_FOUND);
+	}
+
+	public static Tuple<String, Integer> getErrorPayloadSyntaxQueryErrors() {
+		return  new Tuple<>(ERROR_JSON_MESSAGES_QUERY_HAS_SYNTAX_ERRORS, HttpServletResponse.SC_BAD_REQUEST);
+	}
+
+	public static Tuple<String, Integer> getErrorPayloadQueryNotSupported() {
+		return  new Tuple<>(ERROR_JSON_MESSAGES_QUERY_TYPE_NOT_SUPPORTED, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+	}
+
+	public static Tuple<String, Integer> getUnauthorisedCIMErrorPayloadSending() {
+		return new Tuple<>(ERROR_JSON_MESSAGES_CIM_UNAUTHORISED_SENDING_DATA, HttpServletResponse.SC_UNAUTHORIZED);
+	}
 	
 
 	

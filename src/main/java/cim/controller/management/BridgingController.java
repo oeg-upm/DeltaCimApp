@@ -29,7 +29,6 @@ public class BridgingController extends AbstractSecureController{
 	
 	@Autowired
 	public BridgingService bridgingService;
-	// private Logger log = Logger.getLogger(BridgingController.class.getName());
 
 	// Provide GUI
 	
@@ -96,11 +95,12 @@ public class BridgingController extends AbstractSecureController{
 	public void saveRoute(HttpServletRequest request, HttpServletResponse response, @RequestBody(required=true) @Valid BridgingRule route) {
 		prepareResponseOK(response);
 		if(authenticated(request)) {
-			if(!route.getInteroperabilityModuleFile().endsWith("None")) {
-				Tuple<String,String> module = InteroperabilityModuleFactory.readInteroperabilityModule(ConfigTokens.MODULES_BASE_DIR+route.getInteroperabilityModuleFile());
-				route.setReadingMapping(module.getFirstElement());
-				route.setWrittingMapping(module.getSecondElement());
+			if(route.getInteroperabilityModuleFile().endsWith("None") ||route.getInteroperabilityModuleFile().isEmpty()) {
+				route.setInteroperabilityModuleFile(null);
 			}
+			route.setReadingMapping(null);
+			route.setWrittingMapping(null);
+			route.updateMappingContent();
 			bridgingService.update(route);
 		}else {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

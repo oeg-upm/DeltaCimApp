@@ -22,22 +22,21 @@ public class InteroperabilityModuleFactory {
 	public static Tuple<String, String> readInteroperabilityModule(String moduelFile) {
 		Tuple<String, String> mappingsContent = new Tuple<>();
 		try {
-			ZipFile zipFile = new ZipFile(moduelFile);
-	
-		    Enumeration<? extends ZipEntry> entries = zipFile.entries();
-	
-		    while(entries.hasMoreElements()){
-		        ZipEntry entry = entries.nextElement();
-		        String fileName = ConfigTokens.MODULES_BASE_DIR + entry.getName();
-				if (isReadingFile(fileName)) {
-					String rawMappping = readZippedFile(zipFile, entry);
-					mappingsContent.setFirstElement(rawMappping);
-				} else if (isWrittingFile(fileName)) {
-					mappingsContent.setSecondElement(readZippedFile(zipFile, entry));
-				}
-		    }
-		    zipFile.close();
-		    
+			if(moduelFile!=null) {
+				ZipFile zipFile = new ZipFile(moduelFile);
+			    Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			    while(entries.hasMoreElements()){
+			        ZipEntry entry = entries.nextElement();
+			        String fileName = ConfigTokens.MODULES_BASE_DIR + entry.getName();
+					if (isReadingFile(fileName)) {
+						String rawMappping = readZippedFile(zipFile, entry);
+						mappingsContent.setFirstElement(rawMappping);
+					} else if (isWrittingFile(fileName)) {
+						mappingsContent.setSecondElement(readZippedFile(zipFile, entry));
+					}
+			    }
+			    zipFile.close();
+			}
 		} catch (IOException e) {
 			log.severe(e.toString());
 		} 

@@ -23,7 +23,9 @@ public class AbstractSecureController {
 	protected JwtTokenUtil jwtTokenUtil;
 	
 	private Logger log = Logger.getLogger(AbstractSecureController.class.getName());
-
+	
+	protected static final String AUTHORTISATION_TOKEN = "Authorization";
+	protected static final String BEARER_TOKEN = "Bearer ";
 	
 	
 	protected void prepareResponse(HttpServletResponse response) {
@@ -84,8 +86,8 @@ public class AbstractSecureController {
 
 	protected String retrieveTokenFromHeader(HttpServletRequest request) {
 		String jwt = null;
-		String requestTokenHeader = request.getHeader("Authorization");
-		if (requestTokenHeader!=null && requestTokenHeader.startsWith("Bearer ")) {
+		String requestTokenHeader = request.getHeader(AUTHORTISATION_TOKEN);
+		if (requestTokenHeader!=null && requestTokenHeader.startsWith(BEARER_TOKEN)) {
 			jwt = requestTokenHeader.substring(7);
 		}
 		return jwt;

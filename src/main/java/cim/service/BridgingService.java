@@ -23,12 +23,6 @@ public class BridgingService {
 	}
 	
 	public void update(BridgingRule route){
-		if(route.getXmppPattern()!=null) {
-			BridgingRule existingRule = findByXmppPattern(route.getXmppPattern());
-			if(existingRule!=null) {
-				routeRepository.delete(existingRule);
-			}
-		}
 		routeRepository.save(route);
 	}
 	
@@ -40,8 +34,8 @@ public class BridgingService {
 		return routeRepository.findByXmppPattern(xmppPattern);
 	}
 
-	public Optional<BridgingRule> findByXmppPatternMatch(String xmppRoute){
-		return routeRepository.findAll().stream().filter(rule -> match(rule.getXmppPattern(), xmppRoute)).findFirst();
+	public Optional<BridgingRule> findByXmppPatternMatch(String xmppRoute, String method){
+		return routeRepository.findAll().stream().filter(rule -> match(rule.getXmppPattern(), xmppRoute) && method.equalsIgnoreCase(rule.getMethod().toString())).findFirst();
 	}
 	
 	private boolean match(String pattern,String value) {

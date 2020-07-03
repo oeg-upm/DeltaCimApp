@@ -46,26 +46,28 @@ public class ValidationService {
 		validationRepository.save(report);
 	}
 	
-	public ValidationReport validateRDF(String rdfDocument, String format) {
-		return generateValidationReport(rdfDocument, format, null);
+	public ValidationReport generateValidationReport(String rdfDocument, String endpoint) {
+		ValidationReport validationResult = null;
+		try {
+			RDF data = new RDF();
+			data.parseRDF(rdfDocument);
+			validationResult = generateValidationReport( data, endpoint);
+		}catch(Exception e) {
+			
+		}
+		return validationResult;
 	}
 	
-	public ValidationReport generateValidationReport(String rdfDocument, String format, String endpoint) {
-			ValidationReport validationReport = null;
-			try {
-				RDF rdf = new RDF();
-				rdf.parseRDF(rdfDocument, format);
-				RDF validationResult = rdf.validateShape(validationShapes);
-				validationReport = ValidationReportFactory.createFromRDF(validationResult);
-				if(endpoint!=null) {
-					 validationReport.setEndpoint(endpoint);
-				}else {
-					 validationReport.setEndpoint("Endpoints involved in the KG");
-				}
-			}catch (Exception e ) {
-				log.severe(e.toString());
-			}
-			return validationReport;
+	public ValidationReport generateValidationReport(RDF rdfDocument, String endpoint) {
+		RDF validationResult = rdfDocument.validateShape(validationShapes);
+		ValidationReport validationReport = ValidationReportFactory.createFromRDF(validationResult);
+		validationReport.setEndpoint(endpoint);
+		if(ValidationReportFactory.isSuccessfullReport(validationReport)) {
+			validationReport = null;
+		}else {
+			update(validationReport);
+		}
+		return validationReport;
 	}
 	
 	public void readValidationShapesFile() {

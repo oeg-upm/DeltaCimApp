@@ -3,6 +3,9 @@ package cim.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.util.Optional;
+
+import org.jsoup.Connection.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +39,13 @@ public class ACLService {
 	}
 
 	public Boolean isAuthorized(String p2pUser, P2PMessage message) {
-		// TODO: enhance ACL here
-		return aclRepository.existsById(p2pUser);
+		Boolean isAuthorized = false;
+		Optional<Acl> userOpt = aclRepository.findById(p2pUser);
+		if(userOpt.isPresent()) {
+			Acl user = userOpt.get();
+			isAuthorized = !user.isReadable() || (user.isReadable() && message.getMethod().equalsIgnoreCase(Method.GET.toString()));
+		}
+		return isAuthorized;
 	}
 
 

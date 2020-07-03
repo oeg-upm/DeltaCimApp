@@ -42,12 +42,15 @@ import org.springframework.web.context.request.async.DeferredResult;
 import cim.ConfigTokens;
 import cim.exceptions.CimParsingExceptionCallback;
 import cim.factory.P2PMessageFactory;
+import cim.factory.PayloadsFactory;
 import cim.factory.StringFactory;
 import cim.model.P2PMessage;
+import cim.model.ValidationReport;
 import cim.model.XmppUser;
 import cim.model.enums.ConnectionStatus;
 import cim.repository.XmppUserRepository;
 import cim.service.components.XmppMessageListener;
+import helio.framework.objects.Tuple;
 
 @Service
 public class XMPPService {
@@ -58,7 +61,10 @@ public class XMPPService {
 	public XmppUserRepository xmppRepository;
 	@Autowired
 	public XmppMessageListener xmppMessageListener;
-	
+	@Autowired
+	public ACLService aclService;
+	@Autowired
+	public ValidationService validationService;
 	private AbstractXMPPConnection connection;
 	protected ChatManager chatManagerReceiver;
 	private Logger log = Logger.getLogger(XMPPService.class.getName());
@@ -248,14 +254,24 @@ public class XMPPService {
 						// X.2 Send to front-end response and copy the message
 						response.setResult(p2pResponse.getMessage());
 						controllerResponse.setStatus(p2pResponse.getResponseCode());
+						ValidationReport report = validationService.generateValidationReport(p2pResponse.getMessage(), p2pMessage.getRequest());
+						 if(report!=null) // means there was a validation error
+							 controllerResponse.setStatus(202);
+						
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.severe(e.toString());
 					}
 				}
 			});
 
 			// 2. Send the p2p request message
-			sendMessage(chatManager, jid, p2pMessage);
+			if(aclService.isAuthorized(receiverId, p2pMessage)) {
+				sendMessage(chatManager, jid, p2pMessage);
+			}else {
+				Tuple<String,Integer> responseTuple = PayloadsFactory.getUnauthorisedCIMErrorPayloadSending();
+				response.setResult(responseTuple.getFirstElement());
+				controllerResponse.setStatus(responseTuple.getSecondElement());
+			}
 		} catch (XmppStringprepException  e) {
 			log.severe("ERROR: An error ocurred when connecting with the receiver");
 		}

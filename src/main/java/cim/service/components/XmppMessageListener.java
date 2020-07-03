@@ -8,14 +8,10 @@ import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import cim.ConfigTokens;
 import cim.factory.P2PMessageFactory;
 import cim.factory.PayloadsFactory;
+import cim.factory.StringFactory;
 import cim.model.P2PMessage;
-import cim.model.XmppUser;
-import cim.repository.AclRepository;
 import cim.service.ACLService;
 import helio.framework.objects.Tuple;
 
@@ -40,7 +36,8 @@ public class XmppMessageListener implements IncomingChatMessageListener {
 		try {
 			if(!incomingMessage.getDestroyAfterReading()) {
 				log.info("[Listener] Request message received");
-				log.info("Received from " + from.asEntityBareJidString());
+				String logMessage = StringFactory.concatenateStrings("Received from ",from.asEntityBareJidString());
+				log.info(logMessage);
 				if (aclService.isAuthorized(xmppUser.trim(), incomingMessage)) {
 					// By default initialize the response as error
 					String response = prepareCIMErrorResponse(from.toString(), PayloadsFactory.getUnauthorisedCIMErrorPayload());

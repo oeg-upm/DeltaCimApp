@@ -11,9 +11,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import cim.factory.ValidationReportFactory;
-import cim.model.ValidationReport;
 import cim.model.enums.ConnectionStatus;
 import cim.service.UserService;
 import cim.service.ValidationService;
@@ -64,11 +61,6 @@ public class DeltaCimApplication {
 	public void initUsers() {
 		userService.createDefaultUser();
 		validationService.readValidationShapesFile();
-		ValidationReport report = ValidationReportFactory.createSuccessfullReport();
-		report.setEndpoint("sdaasda");
-		report.setRead(false);
-		report.setReport("Comntrainst violation eetecete ");
-		validationService.update(report);
 	}
 	
 	@PreDestroy

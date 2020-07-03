@@ -1,14 +1,10 @@
 package cim.controller.xmpp;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.jsoup.Connection.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -22,8 +18,8 @@ import cim.ConfigTokens;
 import cim.controller.AbstractSecureController;
 import cim.factory.PayloadsFactory;
 import cim.factory.RequestsFactory;
-import cim.model.BridgingRule;
 import cim.service.BridgingService;
+import cim.service.ValidationService;
 import cim.service.VirtualisationService;
 import cim.service.XMPPService;
 import helio.framework.objects.RDF;
@@ -39,16 +35,18 @@ public class XmppCommunicationController extends AbstractSecureController{
 	@Autowired
 	public XMPPService p2pService;
 	@Autowired
+	public ValidationService validationService;
+
+	@Autowired
 	public BridgingService bridgingService;
 	@Autowired
 	public VirtualisationService virtualisationService;
 	
-	private Logger log = Logger.getLogger(XmppCommunicationController.class.getName());
-
+	
 	// -- GET method
 	@ApiOperation(value = "Sends a request thorugh the peer-to-peer network")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 409, message = "CIM is currently disconnected")
+	        @ApiResponse(code = 202, message = "Data has been correctly exchanged but a validation report was created since it did not pass the validation process")
 	 })
 	 @RequestMapping(method = RequestMethod.GET, produces={"application/json", "application/ld+json"})
 	 @ResponseBody
@@ -56,8 +54,8 @@ public class XmppCommunicationController extends AbstractSecureController{
 		 prepareResponseOK(response);
 		 DeferredResult<String> defferredResponse = new DeferredResult<>();
 		 if(authenticated(request)) {
-			 if(p2pService.isConnected()) {
-				 defferredResponse = p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), "", response);
+			 if(p2pService.isConnected()) { 
+				defferredResponse = p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), "", response);
 			 }else {
 				 Tuple<String, Integer> responsePayload = PayloadsFactory.getCIMDisconnectedPayload();
 				 defferredResponse.setResult(responsePayload.getFirstElement());
@@ -72,8 +70,7 @@ public class XmppCommunicationController extends AbstractSecureController{
 	// -- POST method
 	@ApiOperation(value = "Sends a request thorugh the peer-to-peer network")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 409, message = "CIM is currently disconnected"),
-	        @ApiResponse(code = 418, message = "CIM is currently disconnected"),
+	        @ApiResponse(code = 202, message = "Data has been correctly exchanged but a validation report was created since it did not pass the validation process")
 	 })
 	@RequestMapping(method = RequestMethod.POST, produces = { "application/json", "application/odata+json" })
 	@ResponseBody
@@ -81,11 +78,11 @@ public class XmppCommunicationController extends AbstractSecureController{
 		prepareResponseOK(response);
 		 DeferredResult<String> defferredResponse = new DeferredResult<>();
 		 if(authenticated(request)) {
-			
 			 if(p2pService.isConnected()) {
 				 // Normalise payload if requited to Json-LD + Ontology
-				 RDF normalisedPayload = normalisePayload(payload, retrievePath(request));
+				 RDF normalisedPayload = virtualisationService.normalisePayload(payload, retrievePath(request), Method.GET.toString());
 				 if(normalisedPayload!=null) {
+					 //TODO: validate the normalisedPayload?
 					 defferredResponse = p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), normalisedPayload.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION), response);
 				 }else{
 					 Tuple<String, Integer> responsePayload = PayloadsFactory.getInteroperabilityErrorPayload();
@@ -105,36 +102,7 @@ public class XmppCommunicationController extends AbstractSecureController{
 
 	}
 
-	private RDF normalisePayload(String payload, String xmppRemotePath) {
-		RDF normalisedData = new RDF(); 
-		try {
-			Model model = ModelFactory.createDefaultModel();
-			model.read(IOUtils.toInputStream(payload, "UTF-8"), null, ConfigTokens.DEFAULT_RDF_SERIALISATION);
-			normalisedData.getRDF().add(model);
-		} catch(Exception e) {
-			e.printStackTrace();
-			log.warning("Provided payload is not expressed in JSON-LD, looking for interoperability module to adapt data");
-			Optional<BridgingRule> ruleOptional = bridgingService.findByXmppPatternMatch(xmppRemotePath);
-			if(ruleOptional.isPresent()) {
-				BridgingRule rule = ruleOptional.get();
-				rule.updateMappingContent(); // update mappings
-				String mapping = rule.getReadingMapping();
-				if(mapping!=null) {
-					normalisedData = virtualisationService.virtualiseData(payload, mapping);
-				}else {
-					log.severe("Bridging rule found, but has no reading mapping associated");
-					log.severe(rule.toString());
-				}
-			}else {
-				log.warning("No interoperability module found for adapting the data");
-			}
-		}finally {
-			if(!payload.isEmpty() && normalisedData!=null && normalisedData.getRDF().isEmpty()) {
-				normalisedData = null;
-			}
-		}
-		return normalisedData;
-	}
+
 	
 	 private static String retrievePath(HttpServletRequest request) {
 		 String urlToken = ConfigTokens.URL_TOKEN;

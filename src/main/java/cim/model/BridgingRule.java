@@ -27,6 +27,7 @@ public class BridgingRule implements Serializable{
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO) 
 	private long id;
+	
 	@NotEmpty
 	private String xmppPattern;
 	
@@ -39,7 +40,7 @@ public class BridgingRule implements Serializable{
 	@NotNull
 	private Method method;
 	
-	@NotNull
+
 	private String interoperabilityModuleFile;
 	
 	@Column(columnDefinition="TEXT")
@@ -124,14 +125,6 @@ public class BridgingRule implements Serializable{
 	// --- Auxiliary methods
 
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((method == null) ? 0 : method.hashCode());
-		result = prime * result + ((xmppPattern == null) ? 0 : xmppPattern.hashCode());
-		return result;
-	}
 
 	
 	@Override
@@ -139,6 +132,15 @@ public class BridgingRule implements Serializable{
 		return "BridgingRule [regexPath=" + xmppPattern + ", endpoint=" + endpoint + ", appendPath=" + appendPath
 				+ ", method=" + method + ", mappingsFolder=" + interoperabilityModuleFile + ", readingMapping=" + readingMapping
 				+ ", writtingMapping=" + writtingMapping + "]";
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
 	}
 
 	@Override
@@ -150,25 +152,18 @@ public class BridgingRule implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		BridgingRule other = (BridgingRule) obj;
-		if (method == null) {
-			if (other.method != null)
-				return false;
-		} else if (!method.equals(other.method))
-			return false;
-		if (xmppPattern == null) {
-			if (other.xmppPattern != null)
-				return false;
-		} else if (!xmppPattern.equals(other.xmppPattern))
+		if (id != other.id)
 			return false;
 		return true;
 	}
-	
 
 	public void updateMappingContent() {
 		if(getInteroperabilityModuleFile()!=null) {
 			Tuple<String,String> module = InteroperabilityModuleFactory.readInteroperabilityModule(ConfigTokens.MODULES_BASE_DIR+getInteroperabilityModuleFile());
-			this.readingMapping = module.getFirstElement();
-			this.writtingMapping = module.getSecondElement();
+			if(module!=null && !module.getFirstElement().isEmpty())
+				this.readingMapping = module.getFirstElement();
+			if(module!=null && !module.getSecondElement().isEmpty())
+				this.writtingMapping = module.getSecondElement();
 		}
 	}
 

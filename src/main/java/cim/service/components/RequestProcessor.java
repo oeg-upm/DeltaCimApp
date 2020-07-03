@@ -1,8 +1,5 @@
 package cim.service.components;
 
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,22 +10,23 @@ import java.util.regex.Pattern;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-
 import cim.ConfigTokens;
 import cim.factory.PayloadsFactory;
 import cim.factory.RequestsFactory;
+import cim.factory.StringFactory;
 import cim.model.BridgingRule;
 import cim.model.P2PMessage;
+import cim.model.ValidationReport;
+import cim.model.enums.Method;
 import cim.service.BridgingService;
-import cim.service.KGService;
+import cim.service.ValidationService;
+import cim.service.VirtualisationService;
 import helio.framework.objects.RDF;
-import helio.framework.objects.SparqlResultsFormat;
 import helio.framework.objects.Tuple;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 public class RequestProcessor {
@@ -36,47 +34,44 @@ public class RequestProcessor {
 	@Autowired
 	public BridgingService bridgingService;
 	@Autowired
-	public KGService kgService;
+	public ValidationService validationService;
 
+	@Autowired
+	public VirtualisationService virtualisationService;
+	private static final String SPARQL_REGEX = "/sparql.*";
 	
 	private Logger log = Logger.getLogger(RequestProcessor.class.getName());
 		
 	public Tuple<String,Integer> fetchData(P2PMessage message) {
-		Tuple<String,Integer> response =  new Tuple<>("{\"error\":\"internal error\"}", 500);
-		BridgingRule matchedRoute = matchBridgingRoute(message);
+		Tuple<String,Integer> response =  PayloadsFactory.getErrorPayloadRemoteRouteDoesNotExists();
+		BridgingRule matchedRoute = matchBridgingRoute(message, message.getMethod());
 		try{
 			if(matchedRoute!=null) {
 				String realLocalEndpoint = RequestsFactory.buildRealLocalEndpoint(message, matchedRoute);
-				System.out.println("Local endpoint requested: "+realLocalEndpoint);
-				response = sendRequest(message, realLocalEndpoint, matchedRoute);
+				String logMessage = StringFactory.concatenateStrings("Local endpoint requested: ",realLocalEndpoint);
+				log.info(logMessage);
+				response = sendRequest(message, realLocalEndpoint);
 			}else {
-				//TODO : add payload for not found route
-				log.severe("Endpoint requested was not found: "+message.getRequest());
+				if(match(SPARQL_REGEX, message.getRequest())) {
+					response = virtualisationService.solveQuery(message);
+				}else {
+					log.severe("Endpoint requested was not found: "+message.getRequest());
+				}
 			}
 		}catch(Exception e) {
-			e.printStackTrace();
+			log.severe(e.toString());
 		}
 		return response;
 	}
 	
-
-	private BridgingRule createSPARQLRoute() {
-		BridgingRule sparqlRoute = new BridgingRule();
-		sparqlRoute.setAppendPath(true);
-		sparqlRoute.setXmppPattern("^/sparql.*");
-		sparqlRoute.setEndpoint("http://localhost:"+ConfigTokens.SERVER_PORT+"/api/sparql");
-		return sparqlRoute;
-	}
-	
-	private BridgingRule matchBridgingRoute(P2PMessage message) {
+	private BridgingRule matchBridgingRoute(P2PMessage message, String method) {
 		BridgingRule matchedRoute = null;
 		List<BridgingRule> routes = bridgingService.getAllRoutes();
-		routes.add(createSPARQLRoute());
 
 		int maxSize = routes.size();
 		for(int index=0; index < maxSize; index++) {
 			BridgingRule matchedRouteAux =  routes.get(index);
-			if(match(matchedRouteAux.getXmppPattern(), message.getRequest())) {
+			if(match(matchedRouteAux.getXmppPattern(), message.getRequest()) && method.equalsIgnoreCase(matchedRouteAux.getMethod().toString())) {
 				matchedRoute = matchedRouteAux;
 				break;
 			}
@@ -96,133 +91,98 @@ public class RequestProcessor {
 		return match;
 	}
 	
-	
-	private Tuple<String,Integer> sendRequest(P2PMessage message, String endpoint, BridgingRule rule) throws UnirestException {
-		Tuple<String, Integer> requestResponse = null;
-		String methodNormalized = message.getMethod().trim().toLowerCase();
-		String responseMessage = null;
-		String headers = message.getHeaders();
-		Integer code = 200;
-			if(methodNormalized.equals("get") && !endpoint.contains("/sparql")) {
-				// DONE: if request is a non-sparql GET Helio solves it
-				RDF responseMessageRDF = KGService.virtualiseRDF(endpoint, rule.getReadingMapping(), headers);
-				if(responseMessageRDF!=null) {
-					responseMessage = responseMessageRDF.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION);
-					code = kgService.validateRDF(responseMessage, endpoint);
-					if(code!=200)
-						responseMessage = ConfigTokens.ERROR_JSON_MESSAGES_4;
-				}else {
-					responseMessage = PayloadsFactory.getRequestErrorPayload().getFirstElement();
-					code = PayloadsFactory.getRequestErrorPayload().getSecondElement();
-				}
-				 requestResponse = new Tuple<>(responseMessage, code);
-			}else if(endpoint.contains("/sparql")) {
-				String query = null;
-				if(methodNormalized.equals("post"))
-					query = message.getMessage();
-				if(methodNormalized.equals("get"))
-					query = retrieveSPARQLQuery(endpoint);
-				if(query!=null) {
-					 Tuple<String,Integer> tuple = kgService.solveQuery(query, SparqlResultsFormat.JSON, message, headers);
-					 responseMessage = tuple.getFirstElement();
-					 code = tuple.getSecondElement();
-					 if(code!=200)
-							responseMessage = ConfigTokens.ERROR_JSON_MESSAGES_4;
-				}else {
-					responseMessage = PayloadsFactory.getRequestErrorPayload().getFirstElement();
-					code = PayloadsFactory.getRequestErrorPayload().getSecondElement();
-				}
-				requestResponse = new Tuple<>(responseMessage, code);
-			}else if(methodNormalized.equals("post") && !endpoint.contains("/sparql")) {
-				requestResponse = solvePostRequest(message, endpoint, rule, headers);
-				if(requestResponse.getSecondElement()!=200)
-					requestResponse.setFirstElement(ConfigTokens.ERROR_JSON_MESSAGES_5);
-				//code = validateRDF(responseMessage, endpoint);
-			}/*else if(methodNormalized.equals("put")) {
-				//responseMessage = Unirest.put(endpoint).body(message.getMessage()).asString().getBody();
-				System.out.println("PUT requests not implemented yet");
-			}else if(methodNormalized.equals("delete")) {
-				//responseMessage = Unirest.delete(endpoint).body(message.getMessage()).asString().getBody();
-				System.out.println("DELETE requests not implemented yet");
-			}else if(methodNormalized.equals("patch")) {
-				//responseMessage = Unirest.patch(endpoint).body(message.getMessage()).asString().getBody();
-				System.out.println("PATCH requests not implemented yet");
-			}*/
-			
+
+	private Tuple<String,Integer> sendRequest(P2PMessage message, String endpoint){
+		Tuple<String, Integer> requestResponse = PayloadsFactory.getErrorPayloadMethodRequestedNotAllowed();
+		 Map<String,String> headersMap = retrieveHeaders(message.getHeaders());
+		// Solve requests
+		if (isGet(message)) {
+			requestResponse = solveGetRequest(endpoint, headersMap);
+		} else if(isPost(message)) {
+			requestResponse = solvePostRequest(message, endpoint, headersMap);
+		}
+		
 		return requestResponse;
 	}
 	
-
-	
-	
-	 
-			
-	
-	
-	// -- Solving sparql methods
-	
-	private String retrieveSPARQLQuery(String endpoint) {
-		String sparqlQuery = null;
-		try {
-			URL url = new URL(endpoint);
-			String query = url.getQuery();
-		    String[] pairs = query.split("&");
-		    for (String pair : pairs) {
-		        int idx = pair.indexOf("=");
-		        String keyword = URLDecoder.decode(pair.substring(0, idx), "UTF-8");
-		        if(keyword.equals("query") || keyword.equals("update")) {
-		        		sparqlQuery = URLDecoder.decode(pair.substring(idx + 1), "UTF-8");
-		        		break;
-		        }
-		    }
-		}catch(Exception e) {
-			log.severe(e.toString());
-		}
-	    return sparqlQuery;
-	}
-	
-
-	
-	/// --- Other methods
-	
-
-	private Tuple<String,Integer> solvePostRequest(P2PMessage message, String endpoint, BridgingRule rule, String headers) {
-		Tuple<String,Integer> tuple = new Tuple<>(); 
+	public Tuple<String,Integer> solveGetRequest(String endpoint, Map<String,String> headersMap){
+		 Tuple<String,Integer> tuple = null;
 		 try {
-			 // If this route has no mapping associated perform the POST with current body
-			 String requestBody = message.getMessage();
-			 Map<String,String> headersMap = retrieveHeaders(headers);
-			 Integer code = kgService.validateRDF(requestBody, endpoint);
-			 tuple.setSecondElement(code);
-			 if(code==200 && rule.getWrittingMapping()!=null && !rule.getWrittingMapping().isEmpty()) {
-				 //requestBody = devirtualizeData(requestBody, rule.getWrittingMapping());
-			 }
-			 if(code!=200) {
-				 tuple.setFirstElement("Provided data has validation errors");
-				 tuple.setSecondElement(418);
-			 }else if(requestBody==null) {
-				 tuple.setFirstElement(ConfigTokens.ERROR_JSON_MESSAGES_5);
-				 tuple.setSecondElement(418);
-			 }else{
-				 String responseMessage = null;
-				 if(code==200) {
-					 HttpResponse<String> response = Unirest.post(endpoint).headers(headersMap).body(requestBody).asString();
-					 tuple.setSecondElement(response.getStatus());
-					 responseMessage = response.getBody();
+			 // Retrieve data using GET
+			 tuple = new Tuple<>();
+			 HttpResponse<String> response = Unirest.get(endpoint).headers(headersMap).asString();
+			 tuple.setSecondElement(response.getStatus());
+			 tuple.setFirstElement(response.getBody());
+			 if(tuple.getSecondElement()>=200 && tuple.getSecondElement()<300 ) {
+				 // Normalise payload if requited to Json-LD + Ontology
+				 RDF normalisedData = virtualisationService.normalisePayload(tuple.getFirstElement(), endpoint, Method.GET.toString());
+				 if(normalisedData!=null) {
+					 tuple.setFirstElement(normalisedData.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION));
+					 ValidationReport report = validationService.generateValidationReport(normalisedData, endpoint);
+					 if(report!=null) // means there was a validation error
+						 tuple.setSecondElement(202);
+				 }else {
+					 tuple =  PayloadsFactory.getInteroperabilityErrorPayload();
 				 }
-				 tuple.setFirstElement(responseMessage);
 			 }
-		 } catch (UnirestException e) {
-				e.printStackTrace();
-				System.out.println(endpoint);
-		}
+		 }catch(Exception e) {
+			 String logMessage = StringFactory.concatenateStrings("Remote endpoint'", endpoint, "' does not answered a GET request");
+			 log.severe(logMessage);
+			 tuple = PayloadsFactory.getErrorPayloadRemoteEndpointDown();
+		 }
+		
 		 return tuple;
+	 }
+	 
+	 public Tuple<String, Integer> solvePostRequest(P2PMessage message, String endpoint, Map<String, String> headersMap) {
+		 Tuple<String,Integer> tuple = PayloadsFactory.getInteroperabilityErrorPayload();
+		 String requestBody = message.getMessage();
+		 try {
+			
+			// Change normalised payload if requited into another understood by the endpoint
+			 String specificEndpointPayload = virtualisationService.translatePayload(requestBody, endpoint);
+			 if(specificEndpointPayload!=null) {
+				 // Sending data using POST
+				 tuple = new Tuple<>();
+				 HttpResponse<String> response = Unirest.post(endpoint).headers(headersMap).body(specificEndpointPayload).asString();
+				 tuple.setSecondElement(response.getStatus());
+				 tuple.setFirstElement(response.getBody());
+				 // if response was correct try no normalised again the payload
+				 if(tuple.getSecondElement()>200 && tuple.getSecondElement()<300 ) {
+					 // Normalising answer payload if requited to Json-LD + Ontology
+					 RDF normalisedData = virtualisationService.normalisePayload(response.getBody(), endpoint, message.getMethod());
+					 if(normalisedData!=null) {
+						 tuple.setFirstElement(normalisedData.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION));
+					 }else {
+						 tuple =  PayloadsFactory.getInteroperabilityErrorPayload();
+					 }
+				 }
+			 }else {
+				 tuple = PayloadsFactory.getErrorPayloadRemoteEndpointDown();
+			 }
+		 }catch(Exception e) {
+			 String logMessage = StringFactory.concatenateStrings("Remote endpoint'", endpoint, "' does not answered a POST request");
+			 log.severe(logMessage);
+			 tuple = PayloadsFactory.getErrorPayloadRemoteEndpointDown();
+		 }
+		 return tuple;
+		}
+	
+	
+	
+
+	
+	// --- Ancillary methods
+	
+	private Boolean isGet(P2PMessage message) {
+		return message.getMethod().trim().equalsIgnoreCase(Method.GET.toString());
 	}
 	
+	private Boolean isPost(P2PMessage message) {
+		return message.getMethod().trim().equalsIgnoreCase(Method.POST.toString());
+	}
 	
-
-
-	private Map<String,String> retrieveHeaders(String headersStr){
+	public Map<String,String> retrieveHeaders(String headersStr){
 		Map<String,String> headers = new HashMap<>();
 		try {
 			JSONObject headersJson = new JSONObject(headersStr);
@@ -237,7 +197,7 @@ public class RequestProcessor {
 			}
 				
 		}catch (Exception e) {
-			e.printStackTrace();
+			log.severe(e.toString());
 			throw new IllegalArgumentException("Error processing headers for POST request");
 		}
 		return headers;
