@@ -9,9 +9,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +18,6 @@ import com.google.gson.JsonParser;
 import com.mashape.unirest.http.Unirest;
 
 import cim.ConfigTokens;
-import helio.framework.objects.RDF;
-import helio.framework.objects.SparqlResultsFormat;
 import helio.framework.objects.Tuple;
 
 @Service

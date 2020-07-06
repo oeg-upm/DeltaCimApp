@@ -1,13 +1,11 @@
 package cim.model;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
-
-import com.esotericsoftware.kryo.NotNull;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class XmppUser implements Serializable{

@@ -58,6 +58,13 @@ public class ValidationService {
 		return validationResult;
 	}
 	
+	public ValidationReport validatePaylad(RDF rdfDocument, String endpoint) {
+		RDF validationResult = rdfDocument.validateShape(validationShapes);
+		ValidationReport validationReport = ValidationReportFactory.createFromRDF(validationResult);
+		validationReport.setEndpoint(endpoint);
+		return validationReport;
+	}
+	
 	public ValidationReport generateValidationReport(RDF rdfDocument, String endpoint) {
 		RDF validationResult = rdfDocument.validateShape(validationShapes);
 		ValidationReport validationReport = ValidationReportFactory.createFromRDF(validationResult);

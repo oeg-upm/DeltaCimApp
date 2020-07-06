@@ -8,6 +8,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jxmpp.jid.EntityBareJid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import cim.factory.P2PMessageFactory;
 import cim.factory.PayloadsFactory;
 import cim.factory.StringFactory;

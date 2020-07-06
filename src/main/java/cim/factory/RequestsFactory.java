@@ -13,7 +13,9 @@ import cim.model.P2PMessage;
 
 public class RequestsFactory {
 
-	
+	private RequestsFactory() {
+		//empty
+	}
 	
 	public static  String buildRealLocalEndpoint(P2PMessage message, BridgingRule route) {
 		String endpointRoute = route.getEndpoint();

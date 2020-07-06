@@ -1,10 +1,25 @@
 package cim.controller.xmpp;
 
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jsoup.Connection.Method;
+import cim.ConfigTokens;
+import cim.controller.AbstractSecureController;
+import cim.factory.PayloadsFactory;
+import cim.factory.RequestsFactory;
+import cim.model.enums.Method;
+import cim.service.BridgingService;
+import cim.service.ValidationService;
+import cim.service.VirtualisationService;
+import cim.service.XMPPService;
+import helio.framework.objects.RDF;
+import helio.framework.objects.Tuple;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -14,19 +29,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import cim.ConfigTokens;
-import cim.controller.AbstractSecureController;
-import cim.factory.PayloadsFactory;
-import cim.factory.RequestsFactory;
-import cim.service.BridgingService;
-import cim.service.ValidationService;
-import cim.service.VirtualisationService;
-import cim.service.XMPPService;
-import helio.framework.objects.RDF;
-import helio.framework.objects.Tuple;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping("/delta/**")

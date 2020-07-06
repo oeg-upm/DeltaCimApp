@@ -3,7 +3,6 @@ package cim.exceptions;
 import org.jivesoftware.smack.UnparseableStanza;
 import org.jivesoftware.smack.parsing.ParsingExceptionCallback;
 
-
 public class CimParsingExceptionCallback implements ParsingExceptionCallback{
 
 	@Override

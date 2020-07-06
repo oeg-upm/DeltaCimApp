@@ -3,14 +3,14 @@ package cim.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import java.util.Optional;
-
-import org.jsoup.Connection.Method;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import cim.model.Acl;
 import cim.model.P2PMessage;
+import cim.model.enums.Method;
 import cim.repository.AclRepository;
 
 @Service

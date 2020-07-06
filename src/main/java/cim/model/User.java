@@ -3,16 +3,18 @@ package cim.model;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.JoinColumn;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
+
 
 @Entity
 @Table(name="user")

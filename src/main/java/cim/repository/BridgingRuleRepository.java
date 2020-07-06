@@ -1,7 +1,6 @@
 package cim.repository;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import cim.model.BridgingRule;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BridgingRuleRepository  extends JpaRepository<BridgingRule, Long> {
 

@@ -2,10 +2,10 @@ package cim.repository;
 
 import java.util.List;
 
+import cim.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import cim.model.User;
 
 public interface UserRepository extends JpaRepository<User, String> {
 

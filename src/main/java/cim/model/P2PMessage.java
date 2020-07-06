@@ -6,6 +6,7 @@ import javax.persistence.Id;
 
 import com.google.gson.JsonObject;
 
+
 @Entity
 public class P2PMessage {
 	

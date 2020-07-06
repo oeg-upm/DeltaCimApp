@@ -2,13 +2,12 @@ package cim.model;
 
 import java.io.Serializable;
 
+import cim.model.enums.Method;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
-import cim.model.enums.Method;
 
 @Entity
 public class InteroperabilityModule implements Serializable{

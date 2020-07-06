@@ -85,6 +85,27 @@
     <!-- Central menu --> 
     <div id="content-wrapper">
       <div class="container-fluid" id="app">
+         <!-- Report Modal -->
+        <div class="modal fade" id="reportModal" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5>Validation report:</h5>
+              </div>
+              <div class="modal-body" id="reportResult">
+                <!-- Inject here report content -->
+                <div v-html="validationReport.report"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary pull-left" data-dismiss="modal" onclick="clearReport()"></span> Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
             <a href="/index">Dashboard</a>
@@ -170,12 +191,12 @@
               <tbody>
                 <tr v-for="route in routes">
                     <td v-html="route.endpoint" />
-                     <td>../delta/<span v-html="xmpp_user"></span>/{{route.xmppPattern}}</td>
+                    <td>../delta/<span v-html="xmpp_user"></span>/{{route.xmppPattern}}</td>
                     <td style="text-align: center" v-html="route.method"/>
                     <td style="text-align: center" v-html="route.appendPath"/>
                     <td style="text-align: center" v-html="route.interoperabilityModuleFile" />
                     <td style="text-align: center" >
-                      <button type="button" class="btn btn-warning" v-show="route.method == 'GET'">Validate payload</button>
+                      <button type="button" class="btn btn-warning" v-show="route.method == 'GET'" v-bind:name="route.endpoint"  onclick="createValidationReport(this.name)" data-toggle="modal" data-target="#reportModal">Validate payload</button>
                     </td>
                     <td style="text-align: center" >
                       <button type="button" v-bind:id="route.id" class="btn btn-danger" onclick="deleteRoute(this.id)"><i class="fas fa-fw fa-trash-alt"></i></button>
@@ -239,7 +260,7 @@
                     <td style="text-align: center">Any</td>
                     <td>{{uri}}/delta/<span>(any xmpp user)</span>/{{route.xmppPattern}}</td>
                     <td style="text-align: center" v-html="route.method"/>
-                    <td style="text-align: center" v-html="route.interoperabilityModuleFile" />
+                    <td style="text-align: center" v-html="route.interoperabilityModuleFile"/>
                     <td style="text-align: center" >
                       <button type="button" v-bind:id="route.id" class="btn btn-danger" onclick="deleteRoute(this.id)"><i class="fas fa-fw fa-trash-alt"></i></button>
                     </td>
@@ -292,24 +313,7 @@
     </div>
   </div>
 
-  <!-- Report Modal -->
-  <div class="modal fade" id="reportModal" role="dialog">
-    <div class="modal-dialog">
-
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5>Validation report:</h5>
-        </div>
-        <div class="modal-body" id="reportResult">
-          <!-- Inject here report content -->
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary pull-left" data-dismiss="modal"></span> Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
+ 
 
 
   <!-- Bootstrap core JavaScript-->
@@ -333,6 +337,7 @@
             methodSelected : "GET",
             xmpp_user : "",
             uri : "",
+            validationReport : "",
         }
     });
 
@@ -415,7 +420,6 @@
         var writtingMapping = "";//$("#writtingMapping").val();
           
         var newRule = "{\"xmppPattern\" : \""+xmppPattern+"\", \"endpoint\" : null, \"appendPath\" : false, \"method\" : \""+method+"\", \"interoperabilityModuleFile\" : \""+interoperabilityModuleFile+"\", \"readingMapping\" : \""+readingMapping+"\", \"writtingMapping\" : \""+writtingMapping+"\" }";
-        console.log(">"+newRule);
         $.ajax({
           type : 'POST',
           url: "/api/routes",
@@ -429,6 +433,25 @@
     loadRoutes();
     checkConnectionStatus();
     app.uri = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    function createValidationReport(endpoint){
+        $.ajax({
+                type : 'POST',
+                url: "/api/validation?endpoint="+endpoint,
+              success: function(result) {
+                app.validationReport = JSON.parse(JSON.stringify(result));
+          },  error: function (xhr, ajaxOptions, thrownError) {
+                if(xhr.status==418){
+                  app.validationReport = JSON.parse("{\"report\":\"Endpoint payload is not interoperable\"}");
+                }else{
+                  app.validationReport = JSON.parse("{\"report\":\"Local endpoint seems to be down\"}");
+                }
+                
+          }
+        });
+    }
+    function clearReport(){
+        app.validationReport ="";
+    }
 </script>
 
 </html>
