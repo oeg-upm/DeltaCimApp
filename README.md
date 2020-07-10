@@ -1,3 +1,4 @@
+
 # DeltaCimApp
 
 ## QUICK START CONFIGURATION:
@@ -14,4 +15,6 @@ Finally, to run the CIM, type down:
 ```` java -jar cim-1.0.0.jar --server.port=8080 --certificate.password=changeit````
 
 **WARNING**: The argument --server.port must always be specified for the correct functioning of the CIM.
+
 **WARNING**: Optionally, if CIM is already correctly configures the flag --xmpp.autoconnection=true can be used for the CIM connect to the Peer-to-Peer network automatically without requiring the user to manually connect it.
+
