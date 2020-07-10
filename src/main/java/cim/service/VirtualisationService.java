@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
@@ -59,11 +58,11 @@ public class VirtualisationService {
 	public RDF normalisePayload(String payload, String xmppRemotePath, String method) {
 		RDF normalisedData =  null;
 		try {
-			Model model = ModelFactory.createDefaultModel();
-			model.read(IOUtils.toInputStream(payload, StandardCharsets.UTF_8.toString()), null, ConfigTokens.DEFAULT_RDF_SERIALISATION);
+			Model model = parseFromString(payload);
 			normalisedData = new RDF();
 			normalisedData.getRDF().add(model);
 		} catch(Exception e) {
+			e.printStackTrace();
 			log.warning("Provided payload is not expressed in JSON-LD, looking for interoperability module to adapt data");
 			Optional<BridgingRule> ruleOptional = bridgingService.findByXmppPatternMatch(xmppRemotePath, method);
 			if(ruleOptional.isPresent()) {
@@ -81,6 +80,12 @@ public class VirtualisationService {
 			}
 		}
 		return normalisedData;
+	}
+	
+	private Model parseFromString(String modelString) throws Exception{
+		Model model = ModelFactory.createDefaultModel();
+		model.read(IOUtils.toInputStream(modelString, StandardCharsets.UTF_8.toString()), ConfigTokens.DEFAULT_URI_BASE, ConfigTokens.DEFAULT_RDF_SERIALISATION);
+		return model;
 	}
 	
 	public RDF virtualiseData(String data, String readingMapping) {

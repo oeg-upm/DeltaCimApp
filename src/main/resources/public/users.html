@@ -154,7 +154,7 @@
 							  <div class="form-row align-items-center">
 							    <div class="col-auto">
 							      <label class="sr-only" for="tokenMinAlive">Token lifetime (min.)</label>
-							      <input type="number" class="form-control mb-2" id="tokenMinAlive" placeholder="60 minutes">
+							      <input type="number" class="form-control mb-2" id="tokenMinAlive" placeholder="60 minutes" required min="0">
 
 							    </div>
 							    <div class="col-auto">
@@ -172,8 +172,8 @@
 							</div>
 				    		<div class="col-8">
 				    			<div class="input-group">
-								  <div class="input-group-prepend">
-								    <span class="input-group-text"><i class="fas fa-clipboard"></i></span>
+								  <div class="input-group-prepend" v-bind:name="token" >
+								    <button class="input-group-text"><i class="fas fa-clipboard"></i></button>
 								  </div>
 								  <input type="text" class="form-control" v-bind:value="token">
 								  <button class="btn btn-danger" v-bind:id="token" onclick="deleteToken(this.id)"><i class="fas fa-fw fa-trash-alt"></i></button>
@@ -329,5 +329,8 @@
 			    }
             });
         }
+        
+
+		
    </script>
 </html>

@@ -62,6 +62,10 @@ public class RequestsFactory {
 		JsonObject jsonHeaders = new JsonObject();
 		headers.entrySet().stream().forEach(entry -> jsonHeaders.addProperty(entry.getKey(), entry.getValue()));
 		jsonHeaders.remove("host"); // Otherwise the CIM that has to forward this header, and is not in the same host, will fail
+		if(jsonHeaders.has("authorization"))
+			jsonHeaders.remove("authorization");
+		if(jsonHeaders.has("cookie"))
+			jsonHeaders.remove("cookie");
 		return jsonHeaders.toString();
 	}
 }

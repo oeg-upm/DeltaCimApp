@@ -252,6 +252,7 @@ public class XMPPService {
 							p2pResponse = P2PMessageFactory.createP2PMessage(xmppRepository.findAll().get(0).getUsername(), from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_2);
 							p2pResponse.setError(true);
 						}
+						System.out.println("---------->"+p2pResponse.getMessage());
 						// X.2 Send to front-end response and copy the message
 						response.setResult(p2pResponse.getMessage());
 						controllerResponse.setStatus(p2pResponse.getResponseCode());

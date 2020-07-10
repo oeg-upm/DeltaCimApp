@@ -41,11 +41,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.authorizeRequests().antMatchers("/","/login","/actuator/**").permitAll().and().csrf().disable().cors().disable();
+		httpSecurity.authorizeRequests().antMatchers("/","/login").permitAll().and().csrf().disable().cors().disable();
 	}
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-	    web.ignoring().antMatchers("/","/login","/actuator/**");
+	    web.ignoring().antMatchers("/","/login");
 	}
 	
 

@@ -50,29 +50,7 @@ public class ConfigTokens {
 			"  }\n" + 
 			"}";
 
-
-
-	
-	public static final String ERROR_JSON_MESSAGES_4 = "{\n" + 
-			"  \"error\": {\n" + 
-			"    \"code\": 418,\n" + 
-			"    \"message\": \"Remote service provided incorrect data\"\n" + 
-			"  }\n" + 
-			"}";
-	
-	public static final String ERROR_JSON_MESSAGES_5= "{\n" + 
-			"  \"error\": {\n" + 
-			"    \"code\": 418,\n" + 
-			"    \"message\": \"Posted data is not interoperable\"\n" + 
-			"  }\n" + 
-			"}";
-	
-	public static final String ERROR_JSON_MESSAGES_5_1= "{\n" + 
-			"  \"error\": {\n" + 
-			"    \"code\": 418,\n" + 
-			"    \"message\": \"Posted data is not interoperable, either it is not JSON-LD or it has syntax errrors\"\n" + 
-			"  }\n" + 
-			"}";
+	public static final String DEFAULT_URI_BASE = "http://delta.iti.gr/";
 	
 
 

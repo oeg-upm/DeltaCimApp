@@ -1,21 +1,8 @@
 package cim.service.components;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import org.apache.jena.rdf.model.Model;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 
@@ -123,7 +110,13 @@ public class RequestProcessor {
 		 try {
 			 // Retrieve data using GET
 			 tuple = new Tuple<>();
+			 System.out.println("----->>> Sending request to local endpoint, method GET:");
+			 System.out.println("----->>> \t endpoint:"+endpoint);
+			 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
 			 HttpResponse<String> response = Unirest.get(endpoint).headers(headersMap).asString();
+			 System.out.println("----->>> - Response:"+response.getBody());
+			 System.out.println("----->>> - Response:"+response.getStatus());
+			 System.out.println("----->>> - Response:"+response.getStatusText());
 			 tuple.setSecondElement(response.getStatus());
 			 tuple.setFirstElement(response.getBody());
 			 if(tuple.getSecondElement()>=200 && tuple.getSecondElement()<300 ) {
@@ -153,11 +146,18 @@ public class RequestProcessor {
 		 try {
 			
 			// Change normalised payload if requited into another understood by the endpoint
-			 String specificEndpointPayload = virtualisationService.translatePayload(requestBody, endpoint);
+			 String specificEndpointPayload = virtualisationService.translatePayload(requestBody, message.getRequest());
 			 if(specificEndpointPayload!=null) {
 				 // Sending data using POST
 				 tuple = new Tuple<>();
+				 System.out.println("----->>> Sending request to local endpoint, method POST:");
+				 System.out.println("----->>> \t endpoint:"+endpoint);
+				 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
+				 System.out.println("----->>> \t payload:"+specificEndpointPayload);
 				 HttpResponse<String> response = Unirest.post(endpoint).headers(headersMap).body(specificEndpointPayload).asString();
+				 System.out.println("----->>> - Response:"+response.getBody());
+				 System.out.println("----->>> - Response:"+response.getStatus());
+				 System.out.println("----->>> - Response:"+response.getStatusText());
 				 tuple.setSecondElement(response.getStatus());
 				 tuple.setFirstElement(response.getBody());
 				 // if response was correct try no normalised again the payload

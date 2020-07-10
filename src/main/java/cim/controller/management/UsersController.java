@@ -115,8 +115,9 @@ public class UsersController  extends AbstractSecureController{
 		if(authenticated(request)) {
 			User user = userService.getUser(userId);
 			JwtTokenUtil jwtUtil = new JwtTokenUtil();
-			if(user!=null) {
-				String jwtToken = jwtUtil.generateToken(userId, Integer.valueOf(minutesValidity));
+			Integer minutes = Integer.valueOf(minutesValidity);
+			if(user!=null && minutes>=0) {
+				String jwtToken = jwtUtil.generateToken(userId, minutes);
 				user.getTokens().put(jwtToken, jwtUtil.getTokenExpirationDate(jwtToken).toString());
 				userService.updateUser(user);
 			}
