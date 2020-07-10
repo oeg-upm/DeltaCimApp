@@ -16,6 +16,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.jivesoftware.smack.util.stringencoder.java7.Base64.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +85,9 @@ public class VirtualisationService {
 	
 	private Model parseFromString(String modelString) throws Exception{
 		Model model = ModelFactory.createDefaultModel();
-		model.read(IOUtils.toInputStream(modelString, StandardCharsets.UTF_8.toString()), ConfigTokens.DEFAULT_URI_BASE, ConfigTokens.DEFAULT_RDF_SERIALISATION);
+		java.io.InputStream is = IOUtils.toInputStream(modelString, StandardCharsets.UTF_8.toString());
+		model.read(is, ConfigTokens.DEFAULT_URI_BASE, ConfigTokens.DEFAULT_RDF_SERIALISATION);
+		is.close();
 		return model;
 	}
 	
