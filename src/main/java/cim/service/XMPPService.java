@@ -294,6 +294,7 @@ public class XMPPService {
 			String content = p2pMessage.toJsonString();
 			String logMessage = StringFactory.concatenateStrings("Sending to ",jid.asEntityBareJidString(),"\n\tContent:",content);
 			log.info(logMessage);
+			connection.setReplyTimeout(ConfigTokens.XMPP_TIMEOUT);
 			chat.send(content);
 
 		} catch (NotConnectedException e) {

@@ -101,7 +101,7 @@ public class RequestProcessor {
 		} else if(isPost(message)) {
 			requestResponse = solvePostRequest(message, endpoint, headersMap);
 		}
-		
+		log.info("Get answered correctly! (1)");
 		return requestResponse;
 	}
 	
@@ -113,8 +113,9 @@ public class RequestProcessor {
 			 System.out.println("----->>> Sending request to local endpoint, method GET:");
 			 System.out.println("----->>> \t endpoint:"+endpoint);
 			 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
+			 Unirest.setTimeouts(ConfigTokens.CONNECTION_TIMEOUT, ConfigTokens.SOKET_TIMEOUT);
 			 HttpResponse<String> response = Unirest.get(endpoint).headers(headersMap).asString();
-			 System.out.println("----->>> - Response:"+response.getBody());
+			 System.out.println("----->>> - Response:"+response.getBody().length());
 			 System.out.println("----->>> - Response:"+response.getStatus());
 			 System.out.println("----->>> - Response:"+response.getStatusText());
 			 tuple.setSecondElement(response.getStatus());
@@ -136,7 +137,6 @@ public class RequestProcessor {
 			 log.severe(logMessage);
 			 tuple = PayloadsFactory.getErrorPayloadRemoteEndpointDown();
 		 }
-		
 		 return tuple;
 	 }
 	 
@@ -154,6 +154,7 @@ public class RequestProcessor {
 				 System.out.println("----->>> \t endpoint:"+endpoint);
 				 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
 				 System.out.println("----->>> \t payload:"+specificEndpointPayload);
+				 Unirest.setTimeouts(ConfigTokens.CONNECTION_TIMEOUT, ConfigTokens.SOKET_TIMEOUT);
 				 HttpResponse<String> response = Unirest.post(endpoint).headers(headersMap).body(specificEndpointPayload).asString();
 				 System.out.println("----->>> - Response:"+response.getBody());
 				 System.out.println("----->>> - Response:"+response.getStatus());

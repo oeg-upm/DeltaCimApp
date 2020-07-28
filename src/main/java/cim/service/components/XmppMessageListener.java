@@ -45,10 +45,12 @@ public class XmppMessageListener implements IncomingChatMessageListener {
 					if (!incomingMessage.getError()) {
 						if(isRequestP2PMessage(incomingMessage)) 
 							response = processDataRequest(incomingMessage, from.toString());
+						log.info("[Listener] Request message response: "+response);
 						chat.send(response);
 					}
 				} else {
 					String response = prepareCIMErrorResponse(from.toString(), PayloadsFactory.getUnauthorisedCIMErrorPayload());
+					log.warning("[Listener] Request message response: "+response);
 					chat.send(response);
 				}
 			}
@@ -70,7 +72,6 @@ public class XmppMessageListener implements IncomingChatMessageListener {
 		response.setResponseCode(responseMessage.getSecondElement());
 		if(responseMessage.getSecondElement()>299)
 			response.setError(true); // otherwise it will generate an infinite loop
-
 		return response.toJsonString();
 	}
 	

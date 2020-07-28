@@ -2,6 +2,7 @@ package cim;
 
 import org.apache.jena.riot.Lang;
 
+
 public class ConfigTokens {
 
 	
@@ -25,7 +26,7 @@ public class ConfigTokens {
 	public static final String MODULES_BASE_DIR_READING = "/reading/";
 	public static final String MODULES_BASE_DIR_WRITTING = "/writting/";
 	
-	
+
 	// Server response headers
 	public static final String SERVER_TOKEN = "Server";
 	public static final String SERVER_NAME_TOKEN = "Delta Gateway";
@@ -33,6 +34,10 @@ public class ConfigTokens {
 	//
 
 	public static String PASSWORD_CERT = "changeit";
+	public static long SOKET_TIMEOUT = 60000; // milliseconds 
+	public static long CONNECTION_TIMEOUT = 10000; // milliseconds
+	public static long XMPP_TIMEOUT = 0; // milliseconds
+
 	
 	// URL token identifier
 	public static final  String URL_TOKEN = "/delta"; 
