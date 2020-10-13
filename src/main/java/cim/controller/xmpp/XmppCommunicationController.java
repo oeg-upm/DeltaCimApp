@@ -74,7 +74,7 @@ public class XmppCommunicationController extends AbstractSecureController{
 	@ApiResponses(value = {
 	        @ApiResponse(code = 202, message = "Data has been correctly exchanged but a validation report was created since it did not pass the validation process")
 	 })
-	@RequestMapping(method = RequestMethod.POST, produces = { "application/json", "application/odata+json" })
+	@RequestMapping(method = {RequestMethod.POST, RequestMethod.PATCH, RequestMethod.PUT, RequestMethod.DELETE}, produces = { "application/json", "application/odata+json" })
 	@ResponseBody
 	public DeferredResult<String> postResource(HttpServletRequest request, HttpServletResponse response, @RequestBody(required = true) String payload) {
 		prepareResponseOK(response);

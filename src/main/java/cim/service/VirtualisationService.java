@@ -151,7 +151,7 @@ public class VirtualisationService {
 	// -- Translate from RDF
 	
 	public String translatePayload(String payload, String xmppRemotePath) {
-		String devirtualisedData = null;
+		String devirtualisedData = "";
 		Optional<BridgingRule> ruleOptional = bridgingService.findByXmppPatternMatch(xmppRemotePath, Method.POST.toString());
 		if (ruleOptional.isPresent()) {
 			BridgingRule rule = ruleOptional.get();

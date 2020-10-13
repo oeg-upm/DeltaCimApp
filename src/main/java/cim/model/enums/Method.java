@@ -12,6 +12,25 @@ public enum Method {
         public String toString() {
             return "post";
         }
+    },
+    DELETE {
+        @Override
+        public String toString() {
+            return "delete";
+        }
+    },
+    PUT {
+        @Override
+        public String toString() {
+            return "put";
+        }
+    },
+    PATCH {
+        @Override
+        public String toString() {
+            return "patch";
+        }
     }
+    
 
 }
