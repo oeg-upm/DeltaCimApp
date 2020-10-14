@@ -144,6 +144,9 @@
             <select class="form-control" id="method" v-model="methodSelected">
               <option value="GET">GET</option>
               <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="PATCH">PATCH</option>
+              <option value="DELETE">DELETE</option>
             </select>
           </div>
 
@@ -223,8 +226,11 @@
 
           <div class="col-auto">
             <label class="" for="endpoint">Method:</label>
-            <select class="form-control" id="method2" disabled>
+            <select class="form-control" id="method2">
               <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="PATCH">PATCH</option>
+              <option value="DELETE">DELETE</option>
             </select>
           </div>
 

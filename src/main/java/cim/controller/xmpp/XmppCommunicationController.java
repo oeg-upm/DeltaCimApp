@@ -76,7 +76,7 @@ public class XmppCommunicationController extends AbstractSecureController{
 	 })
 	@RequestMapping(method = {RequestMethod.POST, RequestMethod.PATCH, RequestMethod.PUT, RequestMethod.DELETE}, produces = { "application/json", "application/odata+json" })
 	@ResponseBody
-	public DeferredResult<String> postResource(HttpServletRequest request, HttpServletResponse response, @RequestBody(required = true) String payload) {
+	public DeferredResult<String> postResource(HttpServletRequest request, HttpServletResponse response, @RequestBody(required = false) String payload) {
 		prepareResponseOK(response);
 		 DeferredResult<String> defferredResponse = new DeferredResult<>();
 		 if(authenticated(request)) {

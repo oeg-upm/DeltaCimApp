@@ -229,6 +229,8 @@ public class XMPPService {
 
 	public DeferredResult<String> sendMessage(HttpServletRequest request, Map<String, String> headers, String payload, HttpServletResponse controllerResponse) {
 		P2PMessage p2pMessage = P2PMessageFactory.createP2PRequestMessage(request, headers, getXmppUser().getUsername(), getXmppUser().getXmppDomain());
+		if(payload.equals("{ }"))
+			payload = "";
 		p2pMessage.setMessage(payload);
 		DeferredResult<String> response = new DeferredResult<>();
 		String receiverId = p2pMessage.getReceiver();
@@ -252,11 +254,12 @@ public class XMPPService {
 							p2pResponse = P2PMessageFactory.createP2PMessage(xmppRepository.findAll().get(0).getUsername(), from.toString(), ConfigTokens.ERROR_JSON_MESSAGES_2);
 							p2pResponse.setError(true);
 						}
-						System.out.println("---------->"+p2pResponse.getMessage());
+						String resultMessage = p2pResponse.getMessage();
+						System.out.println("---------->"+resultMessage);
 						// X.2 Send to front-end response and copy the message
-						response.setResult(p2pResponse.getMessage());
+						response.setResult(resultMessage);
 						controllerResponse.setStatus(p2pResponse.getResponseCode());
-						ValidationReport report = validationService.generateValidationReport(p2pResponse.getMessage(), p2pMessage.getRequest());
+						ValidationReport report = validationService.generateValidationReport(resultMessage, p2pMessage.getRequest());
 						 if(report!=null) // means there was a validation error
 							 controllerResponse.setStatus(202);
 						

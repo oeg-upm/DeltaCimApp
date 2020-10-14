@@ -84,9 +84,11 @@ public class VirtualisationService {
 	
 	private Model parseFromString(String modelString) throws Exception{
 		Model model = ModelFactory.createDefaultModel();
-		java.io.InputStream is = IOUtils.toInputStream(modelString, StandardCharsets.UTF_8.toString());
-		model.read(is, ConfigTokens.DEFAULT_URI_BASE, ConfigTokens.DEFAULT_RDF_SERIALISATION);
-		is.close();
+		if(modelString!=null && !modelString.isEmpty()) {
+			java.io.InputStream is = IOUtils.toInputStream(modelString, StandardCharsets.UTF_8.toString());
+			model.read(is, ConfigTokens.DEFAULT_URI_BASE, ConfigTokens.DEFAULT_RDF_SERIALISATION);
+			is.close();
+		}
 		return model;
 	}
 	

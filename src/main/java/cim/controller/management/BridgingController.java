@@ -65,7 +65,7 @@ public class BridgingController extends AbstractSecureController{
 					Tuple<String,String> module = InteroperabilityModuleFactory.readInteroperabilityModule(file.getPath());
 					if(module.getFirstElement()!=null)
 						intModule.setMethod(Method.GET);
-					if(module.getSecondElement()!=null)
+					if(module.getSecondElement()!=null) // PUT, PATCH and DELETE will rely on this as well
 						intModule.setMethod(Method.POST);
 					modules.add(intModule);
 				}
