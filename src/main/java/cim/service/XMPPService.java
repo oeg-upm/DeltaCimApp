@@ -214,6 +214,7 @@ public class XMPPService {
 		tmf.init(keyStore);
 		SSLContext sc = SSLContext.getInstance("TLS");
 		sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
+		is.close();
 		return sc;
 	}
 

@@ -34,6 +34,7 @@ public class InteroperabilityModuleFactory {
 					} else if (isWrittingFile(fileName)) {
 						mappingsContent.setSecondElement(readZippedFile(zipFile, entry));
 					}
+					
 			    }
 			    zipFile.close();
 			}
