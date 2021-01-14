@@ -54,7 +54,7 @@ public class BridgingController extends AbstractSecureController{
 	@ResponseBody
 	public List<InteroperabilityModule> getModules(HttpServletResponse response, HttpServletRequest request) {
 		List<InteroperabilityModule> modules = new ArrayList<>();
-		if(authenticated(request) || true) {
+		if(authenticated(request)) {
 			File folder = new File(ConfigTokens.MODULES_FOLDER);
 			File[] listOfFiles = folder.listFiles();
 			for(File file:listOfFiles) {

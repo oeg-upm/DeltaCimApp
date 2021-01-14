@@ -239,7 +239,7 @@
             <label class="" for="InteroperabilityModules2">Interoperability module:</label>
             <select class="form-control" id="InteroperabilityModules2">
               <option value="None">None</option>
-              <option v-for="module in modules" v-show="module.method != 'GET'" v-bind:value="module.name" v-html="module.name"></option>
+              <option v-for="module in modules" v-show="module.method == 'GET'" v-bind:value="module.name" v-html="module.name"></option>
               
             </select>
           </div>

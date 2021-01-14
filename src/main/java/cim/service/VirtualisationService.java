@@ -103,8 +103,10 @@ public class VirtualisationService {
 				connectorArguments.add(data);
 				Connector connector = new InMemoryConnector(connectorArguments); 
 				// 
-				MappingTranslator translator = new AutomaticTranslator();
+				MappingTranslator translator = new helio.mappings.translators.JsonTranslator();
+				System.out.println(translator.isCompatible(readingMapping));
 				Mapping mapping = translator.translate(readingMapping);
+				System.out.println(">>><<<<");
 				mapping.getDatasources().forEach(ds -> ds.getDatasource().setConnector(connector));
 				EngineImp virtualiser = new EngineImp(mapping);
 				virtualiser.initialize();
@@ -117,6 +119,7 @@ public class VirtualisationService {
 			log.severe("VirtualisationService:virtualiseData an error ocurred");
 			log.severe(e.toString());
 		} catch (java.lang.NoSuchMethodError e) {
+			e.printStackTrace();
 			log.severe("VirtualisationService:virtualiseData payload incompatible with interoperability module");
 			log.severe(e.toString());
 		}

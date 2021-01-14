@@ -82,7 +82,7 @@ public class XmppCommunicationController extends AbstractSecureController{
 		 if(authenticated(request)) {
 			 if(p2pService.isConnected()) {
 				 // Normalise payload if requited to Json-LD + Ontology
-				 RDF normalisedPayload = virtualisationService.normalisePayload(payload, retrievePath(request), Method.GET.toString());
+				 RDF normalisedPayload = virtualisationService.normalisePayload(payload, retrievePath(request), request.getMethod());
 				 if(normalisedPayload!=null) {
 					 //TODO: validate the normalisedPayload?
 					 defferredResponse = p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), normalisedPayload.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION), response);
@@ -113,6 +113,9 @@ public class XmppCommunicationController extends AbstractSecureController{
 		 String remotePath = path.substring(path.indexOf(urlToken)+urlToken.length());
 		 if(remotePath.startsWith("/"))
 			 remotePath = remotePath.substring(1);
+		 // Remove user from request
+		 if(remotePath.contains("/"))
+			 remotePath = remotePath.substring(remotePath.indexOf("/")+1);
 		 return remotePath;
 	 }
 
