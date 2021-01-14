@@ -160,9 +160,9 @@ public class BridgingRule implements Serializable{
 	public void updateMappingContent() {
 		if(getInteroperabilityModuleFile()!=null) {
 			Tuple<String,String> module = InteroperabilityModuleFactory.readInteroperabilityModule(ConfigTokens.MODULES_BASE_DIR+getInteroperabilityModuleFile());
-			if(module!=null && !module.getFirstElement().isEmpty())
+			if(module!=null && module.getFirstElement()!=null && !module.getFirstElement().isEmpty())
 				this.readingMapping = module.getFirstElement();
-			if(module!=null && !module.getSecondElement().isEmpty())
+			if(module!=null && module.getSecondElement()!=null && !module.getSecondElement().isEmpty())
 				this.writtingMapping = module.getSecondElement();
 		}
 	}
