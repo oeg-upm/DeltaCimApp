@@ -21,7 +21,14 @@ public class UserService {
 	private static final String USER_DEFAULT_TOKEN = "root";
 	
 	public Boolean existUsername(String username) {
-		return  userRepository.existsById(username);
+		Boolean exist = false;
+		try {
+			exist =  userRepository.existsById(username);
+		} catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("------------>>>>>>> looking for username: "+username);
+		}
+		return exist;
 	}
 	
 	public User getUser(String username) {
