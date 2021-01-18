@@ -22,12 +22,12 @@ public class UserService {
 	
 	public Boolean existUsername(String username) {
 		Boolean exist = false;
-		try {
-			exist =  userRepository.existsById(username);
-		} catch(Exception e) {
+		//try {
+		exist =  userRepository.existsById(username);
+		/*} catch(Exception e) {
 			e.printStackTrace();
 			System.out.println("------------>>>>>>> looking for username: "+username);
-		}
+		}*/
 		return exist;
 	}
 	

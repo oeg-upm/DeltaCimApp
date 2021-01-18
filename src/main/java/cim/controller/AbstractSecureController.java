@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import com.jcabi.aspects.Async;
+
 import cim.ConfigTokens;
 import cim.security.JwtTokenUtil;
 import cim.service.UserService;
@@ -44,7 +46,7 @@ public class AbstractSecureController {
 		response.setStatus( HttpServletResponse.SC_BAD_REQUEST ); // by default response code is BAD
 	}	
 	
-
+	@Async
 	protected Boolean authenticated(HttpServletRequest request) {
 		String username = null;
 		// Retrieve bearer token from cookie or header

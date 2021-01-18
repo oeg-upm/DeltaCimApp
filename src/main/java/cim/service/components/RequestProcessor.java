@@ -91,7 +91,7 @@ public class RequestProcessor {
 		return match;
 	}
 	
-
+	
 	private Tuple<String,Integer> sendRequest(P2PMessage message, String endpoint){
 		Tuple<String, Integer> requestResponse = PayloadsFactory.getErrorPayloadMethodRequestedNotAllowed();
 		 Map<String,String> headersMap = retrieveHeaders(message.getHeaders());
@@ -107,7 +107,7 @@ public class RequestProcessor {
 		} else if(isPatch(message)) {
 			requestResponse = solvePatchRequest(message, endpoint, headersMap);
 		}
-		log.info("Get answered correctly! (1)");
+		
 		return requestResponse;
 	}
 

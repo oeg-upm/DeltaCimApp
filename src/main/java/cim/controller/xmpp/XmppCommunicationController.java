@@ -9,7 +9,6 @@ import cim.ConfigTokens;
 import cim.controller.AbstractSecureController;
 import cim.factory.PayloadsFactory;
 import cim.factory.RequestsFactory;
-import cim.model.enums.Method;
 import cim.service.BridgingService;
 import cim.service.ValidationService;
 import cim.service.VirtualisationService;
@@ -68,6 +67,8 @@ public class XmppCommunicationController extends AbstractSecureController{
 		 }
 		 return defferredResponse;
 	 }
+	
+	public static int received = 0;
 	 
 	// -- POST method
 	@ApiOperation(value = "Sends a request thorugh the peer-to-peer network")
@@ -77,9 +78,10 @@ public class XmppCommunicationController extends AbstractSecureController{
 	@RequestMapping(method = {RequestMethod.POST, RequestMethod.PATCH, RequestMethod.PUT, RequestMethod.DELETE}, produces = { "application/json", "application/odata+json" })
 	@ResponseBody
 	public DeferredResult<String> postResource(HttpServletRequest request, HttpServletResponse response, @RequestBody(required = false) String payload) {
-		prepareResponseOK(response);
+		 received++;
+		 prepareResponseOK(response);
 		 DeferredResult<String> defferredResponse = new DeferredResult<>();
-		 if(authenticated(request)) {
+		 if(authenticated(request)) {  
 			 if(p2pService.isConnected()) {
 				 // Normalise payload if requited to Json-LD + Ontology
 				 RDF normalisedPayload = virtualisationService.normalisePayload(payload, retrievePath(request), request.getMethod());
@@ -100,6 +102,7 @@ public class XmppCommunicationController extends AbstractSecureController{
 			 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			 defferredResponse.setResult(null);
 		 }
+		 System.out.println("------------->Received: "+received);
 		 return defferredResponse;
 
 	}
