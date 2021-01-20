@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
@@ -19,6 +20,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -37,7 +39,6 @@ import helio.framework.mapping.Mapping;
 import helio.framework.objects.RDF;
 import helio.framework.objects.SparqlResultsFormat;
 import helio.framework.objects.Tuple;
-import helio.mappings.translators.AutomaticTranslator;
 import helio.writer.HelioWriter;
 import helio.writer.framework.DevirtualisationMapping;
 import helio.writer.framework.serialiser.JsonTranslator;
@@ -46,23 +47,30 @@ import helio.writer.framework.serialiser.JsonTranslator;
 public class VirtualisationService {
 
 	private Logger log = Logger.getLogger(VirtualisationService.class.getName());
+	private static MappingTranslator translator = new helio.mappings.translators.JsonTranslator();
 
 	@Autowired
 	private BridgingService bridgingService;
 	@Autowired
 	private RequestProcessor requestProcessor;
 	private static Map<String,SparqlResultsFormat> sparqlResponseFormats;	
+	private static EngineImp virtualiser = new EngineImp(null);
+	static {
+		Mapping mapping = new Mapping();
+		virtualiser = new EngineImp(mapping);
+	}
 	
 	// -- Translate to RDF
 	
 	public RDF normalisePayload(String payload, String xmppRemotePath, String method) {
+		Stopwatch stopwatchNormalisation = Stopwatch.createStarted();
 		RDF normalisedData =  null;
 		try {
 			Model model = parseFromString(payload);
 			normalisedData = new RDF();
 			normalisedData.getRDF().add(model);
 		} catch(Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			log.warning("Provided payload is not expressed in JSON-LD, looking for interoperability module to adapt data");
 			Optional<BridgingRule> ruleOptional = bridgingService.findByXmppPatternMatch(xmppRemotePath, method);
 			if(ruleOptional.isPresent()) {
@@ -79,6 +87,9 @@ public class VirtualisationService {
 				log.warning("No interoperability module found for adapting the data");
 			}
 		}
+		stopwatchNormalisation.stop(); // optional
+		System.out.println("Normalisation time: "+ stopwatchNormalisation.elapsed(TimeUnit.MILLISECONDS)); 
+		 
 		return normalisedData;
 	}
 	
@@ -103,19 +114,19 @@ public class VirtualisationService {
 				connectorArguments.add(data);
 				Connector connector = new InMemoryConnector(connectorArguments); 
 				// 
-				MappingTranslator translator = new helio.mappings.translators.JsonTranslator();
-				System.out.println(translator.isCompatible(readingMapping));
 				Mapping mapping = translator.translate(readingMapping);
-				System.out.println(">>><<<<");
+				
+				//System.out.println(">>><<<<");
 				mapping.getDatasources().forEach(ds -> ds.getDatasource().setConnector(connector));
-				EngineImp virtualiser = new EngineImp(mapping);
+				virtualiser.setMapping(mapping);
 				virtualiser.initialize();
 				rdfData = virtualiser.publishRDF();	
-				virtualiser.close();
+				
 			}else {
 				log.severe("VirtualisationService:virtualiseData provided interoperability modukle is not compatible, check mandatory keyword #GetConnectorReplacementId#");
 			}
 		}catch (Exception e) {
+			e.printStackTrace();
 			log.severe("VirtualisationService:virtualiseData an error ocurred");
 			log.severe(e.toString());
 		} catch (java.lang.NoSuchMethodError e) {
@@ -126,7 +137,7 @@ public class VirtualisationService {
 		return rdfData;
 	}
 	
-
+/*
 	public RDF virtualiseLocalGet(String endpoint, String rawMapping, String headers) {
 		RDF rdfData = null; // it is the RDF representation of heterogeneous data
 		
@@ -139,7 +150,7 @@ public class VirtualisationService {
 			
 			MappingTranslator translator = new AutomaticTranslator();
 			Mapping mapping = translator.translate(rawMapping);
-			EngineImp virtualiser = new EngineImp(mapping);
+			
 			virtualiser.initialize();
 			rdfData = virtualiser.publishRDF();	
 			virtualiser.close();
@@ -150,7 +161,7 @@ public class VirtualisationService {
 		}
 
 		return rdfData;
-	}
+	}*/
 	
 	
 	// -- Translate from RDF

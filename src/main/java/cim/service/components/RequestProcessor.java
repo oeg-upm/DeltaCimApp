@@ -116,14 +116,14 @@ public class RequestProcessor {
 		 try {
 			 // Retrieve data using GET
 			 tuple = new Tuple<>();
-			 System.out.println("----->>> Sending request to local endpoint, method GET:");
-			 System.out.println("----->>> \t endpoint:"+endpoint);
-			 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
+//			 System.out.println("----->>> Sending request to local endpoint, method GET:");
+//			 System.out.println("----->>> \t endpoint:"+endpoint);
+			 //headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
 			 Unirest.setTimeouts(ConfigTokens.CONNECTION_TIMEOUT, ConfigTokens.SOKET_TIMEOUT);
 			 HttpResponse<String> response = Unirest.get(endpoint).headers(headersMap).asString();
-			 System.out.println("----->>> - Response:"+response.getBody().length());
-			 System.out.println("----->>> - Response:"+response.getStatus());
-			 System.out.println("----->>> - Response:"+response.getStatusText());
+//			 System.out.println("----->>> - Response:"+response.getBody().length());
+//			 System.out.println("----->>> - Response:"+response.getStatus());
+//			 System.out.println("----->>> - Response:"+response.getStatusText());
 			 tuple.setSecondElement(response.getStatus());
 			 tuple.setFirstElement(response.getBody());
 			 if(tuple.getSecondElement()>=200 && tuple.getSecondElement()<300 ) {
@@ -156,15 +156,15 @@ public class RequestProcessor {
 			 if(specificEndpointPayload!=null) {
 				 // Sending data using POST
 				 tuple = new Tuple<>();
-				 System.out.println("----->>> Sending request to local endpoint, method POST:");
-				 System.out.println("----->>> \t endpoint:"+endpoint);
-				 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
-				 System.out.println("----->>> \t payload:"+specificEndpointPayload);
+//				 System.out.println("----->>> Sending request to local endpoint, method POST:");
+//				 System.out.println("----->>> \t endpoint:"+endpoint);
+				 //headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
+//				 System.out.println("----->>> \t payload:"+specificEndpointPayload);
 				 Unirest.setTimeouts(ConfigTokens.CONNECTION_TIMEOUT, ConfigTokens.SOKET_TIMEOUT);
 				 HttpResponse<String> response = Unirest.post(endpoint).headers(headersMap).body(specificEndpointPayload).asString();
-				 System.out.println("----->>> - Response:"+response.getBody());
-				 System.out.println("----->>> - Response:"+response.getStatus());
-				 System.out.println("----->>> - Response:"+response.getStatusText());
+//				 System.out.println("----->>> - Response:"+response.getBody());
+//				 System.out.println("----->>> - Response:"+response.getStatus());
+//				 System.out.println("----->>> - Response:"+response.getStatusText());
 				 tuple.setSecondElement(response.getStatus());
 				 tuple.setFirstElement(response.getBody());
 				 // if response was correct try no normalised again the payload
@@ -199,15 +199,15 @@ public class RequestProcessor {
 			 if(specificEndpointPayload!=null) {
 				 // Sending data using POST
 				 tuple = new Tuple<>();
-				 System.out.println("----->>> Sending request to local endpoint, method DELETE:");
-				 System.out.println("----->>> \t endpoint:"+endpoint);
-				 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
-				 System.out.println("----->>> \t payload:"+specificEndpointPayload);
+//				 System.out.println("----->>> Sending request to local endpoint, method DELETE:");
+//				 System.out.println("----->>> \t endpoint:"+endpoint);
+				 //headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
+//				 System.out.println("----->>> \t payload:"+specificEndpointPayload);
 				 Unirest.setTimeouts(ConfigTokens.CONNECTION_TIMEOUT, ConfigTokens.SOKET_TIMEOUT);
 				 HttpResponse<String> response = Unirest.delete(endpoint).headers(headersMap).body(specificEndpointPayload).asString();
-				 System.out.println("----->>> - Response:"+response.getBody());
-				 System.out.println("----->>> - Response:"+response.getStatus());
-				 System.out.println("----->>> - Response:"+response.getStatusText());
+//				 System.out.println("----->>> - Response:"+response.getBody());
+//				 System.out.println("----->>> - Response:"+response.getStatus());
+//				 System.out.println("----->>> - Response:"+response.getStatusText());
 				 tuple.setSecondElement(response.getStatus());
 				 tuple.setFirstElement(response.getBody());
 				 // if response was correct try no normalised again the payload
@@ -242,15 +242,15 @@ public class RequestProcessor {
 				 if(specificEndpointPayload!=null) {
 					 // Sending data using POST
 					 tuple = new Tuple<>();
-					 System.out.println("----->>> Sending request to local endpoint, method PUT:");
-					 System.out.println("----->>> \t endpoint:"+endpoint);
-					 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
-					 System.out.println("----->>> \t payload:"+specificEndpointPayload);
+//					 System.out.println("----->>> Sending request to local endpoint, method PUT:");
+//					 System.out.println("----->>> \t endpoint:"+endpoint);
+					 //headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
+//					 System.out.println("----->>> \t payload:"+specificEndpointPayload);
 					 Unirest.setTimeouts(ConfigTokens.CONNECTION_TIMEOUT, ConfigTokens.SOKET_TIMEOUT);
 					 HttpResponse<String> response = Unirest.put(endpoint).headers(headersMap).body(specificEndpointPayload).asString();
-					 System.out.println("----->>> - Response:"+response.getBody());
-					 System.out.println("----->>> - Response:"+response.getStatus());
-					 System.out.println("----->>> - Response:"+response.getStatusText());
+//					 System.out.println("----->>> - Response:"+response.getBody());
+//					 System.out.println("----->>> - Response:"+response.getStatus());
+//					 System.out.println("----->>> - Response:"+response.getStatusText());
 					 tuple.setSecondElement(response.getStatus());
 					 tuple.setFirstElement(response.getBody());
 					 // if response was correct try no normalised again the payload
@@ -285,15 +285,15 @@ public class RequestProcessor {
 				 if(specificEndpointPayload!=null) {
 					 // Sending data using POST
 					 tuple = new Tuple<>();
-					 System.out.println("----->>> Sending request to local endpoint, method PATCH:");
-					 System.out.println("----->>> \t endpoint:"+endpoint);
-					 headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
-					 System.out.println("----->>> \t payload:"+specificEndpointPayload);
+//					 System.out.println("----->>> Sending request to local endpoint, method PATCH:");
+//					 System.out.println("----->>> \t endpoint:"+endpoint);
+					 //headersMap.entrySet().stream().forEach(entry -> System.out.println("----->>> \t\t header:"+entry));
+//					 System.out.println("----->>> \t payload:"+specificEndpointPayload);
 					 Unirest.setTimeouts(ConfigTokens.CONNECTION_TIMEOUT, ConfigTokens.SOKET_TIMEOUT);
 					 HttpResponse<String> response = Unirest.patch(endpoint).headers(headersMap).body(specificEndpointPayload).asString();
-					 System.out.println("----->>> - Response:"+response.getBody());
-					 System.out.println("----->>> - Response:"+response.getStatus());
-					 System.out.println("----->>> - Response:"+response.getStatusText());
+//					 System.out.println("----->>> - Response:"+response.getBody());
+//					 System.out.println("----->>> - Response:"+response.getStatus());
+//					 System.out.println("----->>> - Response:"+response.getStatusText());
 					 tuple.setSecondElement(response.getStatus());
 					 tuple.setFirstElement(response.getBody());
 					 // if response was correct try no normalised again the payload

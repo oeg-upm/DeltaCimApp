@@ -34,8 +34,8 @@ public class ConfigTokens {
 	//
 
 	public static String PASSWORD_CERT = "changeit";
-	public static long SOKET_TIMEOUT = 60000; // milliseconds 
-	public static long CONNECTION_TIMEOUT = 10000; // milliseconds
+	public static long SOKET_TIMEOUT = 6000; // milliseconds 
+	public static long CONNECTION_TIMEOUT = 1000; // milliseconds
 	public static long XMPP_TIMEOUT = 0; // milliseconds
 
 	

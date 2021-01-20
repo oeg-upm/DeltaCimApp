@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import cim.model.BridgingRule;
@@ -33,6 +34,7 @@ public class BridgingService {
 	public BridgingRule findByXmppPattern(String xmppPattern){
 		return routeRepository.findByXmppPattern(xmppPattern);
 	}
+
 
 	public Optional<BridgingRule> findByXmppPatternMatch(String xmppRoute, String method){
 		return routeRepository.findAll().stream().filter(rule -> match(rule.getXmppPattern(), xmppRoute) && method.equalsIgnoreCase(rule.getMethod().toString())).findFirst();

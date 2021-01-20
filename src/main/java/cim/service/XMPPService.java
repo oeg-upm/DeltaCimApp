@@ -21,7 +21,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jivesoftware.smack.ConnectionConfiguration;
-
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.SmackException.NotConnectedException;
@@ -70,6 +70,9 @@ public class XMPPService {
 	protected ChatManager chatManagerReceiver;
 	private Logger log = Logger.getLogger(XMPPService.class.getName());
 
+	static {
+		SmackConfiguration.DEBUG = false;
+	}
 	
 	// -- Constructor
 
@@ -113,6 +116,7 @@ public class XMPPService {
 	}
 	
 	public ConnectionStatus connect() {
+	
 		ConnectionStatus status = ConnectionStatus.ALREADY_CONNECTED;
 		if(!isConnected()) {
 			XmppUser user = getXmppUser();
@@ -256,7 +260,7 @@ public class XMPPService {
 							p2pResponse.setError(true);
 						}
 						String resultMessage = p2pResponse.getMessage();
-						System.out.println("---------->"+resultMessage);
+						//System.out.println("---------->"+resultMessage);
 						// X.2 Send to front-end response and copy the message
 						response.setResult(resultMessage);
 						controllerResponse.setStatus(p2pResponse.getResponseCode());
