@@ -63,7 +63,6 @@ public class VirtualisationService {
 	// -- Translate to RDF
 	
 	public RDF normalisePayload(String payload, String xmppRemotePath, String method) {
-		Stopwatch stopwatchNormalisation = Stopwatch.createStarted();
 		RDF normalisedData =  null;
 		try {
 			Model model = parseFromString(payload);
@@ -87,8 +86,6 @@ public class VirtualisationService {
 				log.warning("No interoperability module found for adapting the data");
 			}
 		}
-		stopwatchNormalisation.stop(); // optional
-		System.out.println("Normalisation time: "+ stopwatchNormalisation.elapsed(TimeUnit.MILLISECONDS)); 
 		 
 		return normalisedData;
 	}
@@ -128,11 +125,11 @@ public class VirtualisationService {
 		}catch (Exception e) {
 			e.printStackTrace();
 			log.severe("VirtualisationService:virtualiseData an error ocurred");
-			log.severe(e.toString());
+			System.out.println(e.toString());
 		} catch (java.lang.NoSuchMethodError e) {
 			e.printStackTrace();
 			log.severe("VirtualisationService:virtualiseData payload incompatible with interoperability module");
-			log.severe(e.toString());
+			System.out.println(e.toString());
 		}
 		return rdfData;
 	}

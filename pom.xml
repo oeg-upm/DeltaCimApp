@@ -4,7 +4,7 @@
 
   <groupId>upm.oeg.delta</groupId>
   <artifactId>cim</artifactId>
-  <version>2.2.4</version>
+  <version>2.2.5</version>
   <packaging>jar</packaging>
 
   <name>xmpp</name>
@@ -133,6 +133,12 @@
 			<groupId>oeg.helio.core</groupId>
 			<artifactId>helio-core</artifactId>
 			<version>1.2.10</version>
+		</dependency>
+		<!-- Reflections: https://mvnrepository.com/artifact/org.reflections/reflections -->
+		<dependency>
+		    <groupId>org.reflections</groupId>
+		    <artifactId>reflections</artifactId>
+		    <version>0.9.9</version>
 		</dependency>
 		 <!-- https://mvnrepository.com/artifact/org.json/json -->
 		<dependency>

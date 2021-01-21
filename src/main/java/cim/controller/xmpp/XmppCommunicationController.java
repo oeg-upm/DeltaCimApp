@@ -80,7 +80,6 @@ public class XmppCommunicationController extends AbstractSecureController{
 	@RequestMapping(method = {RequestMethod.POST, RequestMethod.PATCH, RequestMethod.PUT, RequestMethod.DELETE}, produces = { "application/json", "application/odata+json" })
 	@ResponseBody
 	public DeferredResult<String> postResource(HttpServletRequest request, HttpServletResponse response, @RequestBody(required = false) String payload) {
-		Stopwatch stopwatch = Stopwatch.createStarted();
 		prepareResponseOK(response);
 		 DeferredResult<String> defferredResponse = new DeferredResult<>();
 		 if(authenticated(request)) {  
@@ -91,9 +90,7 @@ public class XmppCommunicationController extends AbstractSecureController{
 				if(normalisedPayload!=null) {
 					 //TODO: validate the normalisedPayload?
 					 defferredResponse = p2pService.sendMessage(request, RequestsFactory.extractHeaders(request), normalisedPayload.toString(ConfigTokens.DEFAULT_RDF_SERIALISATION), response);
-					 defferredResponse.setResult("{\"status\":\"Ok\"}");
-					 response.setStatus(200);
-				}else{
+				 }else{
 					 Tuple<String, Integer> responsePayload = PayloadsFactory.getInteroperabilityErrorPayload();
 					 defferredResponse.setResult(responsePayload.getFirstElement());
 					 response.setStatus(responsePayload.getSecondElement());
@@ -107,8 +104,6 @@ public class XmppCommunicationController extends AbstractSecureController{
 			 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			 defferredResponse.setResult(null);
 		 }
-		 stopwatch.stop(); // optional
-		 System.out.println("Time elapsed: "+ stopwatch.elapsed(TimeUnit.MILLISECONDS)); 
 		 return defferredResponse;
 
 	}
