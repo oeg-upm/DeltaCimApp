@@ -1,0 +1,19 @@
+"GET_INCREASING","Time in ms","Size in KB"
+"json0.jsonld",71,2
+"json50.jsonld",126,47
+"json100.jsonld",188,92
+"json150.jsonld",225,137
+"json200.jsonld",252,182
+"json250.jsonld",299,227
+"json300.jsonld",371,272
+"json350.jsonld",412,317
+"json400.jsonld",508,362
+"json450.jsonld",524,407
+"json500.jsonld",610,452
+"json550.jsonld",675,498
+"json600.jsonld",765,543
+"json650.jsonld",674,588
+"json700.jsonld",828,633
+"json750.jsonld",909,678
+"json800.jsonld",969,723
+"json856.jsonld",1146,774
