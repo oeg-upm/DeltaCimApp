@@ -1,0 +1,326 @@
+{
+  "@context": {
+    "oadr": "https://w3id.org/def/openadr#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#", 
+    "example": "http://delta-origingal-feid.org/feid/",
+    "time": "http://www.w3.org/2006/time#"
+  },
+  "@graph": [
+   {
+      "@id": "example:VEN1395090780716",
+      "@type": "oadr:VEN",
+      "oadr:sends": {
+        "@id": "example:Report120615_122508_975"
+      }
+    },
+    {
+      "@id": "example:Report120615_122508_975",
+      "@type": "oadr:TelemetryReport",
+      "oadr:hasReportId": {
+        "@type": "xsd:string",
+        "@value": "Report120615_122508_975"
+      },
+      "oadr:hasCreatedDateTime": {
+         "@type": "xsd:dateTimeStamp",
+         "@value": "2014-03-21T02:26:04Z"
+      },
+      "oadr:dstart":{
+        "@type": "xsd:dateTimeStamp",
+        "@value": "2014-12-09T13:00:00Z"
+      },
+     "oadr:hasDuration":{
+        "@id": "example:Report120615_122508_975DurationDescription"
+     },
+      "oadr:hasReportPayload": [
+      {
+        "@id": "example:RegReq120615_122508_975PayloadTemp"
+      },
+      {
+        "@id": "example:RegReq120615_122508_97PayloadHeatTemp"
+      },
+      {
+        "@id": "example:RegReq120615_122508_97PayloadCoolTemp"
+      },
+      {
+        "@id": "example:RegReq120615_122508_97PayloadHVACMode"
+      },
+      {
+        "@id": "example:RegReq120615_122508_97PayloadCurrentHVAC"
+      },
+       {
+        "@id": "example:RegReq120615_122508_97PayloadFanMode"
+      },
+      {
+        "@id": "example:RegReq120615_122508_97PayloadCurrentHold"
+      },
+      {
+        "@id": "example:example:RegReq120615_122508_97PayloadCurrentHumidity"
+      },
+      {
+        "@id": "example:Report120615_122508_975StatusPayload"
+      }
+      ],
+      "oadr:isDescribedIn": {
+        "@id":"exampleMetadata:Report0013A20040980FAE"
+
+      },
+      "oadr:hasReportName": {
+        "@id":"THERMOSTAT_STATE"
+
+      },
+      "oadr:hasRequestId": {
+        "@type": "xsd:string",
+         "@value": "REQ:RReq:1395368583267"
+      }
+    },
+    {
+      "@id": "example:Report120615_122508_975StatusPayload",
+      "@type": "oadr:ReportStatusPayload",
+      "oadr:isOnline": {
+         "@type": "xsd:boolean",
+         "@value": "true"
+      },
+      "oadr:isManualOverride": {
+         "@type": "xsd:boolean",
+         "@value": "false"
+      },
+      "oadr:isManualOverride": {
+         "@type": "xsd:boolean",
+         "@value": "false"
+      },
+      "oadr:hasLoadControlState": {
+        "@id": "example:Report120615_122508_975LoadControlState"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptorStatus"
+      },
+      "oadr:hasDataQuality":{
+         "@type": "xsd:string",
+         "@value": "Quality Good - Non Specific"
+      }
+     },
+     {
+      "@id": "example:Report120615_122508_975LoadControlState",
+      "@type": "oadr:LoadControlState",
+      "oadr:hasLevelOffset":{
+        "@type": "xsd:integer",
+        "@value": "0"
+      }
+    },
+     {
+      "@id": "example:Report120615_122508_975Interval",
+      "@type": "time:Interval",
+      "time:intervalStarts":{
+        "@type": "xsd:dateTimeStamp",
+        "@value": "2014-12-09T13:00:00Z"
+      },
+     "time:hasDurationDescription":{
+        "@id": "example:Report120615_122508_975DurationDescription"
+     }
+    },
+    {
+      "@id": "example:Report120615_122508_975DurationDescription",
+      "@type": "time:DurationDescription",
+      "time:minutes":{
+        "@type": "xsd:decimal",
+        "@value": "60"
+      }
+    },
+    {
+      "@id": "example:RegReq120615_122508_975PayloadTemp",
+      "@type": "oadr:ReportDataPayload",
+      "oadr:hasDataQuality": {
+         "@type": "xsd:string",
+         "@value": "Quality Good - Non Specific"
+      },
+      "oadr:includesMeasurement": {
+        "@id": "example:Report120615_122508_975Measurement"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptor"
+      }
+     },
+    {
+      "@id": "example:Report120615_122508_975Measurement",
+      "@type": "saref:Measurement",
+      "saref:hasValue": {
+          "@type": "xsd:float",
+         "@value": "77.000000"
+      }
+    },
+    {
+      "@id": "example:RegReq120615_122508_97PayloadHeatTemp",
+      "@type": "oadr:ReportDataPayload",
+      "oadr:hasDataQuality": {
+         "@type": "xsd:string",
+         "@value": "Quality Good - Non Specific"
+      },
+      "oadr:includesMeasurement": {
+        "@id": "example:Report120615_122508_975MeasurementHeatTemp"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptorHeatTemp"
+      }
+     },
+    {
+      "@id": "example:Report120615_122508_975MeasurementHeatTemp",
+      "@type": "saref:Measurement",
+      "saref:hasValue": {
+          "@type": "xsd:float",
+         "@value": "64.000000"
+      }
+    },
+    {
+      "@id": "example:RegReq120615_122508_97PayloadCoolTemp",
+      "@type": "oadr:ReportDataPayload",
+      "oadr:hasDataQuality": {
+         "@type": "xsd:string",
+         "@value": "Quality Good - Non Specific"
+      },
+      "oadr:includesMeasurement": {
+        "@id": "example:Report120615_122508_975MeasurementCoolTemp"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptorCoolTemp"
+      }
+     },
+    {
+      "@id": "example:Report120615_122508_975MeasurementCoolTemp",
+      "@type": "saref:Measurement",
+      "saref:hasValue": {
+          "@type": "xsd:float",
+         "@value": "86.000000"
+      }
+    },
+    {
+      "@id": "example:RegReq120615_122508_97PayloadHVACMode",
+      "@type": "oadr:ReportDataPayload",
+      "oadr:hasDataQuality": {
+         "@type": "xsd:string",
+         "@value": "Quality Good - Non Specific"
+      },
+      "oadr:includesMeasurement": {
+        "@id": "example:Report120615_122508_975MeasurementHVACMode"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptorHVACMode"
+      }
+     },
+    {
+      "@id": "example:Report120615_122508_975MeasurementHVACMode",
+      "@type": "saref:Measurement",
+      "saref:hasValue": {
+          "@type": "xsd:integer",
+         "@value": "3"
+      }
+    },
+    {
+      "@id": "example:RegReq120615_122508_97PayloadCurrentHVAC",
+      "@type": "oadr:ReportDataPayload",
+      "oadr:hasDataQuality": {
+         "@type": "xsd:string",
+         "@value": "No Quality - No value"
+      },
+      "oadr:includesMeasurement": {
+        "@id": "example:Report120615_122508_975MeasurementNoValue"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptorCurrentHVAC"
+      }
+     },
+    {
+      "@id": "example:Report120615_122508_975MeasurementNoValue",
+      "@type": "saref:Measurement",
+      "saref:hasValue": {
+          "@type": "xsd:float",
+         "@value": "0.000000"
+      }
+    },
+    {
+      "@id": "example:RegReq120615_122508_97PayloadFanMode",
+      "@type": "oadr:ReportDataPayload",
+      "oadr:hasDataQuality": {
+         "@type": "xsd:string",
+         "@value": "Quality Good - Non specific"
+      },
+      "oadr:includesMeasurement": {
+        "@id": "example:Report120615_122508_975MeasurementFanMode"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptorFanMode"
+      }
+     },
+    {
+      "@id": "example:Report120615_122508_975MeasurementFanMode",
+      "@type": "saref:Measurement",
+      "saref:hasValue": {
+          "@type": "xsd:integer",
+         "@value": "2"
+      }
+    },
+    {
+      "@id": "example:RegReq120615_122508_97PayloadCurrentHold",
+      "@type": "oadr:ReportDataPayload",
+      "oadr:hasDataQuality": {
+         "@type": "xsd:string",
+         "@value": "Quality Good - Non specific"
+      },
+      "oadr:includesMeasurement": {
+        "@id": "example:Report120615_122508_975MeasurementCurrentHold"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptorCurrentHold"
+      }
+     },
+    {
+      "@id": "example:Report120615_122508_975MeasurementCurrentHold",
+      "@type": "saref:Measurement",
+      "saref:hasValue": {
+          "@type": "xsd:integer",
+         "@value": "2"
+      }
+    },
+    {
+      "@id": "example:RegReq120615_122508_97PayloadCurrentHumidity",
+      "@type": "oadr:ReportDataPayload",
+      "oadr:hasDataQuality": {
+         "@type": "xsd:string",
+         "@value": "No Quality - No value"
+      },
+      "oadr:includesMeasurement": {
+        "@id": "example:Report120615_122508_975MeasurementNoValue"
+      },
+      "oadr:isAvailableDuring": {
+        "@id": "example:Report120615_122508_975Interval"
+      },
+      "oadr:isDescribedIn":{
+        "@id":"example:RegReq0013A20040980FAEDescriptorCurrentHumidity"
+      }
+     }
+
+  ]
+}

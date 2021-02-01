@@ -1,0 +1,22 @@
+"POST increasing file","Time(ms)","Size(KB)"
+"json553.jsonld",1099,500
+"json1106.jsonld",1922,1000
+"json1657.jsonld",2690,1500
+"json2208.jsonld",3591,2000
+"json2209.jsonld",3450,2000
+"json2760.jsonld",4366,2500
+"json3311.jsonld",5800,3000
+"json3862.jsonld",6839,3500
+"json4413.jsonld",8216,4000
+"json4964.jsonld",9388,4500
+"json5515.jsonld",11188,5000
+"json6066.jsonld",14809,5500
+"json6617.jsonld",16507,6000
+"json7169.jsonld",18128,6500
+"json7720.jsonld",20493,7000
+"json8271.jsonld",22260,7500
+"json8822.jsonld",24130,8000
+"json9373.jsonld",26676,8500
+"json9924.jsonld",28129,9000
+
+

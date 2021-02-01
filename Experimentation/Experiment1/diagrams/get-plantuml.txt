@@ -1,0 +1,26 @@
+@startuml
+collections DR_System_1
+entity CIM_1
+entity CIM_2
+collections DR_System_2
+group GET (JSON-LD)
+  autonumber
+  DR_System_1 -> CIM_1: GET
+  CIM_1 -> CIM_2 : GET
+  CIM_2 -> DR_System_2 : GET
+  DR_System_2 --> CIM_2 : JSON-LD\n Payload
+  CIM_2 --> CIM_1 : JSON-LD\n Payload
+  CIM_1 --> DR_System_1 : JSON-LD\n Payload
+end
+group GET (remote translation from XML to JSON-LD)
+  autonumber
+  DR_System_1 -> CIM_1: GET
+  CIM_1 -> CIM_2 : GET
+  CIM_2 -> DR_System_2 : GET
+  DR_System_2 --> CIM_2 : XML\n Payload
+  CIM_2 -> CIM_2 : Translate\n Payload
+  CIM_2 --> CIM_1 : JSON-LD\n Payload
+  CIM_1 --> DR_System_1 : JSON-LD\n Payload
+end
+
+@enduml

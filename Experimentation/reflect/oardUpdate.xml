@@ -1,0 +1,35 @@
+<?xml version = "1.0" encoding = "UTF-8"?>  
+<oadr:oadrPayload xmlns:oadr="http://openadr.org/oadr-2.0b/2012/07" xmlns:pyld="http://docs.oasis-open.org/ns/energyinterop/201110/payloads" xmlns:ei="http://docs.oasis-open.org/ns/energyinterop/201110" xmlns:scale="http://docs.oasis-open.org/ns/emix/2011/06/siscale" xmlns:emix="http://docs.oasis-open.org/ns/emix/2011/06" xmlns:strm="urn:ietf:params:xml:ns:icalendar-2.0:stream" xmlns:xcal="urn:ietf:params:xml:ns:icalendar-2.0" xmlns:power="http://docs.oasis-open.org/ns/emix/2011/06/power">
+	<oadr:oadrSignedObject>
+		<oadr:oadrUpdateReport ei:schemaVersion="2.0b">
+			<pyld:requestID>ReportUpdReqID130615_192730_445</pyld:requestID>
+			<oadr:oadrReport>
+				<xcal:dtstart>
+					<xcal:date-time>2015-06-14T02:27:29Z</xcal:date-time>
+				</xcal:dtstart>
+				<strm:intervals>
+					<ei:interval>
+						<xcal:dtstart>
+							<xcal:date-time>2015-06-14T02:27:29Z</xcal:date-time>
+						</xcal:dtstart>
+						<oadr:oadrReportPayload>
+							<ei:rID>real_power</ei:rID>
+							<ei:confidence>100</ei:confidence>
+							<ei:accuracy>0.0</ei:accuracy>
+							<ei:payloadFloat>
+								<ei:value>500.0</ei:value>
+							</ei:payloadFloat>
+							<oadr:oadrDataQuality>Quality Good - Non Specific</oadr:oadrDataQuality>
+						</oadr:oadrReportPayload>
+					</ei:interval>
+				</strm:intervals>
+				<ei:eiReportID>RP_54321</ei:eiReportID>
+				<ei:reportRequestID>ReportReqID130615_192625_730</ei:reportRequestID>
+				<ei:reportSpecifierID>ReportSpecID120615_122512_481_2</ei:reportSpecifierID>
+				<ei:reportName>TELEMETRY_USAGE</ei:reportName>
+				<ei:createdDateTime>2015-06-14T02:27:29Z</ei:createdDateTime>
+			</oadr:oadrReport>
+			<ei:venID>VEN130615_192312_582</ei:venID>
+		</oadr:oadrUpdateReport>
+	</oadr:oadrSignedObject>
+</oadr:oadrPayload>

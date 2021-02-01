@@ -1,0 +1,35 @@
+@startuml
+
+group POST (JSON-LD)
+  autonumber
+  DR_System_1 -> CIM_1: POST JSON-LD\n Payload
+  CIM_1 -> CIM_2 : POST JSON-LD\n Payload
+  CIM_2 -> DR_System_2 : POST JSON-LD\n Payload
+  DR_System_2 --> CIM_2 : Response
+  CIM_2 --> CIM_1 : Response
+  CIM_1 --> DR_System_1 : Response
+end
+
+group POST (local translation from XML to JSON-LD)
+  autonumber
+  DR_System_1 -> CIM_1: POST, XML\n Payload
+  CIM_1 -> CIM_1 : Translate \nPayload
+  CIM_1 -> CIM_2 : POST JSON-LD\n Payload
+  CIM_2 -> DR_System_2 : POST JSON-LD\n Payload
+  DR_System_2 --> CIM_2 : Response
+  CIM_2 --> CIM_1 : Response
+  CIM_1 --> DR_System_1 : Response
+end
+
+group POST (remote translation from  JSON-LD to XML)
+  autonumber
+  
+  DR_System_1 -> CIM_1: POST JSON-LD\n Payload
+  CIM_1 -> CIM_2 : POST JSON-LD\n Payload
+  CIM_2 -> CIM_2 : Translate \nPayload
+  CIM_2 -> DR_System_2 : POST, XML\n Payload
+  DR_System_2 --> CIM_2 : Response
+  CIM_2 --> CIM_1 : Response
+  CIM_1 --> DR_System_1 : Response
+end
+@enduml
